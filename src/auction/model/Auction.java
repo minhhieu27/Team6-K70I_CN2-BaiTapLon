@@ -48,4 +48,10 @@ public class Auction {
     public List<Bid> getBidHistory(){
         return bidHistory;
     }
+
+    public void printBidHistory(){
+        for (Bid b : bidHistory){
+            System.out.println(b.getBidder() + " bid " + b.getAmount());
+        }
+    }
 }
