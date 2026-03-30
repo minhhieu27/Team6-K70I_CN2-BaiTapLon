@@ -27,6 +27,7 @@ public class Auction {
         }
 
         currentPrice = bid.getAmount();
+        highestBidder = bid.getBidder();
         bidHistory.add(bid);
 
         return true;
