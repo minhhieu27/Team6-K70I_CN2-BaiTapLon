@@ -19,7 +19,12 @@ public class AuctionService {
             System.out.println("Highest Bidder: " +auction.getHighestBidder());
             System.out.println("Current Price: " + auction.getCurrentPrice());
         }else{
-            System.out.println("Bid that bai! (Gia thap hon)");
+            if (auction.getStatus() != AuctionStatus.OPEN){
+                System.out.println("Auction is not open");
+            }
+            else{
+                System.out.println("Bid that bai! (Gia thap hon)");
+            }
         }
     }
 }
