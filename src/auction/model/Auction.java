@@ -75,7 +75,7 @@ public class Auction {
             return false;
 
         }
-        if (bid.getAmount() <= getCurrentPrice() ){
+        if (bid.getAmount() <= getMiniumBid()){
             return false;
         }
 
@@ -119,8 +119,8 @@ public class Auction {
     @Override
     public String toString(){
         return "Item: " + itemName +
+                "\nStatus: " + status +
                 "\nHighest Bidder: " + getHighestBidder() +
-                "\nCurrent Price: " + getCurrentPrice() +
-                "\nStatus: " + status;
+                "\nCurrent Price: " + getCurrentPrice();
     }
 }
