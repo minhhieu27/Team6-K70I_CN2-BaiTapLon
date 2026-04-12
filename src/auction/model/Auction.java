@@ -3,6 +3,8 @@ package auction.model;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
+import auction.exception.AuctionClosedException;
+import auction.exception.InvalidBidException;
 import auction.observer.Observer;
 
 import java.time.Duration;
@@ -96,25 +98,23 @@ public class Auction {
         return getCurrentPrice() * 1.1;
     }
 
-    public boolean placeBid(Bid bid){ // Đấu giá
+    public boolean placeBid(Bid bid) throws InvalidBidException, AuctionClosedException{ // Đấu giá
 
         lock.lock();
         try {
             updateStatus();
             
-            if (status != AuctionStatus.OPEN){
-                System.out.println("Auction is not open");
-                return false;
-    
+            if (status != AuctionStatus.OPEN) {
+                throw new AuctionClosedException("Auction is closed");
             }
             
             if (bid.getAmount() <= getMiniumBid()){
-                return false;
+                throw new InvalidBidException("Bid must be higher than current price");
             }
     
-            bidHistory.add(bid);
+            bidHistory.add(bid); // Tạo lịch sử bid
     
-            extendAuctionTime();
+            extendAuctionTime(); // Gia hạn thời gian đấu giá
             
             notifyObservers("New bid: " + bid.getAmount() + " by " + bid.getBidder());
 
