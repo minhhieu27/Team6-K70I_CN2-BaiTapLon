@@ -1,3 +1,4 @@
+package test;
 import auction.model.Auction;
 import auction.service.AuctionManager;
 import auction.service.AuctionService;
