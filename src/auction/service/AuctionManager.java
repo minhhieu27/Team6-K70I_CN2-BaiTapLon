@@ -1,34 +1,39 @@
 package auction.service;
 
-import auction.model.Auction;
-
+import auction.exception.*;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
+
+import auction.model.*;
+import auction.observer.Observer;;
 
 public class AuctionManager {
     
-    private static AuctionManager instance;
+   private final AuctionService service = new AuctionService();
+   private final List<Observer> observers = new ArrayList<>();
+   private final ReentrantLock lock = new ReentrantLock();
 
-    private Map<String, Auction> map = new HashMap<>(); // Tạo bảng để lưu key-value cho các phiên đấu giá
+    public void addObserver(Observer o){
+        observers.add(o);
+    }
 
-    private AuctionManager(){}
+    public void removeObserver(Observer o){
+        observers.remove(o);
+    }
 
-    public static AuctionManager getInstance(){
-        if (instance == null){
-            instance = new AuctionManager();
+    private void notifyObservers(String msg){
+        for (Observer o : observers){
+            o.update(msg);
         }
-        return instance;
     }
 
-    public void addAuction(Auction auction){ // Thêm phiên đấu giá
-        map.put(auction.getItemName(), auction);
-    }
-
-    public Auction getAuction(String item){ // Lấy phiên đấu giá
-        return map.get(item); 
-    }
-
-    // Lấy tất cả Auction
-    public Collection<Auction> getAllAuction(){
-        return map.values();
+    public void placeBid(Auction auction, Bid bid) throws InvalidBidException, AuctionClosedException{
+        lock.lock();
+        try{
+            service.placeBid(auction, bid);
+            notifyObservers("New bid: " + bid.getAmount() + " by " + bid.getBidder());
+        } finally {
+            lock.unlock();
+        }
     }
 }
