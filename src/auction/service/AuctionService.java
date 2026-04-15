@@ -4,32 +4,38 @@ import auction.exception.AuctionClosedException;
 import auction.exception.InvalidBidException;
 import auction.model.*;
 
-public class AuctionService {
-    private Auction auction;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
-    public AuctionService(Auction auction){
-        this.auction = auction;
+public class AuctionService {
+    private static final double BID_INCREMENT = 1.1;
+    private static final int EXTEND_THRESHOLD = 30;
+    private static final int EXTEND_TIME = 60;
+
+    public void placeBid(Auction auction, Bid bid) throws InvalidBidException, AuctionClosedException{
+       
+        if (!isOpen(auction)){
+            throw new AuctionClosedException("Auction is closed");
+        }
+
+        if (bid.getAmount() <= auction.getCurrentPrice() * BID_INCREMENT){
+            throw new InvalidBidException("Bid too low");
+        }
+
+        auction.addBid(bid);
+        extendTime(auction);
     }
 
-    public void placeBid(String bidder, double amount){
-        Bid bid = new Bid(bidder, amount);
+    public boolean isOpen(Auction auction){
+        LocalDateTime now = LocalDateTime.now();
+        return now.isAfter(auction.getStartTime()) && now.isBefore(auction.getEndTime());
+    }
 
-        try {
+    private void extendTime(Auction auction){
+        long secondLeft = Duration.between(LocalDateTime.now(), auction.getEndTime()).getSeconds();
 
-            auction.placeBid(bid); // Xét coi bid có hợp lệ hay không
-    
-            System.out.println("Bid thanh cong!");
-            System.out.println("Highest Bidder: " +auction.getHighestBidder());
-            System.out.println("Current Price: " + auction.getCurrentPrice());
-            
-        } catch (InvalidBidException e) {
-            System.out.println("Bid failed: Price lower than current price!");
-
-        } catch (AuctionClosedException e) {
-            System.out.println("Auction is not open");
-
-        } catch (Exception e){
-            System.out.println("System error");
+        if (secondLeft <= EXTEND_THRESHOLD){
+            auction.setEndTime(auction.getEndTime().plusSeconds(EXTEND_TIME));
         }
     }
 }
