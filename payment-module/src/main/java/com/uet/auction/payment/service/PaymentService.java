@@ -4,27 +4,26 @@ import com.uet.auction.payment.model.Wallet;
 import com.uet.auction.payment.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaymentService {
-    
     @Autowired
     private WalletRepository walletRepository;
 
+    @Transactional // <--- Quan trọng nhất: Đảm bảo tính "Hoặc tất cả hoặc không có gì"
     public String processPayment(String username, Double amount) {
-        // 1. Tìm ví của bác dựa trên tên người dùng
+        // Nhờ có @Lock ở Repository, dòng này sẽ đợi nếu có luồng khác đang xử lý ví này
         Wallet wallet = walletRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Lỗi: Không tìm thấy ví của bác " + username));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy ví của " + username));
 
-        // 2. Kiểm tra xem trong ví còn đủ tiền để đấu giá không
         if (wallet.getBalance() < amount) {
-            return "Thanh toán thất bại: Bác không đủ tiền rồi, nạp thêm đi!";
+            throw new RuntimeException("Số dư không đủ để thực hiện giao dịch!");
         }
 
-        // 3. Thực hiện trừ tiền và lưu vào Database
         wallet.setBalance(wallet.getBalance() - amount);
         walletRepository.save(wallet);
-        
+
         return "Thanh toán thành công! Số dư còn lại: " + wallet.getBalance();
     }
 }
