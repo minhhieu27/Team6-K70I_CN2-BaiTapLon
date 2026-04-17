@@ -11,7 +11,6 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
-    // Đường dẫn để test: http://localhost:8080/api/payment/pay?username=ducanh&amount=100
     @PostMapping("/pay")
     public String pay(@RequestParam String username, @RequestParam Double amount) {
         return paymentService.processPayment(username, amount);

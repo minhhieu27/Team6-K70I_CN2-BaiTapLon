@@ -5,14 +5,15 @@ import lombok.Data;
 
 @Entity
 @Table(name = "wallets")
-@Data // Nếu bị gạch đỏ thì nhấn Ctrl+Shift+O để import
+@Data
 public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String username;
-
     private Double balance;
+
+    @Version // QUAN TRỌNG: JPA sẽ dùng cột này để chống tranh chấp
+    private Integer version;
 }
