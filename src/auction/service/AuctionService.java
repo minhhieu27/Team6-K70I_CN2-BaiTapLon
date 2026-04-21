@@ -23,7 +23,7 @@ public class AuctionService {
             throw new AuctionClosedException("Auction is closed");
         }
 
-        if (strategy.isValidBid(auction, bid)){
+        if (!auction.getStrategy().isValidBid(auction, bid)){
             throw new InvalidBidException("Invalid bid");
         }
 

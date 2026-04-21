@@ -1,6 +1,9 @@
 package auction.model;
 
 import java.util.*;
+
+import auction.strategy.BidStrategy;
+
 import java.time.LocalDateTime;
 
 public class Auction {
@@ -10,13 +13,19 @@ public class Auction {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private List<Bid> bidHistory = new ArrayList<>();
+    private BidStrategy strategy;
 
-    public Auction(String itemName, Money startPrice){
+    public Auction(String itemName, Money startPrice, BidStrategy strategy){
         this.itemName = itemName;
         this.startPrice = startPrice;
+        this.strategy = strategy;
 
         this.startTime = LocalDateTime.now();
         this.endTime = startTime.plusMinutes(5);
+    }
+
+    public BidStrategy getStrategy(){
+        return strategy;
     }
 
     public void addBid(Bid bid){

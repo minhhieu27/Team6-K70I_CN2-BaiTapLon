@@ -1,9 +1,8 @@
-package auction.service;
+package auction.strategy;
 
 import auction.model.Auction;
 import auction.model.Bid;
 import auction.model.Money;
-import auction.strategy.BidStrategy;
 
 public class FixedIncrementStrategy implements BidStrategy {
     
