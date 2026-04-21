@@ -5,11 +5,12 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import auction.model.*;
-import auction.observer.Observer;;
+import auction.observer.Observer;
+import auction.strategy.PercentBidStrategy;;
 
 public class AuctionManager {
     
-   private final AuctionService service = new AuctionService();
+   private final AuctionService service = new AuctionService(new PercentBidStrategy(1.1));
    private final List<Observer> observers = new ArrayList<>();
    private final ReentrantLock lock = new ReentrantLock();
 

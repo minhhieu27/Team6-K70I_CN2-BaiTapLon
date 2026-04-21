@@ -3,14 +3,19 @@ package auction.service;
 import auction.exception.AuctionClosedException;
 import auction.exception.InvalidBidException;
 import auction.model.*;
+import auction.strategy.BidStrategy;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class AuctionService {
-    private static final double BID_INCREMENT = 1.1;
+    private final BidStrategy strategy;
     private static final int EXTEND_THRESHOLD = 30;
     private static final int EXTEND_TIME = 60;
+
+    public AuctionService(BidStrategy strategy){
+        this.strategy = strategy;
+    }
 
     public void placeBid(Auction auction, Bid bid) throws InvalidBidException, AuctionClosedException{
        
@@ -18,8 +23,8 @@ public class AuctionService {
             throw new AuctionClosedException("Auction is closed");
         }
 
-        if (bid.getAmount() <= auction.getCurrentPrice() * BID_INCREMENT){
-            throw new InvalidBidException("Bid too low");
+        if (strategy.isValidBid(auction, bid)){
+            throw new InvalidBidException("Invalid bid");
         }
 
         auction.addBid(bid);
