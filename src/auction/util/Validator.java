@@ -1,5 +1,7 @@
 package auction.util;
 
+import acution.exception.ValidationException;
+
 import auction.model.Money;
 
 public class Validator {

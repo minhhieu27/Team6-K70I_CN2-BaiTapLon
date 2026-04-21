@@ -1,13 +1,13 @@
 package auction.view;
 
-import java.math.BigDecimal;
+import auction.model.Money;
 
 public class AuctionView {
-    private String itemName;
-    private BigDecimal currentPrice;
-    private String highestBidder;
+    private final String itemName;
+    private final Money currentPrice;
+    private final String highestBidder;
 
-    public AuctionView(String itemName, BigDecimal currentPrice, String highestBidder){
+    public AuctionView(String itemName, Money currentPrice, String highestBidder){
         this.itemName = itemName;
         this.currentPrice = currentPrice;
         this.highestBidder = highestBidder;
@@ -17,7 +17,7 @@ public class AuctionView {
         return itemName;
     }
 
-    public BigDecimal getCurrentPrice(){
+    public Money getCurrentPrice(){
         return currentPrice;
     }
 

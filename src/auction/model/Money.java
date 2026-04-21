@@ -61,4 +61,9 @@ public class Money {
         return amount.stripTrailingZeros().hashCode();
         // stripTrailingZeros() dùng để loại bỏ các số 0 dư ở cuối phần thập phân
     }
+
+    @Override
+    public String toString(){
+        return amount.toString();
+    }
 }

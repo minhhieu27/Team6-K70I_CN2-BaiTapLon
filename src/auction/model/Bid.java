@@ -1,8 +1,8 @@
 package auction.model;
 
 public class Bid {
-    private String bidder;
-    private Money amount;
+    private final String bidder;
+    private final Money amount;
 
     public Bid(String bidder, Money amount){
         this.bidder = bidder;

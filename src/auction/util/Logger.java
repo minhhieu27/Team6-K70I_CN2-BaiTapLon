@@ -15,7 +15,7 @@ public class Logger {
         return instance;
     }
 
-    public void log(String msg){
+    public void info(String msg){
         System.out.println(LocalDateTime.now() + " [INFO] " + msg);
     }
 

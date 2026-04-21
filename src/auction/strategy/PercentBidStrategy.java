@@ -1,7 +1,5 @@
 package auction.strategy;
 
-import java.lang.management.MonitorInfo;
-
 import auction.model.Auction;
 import auction.model.Bid;
 

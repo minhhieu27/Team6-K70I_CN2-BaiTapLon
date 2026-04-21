@@ -4,6 +4,7 @@ import auction.exception.AuctionClosedException;
 import auction.exception.InvalidBidException;
 import auction.model.*;
 import auction.strategy.BidStrategy;
+import auction.util.Validator;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -17,9 +18,12 @@ public class AuctionService {
         this.strategy = strategy;
     }
 
-    public void placeBid(Auction auction, Bid bid) throws InvalidBidException, AuctionClosedException{
+    public void placeBid(Auction auction, Bid bid) throws AppException {
+        Validator.validateBid(bid.getAmount());
+
+        updateStatus(auction);
        
-        if (!isOpen(auction)){
+        if (auction.geStatus() != AuctionStatus.OPEN){
             throw new AuctionClosedException("Auction is closed");
         }
 
@@ -31,10 +35,19 @@ public class AuctionService {
         extendTime(auction);
     }
 
-    public boolean isOpen(Auction auction){
+   public void updateStatus(Auction auction) {
         LocalDateTime now = LocalDateTime.now();
-        return now.isAfter(auction.getStartTime()) && now.isBefore(auction.getEndTime());
-    }
+
+        if (now.isBefore(auction.getStartTime())){
+            auction.setStatus(AuctionStatus.SCHEDULED);
+
+        } else if (now.isAfter(auction.getEndTime())){
+            auction.setStatus(AuctionStatus.FINISHED);
+
+        } else {
+            auction.setStatus(AuctionStatus.OPEN);
+        }
+   }
 
     private void extendTime(Auction auction){
         long secondLeft = Duration.between(LocalDateTime.now(), auction.getEndTime()).getSeconds();

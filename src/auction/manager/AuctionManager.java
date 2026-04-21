@@ -1,6 +1,8 @@
 package auction.manager;
 
 import auction.exception.*;
+import auction.exception.base.AppException;
+
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -11,7 +13,7 @@ import auction.strategy.PercentBidStrategy;;
 
 public class AuctionManager {
     
-   private final AuctionService service = new AuctionService(new PercentBidStrategy(1.1));
+   private final AuctionService service = new AuctionService();
    private final List<Observer> observers = new ArrayList<>();
    private final ReentrantLock lock = new ReentrantLock();
 
@@ -29,7 +31,8 @@ public class AuctionManager {
         }
     }
 
-    public void placeBid(Auction auction, Bid bid) throws InvalidBidException, AuctionClosedException{
+    public void placeBid(Auction auction, Bid bid) throws AppException {
+        
         lock.lock();
         try{
             service.placeBid(auction, bid);

@@ -8,48 +8,21 @@ import java.time.LocalDateTime;
 
 public class Auction {
     
-    private String itemName;
-    private Money startPrice;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private List<Bid> bidHistory = new ArrayList<>();
-    private BidStrategy strategy;
+    private final String itemName;
+    private final Money startPrice;
+    private final  BidStrategy strategy;
 
+    private final LocalDateTime startTime = LocalDateTime.now();
+    private LocalDateTime endTime = startTime.plusMinutes(5);
+    
+    private final List<Bid> bidHistory = new ArrayList<>();
+    private AuctionStatus status = AuctionStatus.SCHEDULED;
+    
     public Auction(String itemName, Money startPrice, BidStrategy strategy){
         this.itemName = itemName;
         this.startPrice = startPrice;
         this.strategy = strategy;
-
-        this.startTime = LocalDateTime.now();
-        this.endTime = startTime.plusMinutes(5);
-    }
-
-    public BidStrategy getStrategy(){
-        return strategy;
-    }
-
-    public void addBid(Bid bid){
-        bidHistory.add(bid);
-    }
-
-    public Money getMiniumBid(){
-        return getCurrentPrice().multiply(1.1);
-    }
-
-    public Money getCurrentPrice(){
-        if (bidHistory.isEmpty()){
-            return startPrice;
-        }
-
-        return bidHistory.get(bidHistory.size() - 1).getAmount();
-    }
-
-    public String getHighestBidder(){
-        if (bidHistory.isEmpty()){
-            return null;
-        }
-
-        return bidHistory.get(bidHistory.size() - 1).getBidder();
+        
     }
 
     // ======= GETTER / SETTER =======
@@ -72,5 +45,40 @@ public class Auction {
     public List<Bid> getBidHistory(){
         return bidHistory;
     }
+    public BidStrategy getStrategy(){
+        return strategy;
+    }
     
+    public Money getMiniumBid(){
+        return getCurrentPrice().multiply(1.1);
+    }
+    
+    public Money getCurrentPrice(){
+        if (bidHistory.isEmpty()){
+            return startPrice;
+        }
+        
+        return bidHistory.get(bidHistory.size() - 1).getAmount();
+    }
+    
+    public String getHighestBidder(){
+        if (bidHistory.isEmpty()){
+            return null;
+        }
+        
+        return bidHistory.get(bidHistory.size() - 1).getBidder();
+    }
+
+    public AuctionStatus geStatus(){
+        return status;
+    }
+
+    public void setStatus(AuctionStatus status){
+        this.status = status;
+    }
+    
+    public void addBid(Bid bid){
+        if (bid == null) throw new IllegalArgumentException();
+        bidHistory.add(bid);
+    }
 }
