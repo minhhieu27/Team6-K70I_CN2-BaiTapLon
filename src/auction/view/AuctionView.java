@@ -1,6 +1,7 @@
 package auction.view;
 
 import auction.model.Money;
+import auction.util.FormatUtil;
 
 public class AuctionView {
     private final String itemName;
@@ -29,6 +30,6 @@ public class AuctionView {
     public String toString(){
         return "Item: " + itemName + 
                 "\nHisghest Bidder: " + highestBidder +
-                "\nCurrent Price: " + currentPrice;
+                "\nCurrent Price: " + FormatUtil.formatMoney(currentPrice);
     }
 }

@@ -4,6 +4,7 @@ import auction.exception.AuctionClosedException;
 import auction.exception.InvalidBidException;
 import auction.model.*;
 import auction.strategy.BidStrategy;
+import auction.util.DateTimeUtil;
 import auction.util.Validator;
 
 import java.time.Duration;
@@ -50,7 +51,7 @@ public class AuctionService {
    }
 
     private void extendTime(Auction auction){
-        long secondLeft = Duration.between(LocalDateTime.now(), auction.getEndTime()).getSeconds();
+        long secondLeft = DateTimeUtil.secondLeft(auction.getEndTime());
 
         if (secondLeft <= EXTEND_THRESHOLD){
             auction.setEndTime(auction.getEndTime().plusSeconds(EXTEND_TIME));

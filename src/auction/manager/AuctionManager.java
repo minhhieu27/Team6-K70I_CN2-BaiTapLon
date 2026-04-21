@@ -9,7 +9,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import auction.model.*;
 import auction.observer.Observer;
 import auction.service.AuctionService;
-import auction.strategy.PercentBidStrategy;;
+import auction.strategy.PercentBidStrategy;
+import auction.util.FormatUtil;;
 
 public class AuctionManager {
     
@@ -36,7 +37,7 @@ public class AuctionManager {
         lock.lock();
         try{
             service.placeBid(auction, bid);
-            notifyObservers("New bid: " + bid.getAmount() + " by " + bid.getBidder());
+            notifyObservers(FormatUtil.formatBid(bid));
         } finally {
             lock.unlock();
         }

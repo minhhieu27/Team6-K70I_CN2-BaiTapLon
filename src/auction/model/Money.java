@@ -35,14 +35,6 @@ public class Money {
         return this.amount.compareTo(other.amount) <= 0;
     }
 
-    // ====== FORMAT ======
-    @Override
-    public String toString(){ // format tiền để in ra đẹp
-        return amount.setScale(2, RoundingMode.HALF_UP).toString();
-        // setScale (2,....) để giữ 2 chữ số sau dấu phẩy
-        // RoundingMode.HALF_UP dùng để làm tròn kiểu toán học
-    }
-
     // ====== EQUALS & HASHCODE ======
 
     @Override
