@@ -1,4 +1,4 @@
-package auction.service;
+package auction.manager;
 
 import auction.exception.*;
 import java.util.*;
@@ -6,6 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import auction.model.*;
 import auction.observer.Observer;
+import auction.service.AuctionService;
 import auction.strategy.PercentBidStrategy;;
 
 public class AuctionManager {
