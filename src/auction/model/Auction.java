@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 public class Auction {
     
     private String itemName;
-    private double startPrice;
+    private Money startPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private List<Bid> bidHistory = new ArrayList<>();
 
-    public Auction(String itemName, double startPrice){
+    public Auction(String itemName, Money startPrice){
         this.itemName = itemName;
         this.startPrice = startPrice;
 
@@ -23,11 +23,11 @@ public class Auction {
         bidHistory.add(bid);
     }
 
-    public BigDecimal getMiniumBid(){
-        return getCurrentPrice() * BID_INCREMENT;
+    public Money getMiniumBid(){
+        return getCurrentPrice().multiply(1.1);
     }
 
-    public double getCurrentPrice(){
+    public Money getCurrentPrice(){
         if (bidHistory.isEmpty()){
             return startPrice;
         }

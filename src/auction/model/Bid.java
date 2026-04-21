@@ -2,9 +2,9 @@ package auction.model;
 
 public class Bid {
     private String bidder;
-    private double amount;
+    private Money amount;
 
-    public Bid(String bidder, double amount){
+    public Bid(String bidder, Money amount){
         this.bidder = bidder;
         this.amount = amount;
     }
@@ -13,7 +13,7 @@ public class Bid {
         return bidder;
     }
 
-    public double getAmount(){
+    public Money getAmount(){
         return amount;
     }
 
