@@ -53,30 +53,6 @@ public abstract class Item extends Entity {
 
         return AuctionStatus.NOT_STARTED;
     }
-    // logic đấu giá
-    public boolean canBid() {
-        return getStatus() == AuctionStatus.RUNNING;
-    }
-
-    public boolean isValidBid(double price) {
-        return price > currentPrice;
-    }
-
-    public boolean placeBid(String user, double price) {
-
-        if (!canBid())
-            return false;
-
-        if (!isValidBid(price))
-            return false;
-
-        currentPrice = price;
-        currentWinner = user;
-        bidHistory.add(price);
-
-        return true;
-    }
-
     public String getName() {
         return name;
     }
