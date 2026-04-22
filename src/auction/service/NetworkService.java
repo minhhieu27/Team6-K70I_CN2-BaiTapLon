@@ -12,7 +12,7 @@ public class NetworkService {
             }
 
         } catch (Exception e) {
-            throw new NetworkService("API call failed");
+            throw new NetworkException("API call failed");
         }
     }
 }
