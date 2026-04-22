@@ -1,4 +1,4 @@
-package auction.util;
+package auction.tool;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

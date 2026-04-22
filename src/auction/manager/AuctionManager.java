@@ -10,7 +10,7 @@ import auction.model.*;
 import auction.observer.Observer;
 import auction.service.AuctionService;
 import auction.strategy.PercentBidStrategy;
-import auction.util.FormatUtil;;
+import auction.tool.FormatUtil;;
 
 public class AuctionManager {
     

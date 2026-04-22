@@ -1,7 +1,7 @@
 package auction.view;
 
 import auction.model.Money;
-import auction.util.FormatUtil;
+import auction.tool.FormatUtil;
 
 public class AuctionView {
     private final String itemName;

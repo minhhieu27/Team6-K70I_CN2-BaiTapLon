@@ -1,4 +1,4 @@
-package auction.util;
+package auction.tool;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -8,9 +8,9 @@ import auction.model.Money;
 
 public class FormatUtil {
     
-    private static final DecimalFormat df = new DecimalFormat("#,###");
+    private static final DecimalFormat df = new DecimalFormat("#,###.##");
 
-    public static string formatMoney(Money money) {
+    public static String formatMoney(Money money) {
         return df.format(money.getAmount().setScale(2, RoundingMode.HALF_UP).toString() + " USD");
     }
 

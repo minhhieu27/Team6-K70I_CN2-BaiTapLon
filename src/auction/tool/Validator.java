@@ -1,4 +1,4 @@
-package auction.util;
+package auction.tool;
 
 import acution.exception.ValidationException;
 

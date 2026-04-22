@@ -4,8 +4,8 @@ import auction.exception.AuctionClosedException;
 import auction.exception.InvalidBidException;
 import auction.model.*;
 import auction.strategy.BidStrategy;
-import auction.util.DateTimeUtil;
-import auction.util.Validator;
+import auction.tool.DateTimeUtil;
+import auction.tool.Validator;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
