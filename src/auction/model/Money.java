@@ -48,7 +48,7 @@ public class Money {
         // Nếu bằng nhau trả true, nếu không trả false
     }
 
-    @Override
+    @Override 
     public int hashCode(){ // Tạo một con số đại diện cho object để dễ dàng tìm
         return amount.stripTrailingZeros().hashCode();
         // stripTrailingZeros() dùng để loại bỏ các số 0 dư ở cuối phần thập phân
