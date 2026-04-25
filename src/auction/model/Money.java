@@ -6,11 +6,11 @@ import java.util.*;
 public class Money {
     private final BigDecimal amount; // BigDecimal để lưu số chính xác
 
-    public Money(double value){
-        this.amount = BigDecimal.valueOf(value); // convert từ double -> BigDecimal
-    }
-
     public Money(BigDecimal amount){
+        if (amount == null) throw new IllegalArgumentException("Amount không được null");
+
+        if (amount.compareTo(BigDecimal.ZERO) < 0) throw new IllegalArgumentException("Amount phải lớn hơn 0");
+
         this.amount = amount;
     }
 
@@ -21,6 +21,12 @@ public class Money {
     // ====== BUSSINESS METHODS ======
     public Money add(Money other){ // Cộng tiền
         return new Money(this.amount.add(other.amount));
+    }
+
+    public Money subtract(Money other){ // Trừ tiền
+        if (this.amount.compareTo(other.amount) < 0) throw new IllegalArgumentException("Số dư không đủ");
+
+        return new Money(this.amount.subtract(other.amount));
     }
 
     public Money multiply(double factor){ // Nhân tiền với hệ số factor
@@ -43,7 +49,7 @@ public class Money {
         if (!(o instanceof Money)) return false; // Nếu không cùng kiểu return false
 
         Money money = (Money) o; // Ép kiểu về Money để dùng tiếp
-        return amout.compareTo(money.amount) == 0; 
+        return amount.compareTo(money.amount) == 0; 
         // Kiểm tra xem số tiền của object hiện tại có bằng số tiền của object truyền vào không
         // Nếu bằng nhau trả true, nếu không trả false
     }
