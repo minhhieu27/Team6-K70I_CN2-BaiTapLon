@@ -8,7 +8,7 @@ public enum VIPLevel {
 
     private double requiredDeposit;
 
-    VIPLevel(DIAMOND requiredDeposit){
+    VIPLevel(double requiredDeposit){
         this.requiredDeposit = requiredDeposit;
     }
 

@@ -1,4 +1,4 @@
-package user.model;
+package user.model.user;
 
 import java.util.HashSet;
 import java.util.Set;

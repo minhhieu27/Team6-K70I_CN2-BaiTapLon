@@ -1,4 +1,4 @@
-package user.model;
+package user.model.user;
 
 import user.enums.UserStatus;
 
