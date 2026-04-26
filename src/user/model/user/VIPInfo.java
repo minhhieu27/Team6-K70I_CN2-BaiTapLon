@@ -13,6 +13,10 @@ public class VIPInfo {
         return level;
     }
 
+    public void setVIPLevel(VIPLevel level){
+        this.level = level;
+    }
+
     public void upgrade(VIPLevel newLevel){
         if (newLevel.ordinal() > level.ordinal()){
             level = newLevel;
