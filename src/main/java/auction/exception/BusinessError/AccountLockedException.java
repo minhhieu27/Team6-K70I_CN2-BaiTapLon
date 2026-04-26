@@ -1,6 +1,6 @@
-package auction.exception;
+package auction.exception.BusinessError;
 
-import javax.security.auth.login.AccountExpiredException;
+import auction.exception.base.*;
 
 public class AccountLockedException extends AppException {
     

@@ -1,4 +1,6 @@
-package auction.exception;
+package auction.exception.SecurrityError;
+
+import auction.exception.base.*;
 
 public class AuthenticationException extends AppException { // Lỗi đăng nhập
     public AuthenticationException(String message){

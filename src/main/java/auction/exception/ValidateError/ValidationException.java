@@ -1,8 +1,10 @@
-package auction.exception;
+package auction.exception.ValidateError;
 
-public class Validation extends AppException {
+import auction.exception.base.*;
+
+public class ValidationException extends AppException {
     
-    public Validation(String message){
+    public ValidationException(String message){
         super(message, ErrorCode.VALIDATION_ERROR.name());
     }
 }

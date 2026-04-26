@@ -1,4 +1,6 @@
-package auction.exception;
+package auction.exception.DataError;
+
+import auction.exception.base.*;
 
 public class DataAccessException extends AppException {
 

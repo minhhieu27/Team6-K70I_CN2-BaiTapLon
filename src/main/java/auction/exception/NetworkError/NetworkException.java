@@ -1,4 +1,6 @@
-package auction.exception;
+package auction.exception.NetworkError;
+
+import auction.exception.base.*;
 
 public class NetworkException extends AppException {
     
