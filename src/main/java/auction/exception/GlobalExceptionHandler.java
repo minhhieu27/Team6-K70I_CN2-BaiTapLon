@@ -5,18 +5,19 @@ import java.util.logging.Logger;
 import auction.exception.base.AppException;
 
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = Logger.getLogger(GlobalExceptionHandler.class.getName());
     
     public static void handle(Exception e) {
-        Logger logger = Logger.getInstance();
 
         if (e instanceof AppException) {
             AppException ex = (AppException) e;
 
-            logger.error("Code: " + ex.getErrorCode());
-            logger.error("Message: " + ex.getMessage());
+            logger.severe("Code: " + ex.getErrorCode());
+            logger.severe("Message: " + ex.getMessage());
 
         } else {
-            logger.error("UNKOWN ERROR");
+            logger.severe("UNKOWN ERROR");
             e.printStackTrace();
         }
     }
