@@ -6,7 +6,7 @@ public class VIPInfo {
     private VIPLevel level;
 
     public VIPInfo(){
-        this.level = VIPLevel.BRONZE;
+        this.level = VIPLevel.NORMAL;
     }
 
     public VIPLevel getLevel(){

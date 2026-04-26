@@ -7,7 +7,7 @@ import users.model.user.User;
 public class DepositService {
     
     public void deposit(User user, Money amount){
-        if (!user.isActive()){
+        if (user.isLocked()){
             throw new RuntimeException("Tài khoản bị khóa");
         }
 

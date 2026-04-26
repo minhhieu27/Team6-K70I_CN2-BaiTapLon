@@ -12,7 +12,7 @@ public class User {
     private UserProfile profile;
     private Wallet wallet;
     private VIPInfo vipInfo;
-
+    
     public User(String id, UserAccount account){
         this.id = id;
         this.account = account;
@@ -20,45 +20,45 @@ public class User {
         this.profile = new UserProfile();
         this.wallet = new Wallet();
     }
-
-    public UserRole getRole(){
-        return role;
+    
+    // ====== ACCOUNT ======
+    public String getEmail() {
+        return account.getEmail();
+    }
+    
+    public boolean isLocked() {
+        return !account.isActive();
     }
 
     public UserAccount getAccount(){
         return account;
     }
 
-    public Wallet getWallet(){
-        return wallet;
+    // ====== ROLE ======
+    public UserRole getRole(){
+        return role;
     }
-
-    public VIPInfo getVipInfo(){
-        return vipInfo;
-    }
-
-    public void setVipInfo(VIPInfo vipInfo){
-        this.vipInfo = vipInfo;
-    }
-
-    public boolean isActive(){
-        return account.isActive();
-    }
-
-    public boolean isLocked() {
-        return !this.account.isActive();
-    }
-
-    public String getEmail() {
-        return this.account.getEmail();
-    }
-
+    
     public boolean hasRole(Role role) {
         return this.role.hasRole(role);
     }
 
     public boolean hasAnyRole(Role... role){
         return this.role.hasAnyRole(role);
+    }
+
+    // ====== WALLET ======
+    public Wallet getWallet(){
+        return wallet;
+    }
+
+    // ====== VIP ======
+    public VIPInfo getVipInfo(){
+        return vipInfo;
+    }
+
+    public VIPLevel getVIPLevel(){
+        return vipInfo.getLevel();
     }
 
     public void setVIPLevel(VIPLevel level) {

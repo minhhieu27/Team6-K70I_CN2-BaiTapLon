@@ -28,4 +28,8 @@ public class UserAccount {
     public void setStatus(UserStatus status){
         this.status = status;
     }
+
+    public void lock(){
+        this.status = UserStatus.SUSPENDED;
+    }
 }
