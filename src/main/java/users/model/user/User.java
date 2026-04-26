@@ -25,6 +25,10 @@ public class User {
     public String getEmail() {
         return account.getEmail();
     }
+
+    public String getId(){   
+        return id;
+    }
     
     public boolean isLocked() {
         return !account.isActive();
@@ -32,6 +36,10 @@ public class User {
 
     public UserAccount getAccount(){
         return account;
+    }
+
+    public UserProfile getProfile(){
+        return profile;
     }
 
     // ====== ROLE ======

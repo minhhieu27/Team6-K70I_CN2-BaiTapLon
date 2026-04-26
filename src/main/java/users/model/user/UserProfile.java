@@ -1,28 +1,34 @@
 package users.model.user;
 
 public class UserProfile {
-    private String name;
+    private String id;
     private String phone;
-    private String address;
+    private String vipLevel;
+    private String status;
 
-    public UserProfile(String name, String phone, String address){
-        this.name = name;
+    public UserProfile(String id, String vipLevel, String status, String phone){
+        this.id = id;
         setPhone(phone); // Dùng setter để validate
-        this.address = address;
+        this.vipLevel = vipLevel;
+        this.status = status;
     }
 
     public UserProfile() {} // Tạo constructor rỗng dùng khi chưa có đầy đủ info
 
-    public String getName(){
-        return name;
+    public String getId(){
+        return id;
     }
 
     public String getPhone(){
         return phone;
     }
 
-    public String getAddress(){
-        return address;
+    public String getVipLevel(){
+        return vipLevel;
+    }
+
+    public String getStatus(){
+        return status;
     }
 
     public void setPhone(String phone){
@@ -33,13 +39,5 @@ public class UserProfile {
             throw new IllegalArgumentException("Số điện thoại không hợp lệ");
         }
         this.phone = phone;
-    }
-
-    public void setName(String name){
-        this.name = name;
-    }
-
-    public void setAddress(String address){
-        this.address = address;
     }
 }

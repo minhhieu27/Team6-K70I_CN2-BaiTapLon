@@ -25,6 +25,10 @@ public class UserAccount {
         return password;
     }
 
+    public UserStatus getStatus(){
+        return status;
+    }
+
     public void setStatus(UserStatus status){
         this.status = status;
     }
