@@ -11,6 +11,7 @@ public class Wallet {
     private Money balance = new Money(BigDecimal.ZERO);
     private Money totalDeposit = new Money(BigDecimal.ZERO);
     private Money lockedAmount = new Money(BigDecimal.ZERO);
+    private String userId;
 
     private List<Transaction> transactions = new ArrayList<>();
 
@@ -19,14 +20,14 @@ public class Wallet {
         balance = balance.add(amount);
         totalDeposit = totalDeposit.add(amount);
 
-        transactions.add(new Transaction(amount, TransactionType.DEPOSIT));
+        transactions.add(new Transaction(userId, amount, TransactionType.DEPOSIT));
     }
 
     public void withdraw(Money amount){
         validate(amount);
        
         balance = balance.subtract(amount);
-        transactions.add(new Transaction(amount, TransactionType.WITHDRAW));
+        transactions.add(new Transaction(userId, amount, TransactionType.WITHDRAW));
     }
 
     public void lock(Money amount){ // Khóa khi bid
