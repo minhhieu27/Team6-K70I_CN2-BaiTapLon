@@ -7,11 +7,15 @@ public class Money {
     private final BigDecimal amount; // BigDecimal để lưu số chính xác
 
     public Money(BigDecimal amount){
-        if (amount == null) throw new IllegalArgumentException("Amount không được null");
-
-        if (amount.compareTo(BigDecimal.ZERO) < 0) throw new IllegalArgumentException("Amount phải lớn hơn 0");
+        validate(amount);
 
         this.amount = amount;
+    }
+
+    public void validate(BigDecimal amount){
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
+            throw new IllegalArgumentException("Số tiền phải lớn hơn 0");
+        }
     }
 
     public BigDecimal getAmount(){
