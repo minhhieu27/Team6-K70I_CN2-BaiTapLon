@@ -11,6 +11,10 @@ public class Money {
         this.amount = amount;
     }
 
+    public Money(double value){
+        this.amount = BigDecimal.valueOf(value); // convert từ double sang bigdecimal
+    }
+
     public void validate(BigDecimal amount){
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
             throw new IllegalArgumentException("Số tiền phải lớn hơn 0");
@@ -36,12 +40,16 @@ public class Money {
         return new Money(this.amount.multiply(BigDecimal.valueOf(factor))); 
     }
 
-    public boolean isGreaterThan(Money other){ // So sánh tiền đấu giá có lớn hơn hiện tại không
-        return this.amount.compareTo(other.amount) > 0;
+    public int compareTo(Money other){
+        return this.amount.compareTo(other.amount);
     }
 
-    public boolean isLessThanOrEqual(Money other){ // So sánh tiền đấu giá với tiền hiện tại
-        return this.amount.compareTo(other.amount) <= 0;
+    public boolean isGreaterThanOrEqual(Money other){ // So sánh tiền đấu giá có lớn hơn hiện tại không
+        return this.compareTo(other) >= 0;
+    }
+
+    public boolean isLessThan(Money other){ // So sánh tiền đấu giá với tiền hiện tại
+        return this.compareTo(other) < 0;
     }
 
     // ====== EQUALS & HASHCODE ======

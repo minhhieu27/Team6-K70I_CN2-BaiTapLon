@@ -32,7 +32,7 @@ public class Wallet {
     public void lock(Money amount){ // Khóa khi bid
         validate(amount);
 
-        if (amount.isGreaterThan(balance)) throw new IllegalArgumentException("Không đủ tiền");
+        if (amount.isGreaterThanOrEqual(balance)) throw new IllegalArgumentException("Không đủ tiền");
 
         balance = balance.subtract(amount);
         lockedAmount = lockedAmount.add(amount);

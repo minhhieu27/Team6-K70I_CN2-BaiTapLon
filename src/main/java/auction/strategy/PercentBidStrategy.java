@@ -18,6 +18,6 @@ public class PercentBidStrategy implements BidStrategy {
     @Override
     public boolean isValidBid(Auction auction, Bid bid){
         Money minBid = calculateMinBid(auction);
-        return bid.getAmount().isGreaterThan(minBid);
+        return bid.getAmount().isGreaterThanOrEqual(minBid);
     }
 }

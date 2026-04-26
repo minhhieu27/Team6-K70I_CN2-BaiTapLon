@@ -7,7 +7,6 @@ import auction.strategy.BidStrategy;
 import auction.tool.DateTimeUtil;
 import auction.tool.Validator;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class AuctionService {

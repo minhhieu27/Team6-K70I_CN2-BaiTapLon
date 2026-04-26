@@ -23,7 +23,7 @@ public class DepositService {
         Money total = user.getWallet().getTotalDeposit();
 
         for (VIPLevel level : VIPLevel.values()){
-            if (total >= level.getRequiredDeposit()){
+            if (total.isGreaterThanOrEqual(level.getRequiredDeposit())){
                 user.setVIPLevel(level);
             }
         }

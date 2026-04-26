@@ -1,18 +1,20 @@
 package users.enums;
 
+import auction.model.Money;
+
 public enum VIPLevel {
-    BRONZE(0),
-    SILVER(1000),
-    GOLD(5000),
-    DIAMOND(10000);
+    BRONZE(new Money(0.0)),
+    SILVER(new Money(1000.0)),
+    GOLD(new Money(5000.0)),
+    DIAMOND(new Money(10000.0));
 
-    private double requiredDeposit;
+    private final Money requiredDeposit;
 
-    VIPLevel(double requiredDeposit){
+    VIPLevel(Money requiredDeposit){
         this.requiredDeposit = requiredDeposit;
     }
 
-    public double getRequiredDeposit(){
+    public Money getRequiredDeposit(){
         return requiredDeposit;
     }
 }

@@ -19,6 +19,6 @@ public class FixedIncrementStrategy implements BidStrategy {
 
     @Override
     public boolean isValidBid(Auction auction, Bid bid){
-        return bid.getAmount().isGreaterThan(calculateMinBid(auction));
+        return bid.getAmount().isGreaterThanOrEqual(calculateMinBid(auction));
     }
 }
