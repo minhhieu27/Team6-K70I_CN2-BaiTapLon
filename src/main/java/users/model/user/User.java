@@ -25,6 +25,10 @@ public class User {
         return role;
     }
 
+    public UserAccount getAccount(){
+        return account;
+    }
+
     public Wallet getWallet(){
         return wallet;
     }
@@ -42,19 +46,23 @@ public class User {
     }
 
     public boolean isLocked() {
-        throw new UnsupportedOperationException("Unimplemented method 'isLocked'");
+        return !this.account.isActive();
     }
 
-    public Object getEmail() {
-        throw new UnsupportedOperationException("Unimplemented method 'getEmail'");
+    public String getEmail() {
+        return this.account.getEmail();
     }
 
-    public boolean hasRole(Role bidder) {
-        throw new UnsupportedOperationException("Unimplemented method 'hasRole'");
+    public boolean hasRole(Role role) {
+        return this.role.hasRole(role);
+    }
+
+    public boolean hasAnyRole(Role... role){
+        return this.role.hasAnyRole(role);
     }
 
     public void setVIPLevel(VIPLevel level) {
-        throw new UnsupportedOperationException("Unimplemented method 'setVIPLevel'");
+        this.vipInfo.setVIPLevel(level);
     }
 }
     
