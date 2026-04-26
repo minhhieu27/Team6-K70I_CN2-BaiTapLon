@@ -3,8 +3,6 @@ package auction.mapper;
 import auction.model.*;
 import auction.view.AuctionView;
 
-import java.util.*;
-
 public class AuctionMapper {
 
     public static AuctionView toView(Auction auction){

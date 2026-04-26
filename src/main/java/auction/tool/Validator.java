@@ -1,6 +1,6 @@
 package auction.tool;
 
-import acution.exception.ValidationException;
+import auction.exception.ValidateError.ValidationException;
 
 import auction.model.Money;
 

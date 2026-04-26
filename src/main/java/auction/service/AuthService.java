@@ -1,9 +1,14 @@
 package auction.service;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import auction.exception.*;
+import auction.exception.BusinessError.AccountLockedException;
+import auction.exception.SecurrityError.AuthenticationException;
+import auction.exception.ValidateError.ValidationException;
+import auction.exception.base.AppException;
 import auction.tool.Logger;
+import users.model.user.*;
 
 public class AuthService {
     
@@ -11,8 +16,8 @@ public class AuthService {
     private final Logger logger = Logger.getInstance();
 
     public AuthService() {
-        users.put("admin", new User("admin", "123", false));
-        users.put("locked", new User("locked", "123", true));
+        users.put("admin", new User("admin", "abc123", false));
+        users.put("locked", new User("locked", "abc123", true));
     }
 
     public User login(String username, String password) throws AppException {
@@ -27,7 +32,7 @@ public class AuthService {
 
         User user = users.get(username);
         if (user == null){
-            throw AuthenticationException("User not found");
+            throw new AuthenticationException("User not found");
         }
 
         if (user.isLocked()){

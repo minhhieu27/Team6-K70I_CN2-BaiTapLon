@@ -1,6 +1,7 @@
-package user.service;
+package users.service;
 
-import user.model.user.User;
+import auction.model.Money;
+import users.model.user.User;
 
 public class WithdrawService {
     
@@ -9,6 +10,6 @@ public class WithdrawService {
             throw new RuntimeException("Tài khoản bị khóa");
         }
 
-        user.getWallet().withdraw(amout);
+        user.getWallet().withdraw(amount);
     }
 }

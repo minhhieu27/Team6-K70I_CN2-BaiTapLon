@@ -1,9 +1,11 @@
-package user.model.wallet;
+package users.model.wallet;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import auction.model.Money;
+import users.enums.TransactionType;
 
 public class Wallet {
     private Money balance = new Money(BigDecimal.ZERO);

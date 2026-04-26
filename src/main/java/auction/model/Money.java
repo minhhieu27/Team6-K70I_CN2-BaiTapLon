@@ -1,7 +1,6 @@
 package auction.model;
 
 import java.math.*;
-import java.util.*;
 
 public class Money {
     private final BigDecimal amount; // BigDecimal để lưu số chính xác
@@ -67,5 +66,9 @@ public class Money {
     @Override
     public String toString(){
         return amount.toString();
+    }
+
+    public boolean isZero() {
+        throw new UnsupportedOperationException("Unimplemented method 'isZero'");
     }
 }

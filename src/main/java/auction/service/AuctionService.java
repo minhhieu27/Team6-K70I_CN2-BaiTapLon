@@ -1,7 +1,7 @@
 package auction.service;
 
-import auction.exception.AuctionClosedException;
-import auction.exception.InvalidBidException;
+import auction.exception.BusinessError.*;
+import auction.exception.base.AppException;
 import auction.model.*;
 import auction.strategy.BidStrategy;
 import auction.tool.DateTimeUtil;
@@ -14,7 +14,7 @@ public class AuctionService {
     private final BidStrategy strategy;
     private static final int EXTEND_THRESHOLD = 30;
     private static final int EXTEND_TIME = 60;
-
+    
     public AuctionService(BidStrategy strategy){
         this.strategy = strategy;
     }

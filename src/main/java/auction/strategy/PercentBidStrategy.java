@@ -1,7 +1,6 @@
 package auction.strategy;
 
-import auction.model.Auction;
-import auction.model.Bid;
+import auction.model.*;
 
 public class PercentBidStrategy implements BidStrategy {
     

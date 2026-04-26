@@ -1,8 +1,9 @@
-package user.service;
+package users.service;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import user.model.user.User;
+import users.model.user.User;
 
 public class AuthService {
     
@@ -12,13 +13,13 @@ public class AuthService {
         if (users.containsKey(user.getEmail())){
             throw new RuntimeException("Email đã tồn tại");
         }
-        users.put(user.getEmail(), user);
+        users.put((String) user.getEmail(), user);
     }
 
     public User login(String email, String password){
-        User user = users.getAcount().getEmail();
+        User user = ((Object) users).getAcount().getEmail();
 
-        if (user == null || !users.getAccount().getPassword().equals(password)){
+        if (user == null || !((Object) users).getAccount().getPassword().equals(password)){
             throw new RuntimeException("Sai thông tin");
         }
 

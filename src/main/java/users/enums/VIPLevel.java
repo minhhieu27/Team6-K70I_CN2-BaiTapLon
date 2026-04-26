@@ -1,4 +1,4 @@
-package user.enums;
+package users.enums;
 
 public enum VIPLevel {
     BRONZE(0),

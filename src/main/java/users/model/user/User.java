@@ -1,6 +1,8 @@
-package user.model.user;
+package users.model.user;
 
-import user.enums.Role;
+import users.enums.Role;
+import users.enums.VIPLevel;
+import users.model.wallet.Wallet;
 
 public class User {
     private String id;
@@ -37,6 +39,22 @@ public class User {
 
     public boolean isActive(){
         return account.isActive();
+    }
+
+    public boolean isLocked() {
+        throw new UnsupportedOperationException("Unimplemented method 'isLocked'");
+    }
+
+    public Object getEmail() {
+        throw new UnsupportedOperationException("Unimplemented method 'getEmail'");
+    }
+
+    public boolean hasRole(Role bidder) {
+        throw new UnsupportedOperationException("Unimplemented method 'hasRole'");
+    }
+
+    public void setVIPLevel(VIPLevel level) {
+        throw new UnsupportedOperationException("Unimplemented method 'setVIPLevel'");
     }
 }
     

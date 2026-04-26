@@ -1,9 +1,8 @@
-package user.service;
+package users.service;
 
 import auction.model.Money;
-import user.enums.Role;
-import user.enums.VIPLevel;
-import user.model.user.User;
+import users.enums.*;
+import users.model.user.User;
 
 public class DepositService {
     

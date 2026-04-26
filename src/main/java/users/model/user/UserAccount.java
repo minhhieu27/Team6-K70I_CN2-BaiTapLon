@@ -1,6 +1,6 @@
-package user.model.user;
+package users.model.user;
 
-import user.enums.UserStatus;
+import users.enums.UserStatus;
 
 public class UserAccount {
     private String email;

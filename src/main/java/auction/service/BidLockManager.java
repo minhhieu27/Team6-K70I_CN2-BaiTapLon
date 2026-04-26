@@ -2,7 +2,7 @@ package auction.service;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import auction.exception.ConcurrencyException;
+import auction.exception.ConcurrentError.ConcurrencyException;
 
 public class BidLockManager {
     

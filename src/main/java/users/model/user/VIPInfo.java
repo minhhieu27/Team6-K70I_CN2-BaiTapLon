@@ -1,6 +1,6 @@
-package user.model.user;
+package users.model.user;
 
-import user.enums.VIPLevel;
+import users.enums.VIPLevel;
 
 public class VIPInfo {
     private VIPLevel level;

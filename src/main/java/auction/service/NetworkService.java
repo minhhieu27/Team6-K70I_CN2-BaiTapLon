@@ -1,6 +1,6 @@
 package auction.service;
 
-import auction.exception.NetworkException;
+import auction.exception.NetworkError.NetworkException;
 
 public class NetworkService {
 

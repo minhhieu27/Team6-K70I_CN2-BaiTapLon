@@ -1,10 +1,9 @@
-package user.model.wallet;
+package users.model.wallet;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import auction.model.Money;
-import user.enums.TransactionType;
+import users.enums.TransactionType;
 
 public class Transaction {
     private final Money amount;
