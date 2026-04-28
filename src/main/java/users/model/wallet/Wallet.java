@@ -9,17 +9,15 @@ import users.enums.TransactionType;
 
 public class Wallet {
     private Money balance = new Money(BigDecimal.ZERO);
-    private Money totalDeposit = new Money(BigDecimal.ZERO);
     private Money lockedAmount = new Money(BigDecimal.ZERO);
     private String userId;
-    private Money totalSpent = new Money(0);
+    private Money totalSpent = new Money(BigDecimal.ZERO);
 
     private List<Transaction> transactions = new ArrayList<>();
 
     public void deposit(Money amount){
         validate(amount);
         balance = balance.add(amount);
-        totalDeposit = totalDeposit.add(amount);
 
         transactions.add(new Transaction(userId, amount, TransactionType.DEPOSIT));
     }
@@ -54,8 +52,8 @@ public class Wallet {
         return balance;
     }
 
-    public Money getTotalDeposit(){
-        return totalDeposit;
+    public Money getTotalSpent(){
+        return totalSpent;
     }
 
     public Money getLockedAmount(){
