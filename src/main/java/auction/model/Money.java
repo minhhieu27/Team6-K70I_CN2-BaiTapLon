@@ -79,6 +79,6 @@ public class Money {
     }
 
     public boolean isZero() {
-        throw new UnsupportedOperationException("Unimplemented method 'isZero'");
+        return amount.compareTo(BigDecimal.ZERO) == 0;
     }
 }
