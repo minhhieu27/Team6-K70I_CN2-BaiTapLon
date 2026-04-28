@@ -12,6 +12,7 @@ public class Wallet {
     private Money totalDeposit = new Money(BigDecimal.ZERO);
     private Money lockedAmount = new Money(BigDecimal.ZERO);
     private String userId;
+    private Money totalSpent = new Money(0);
 
     private List<Transaction> transactions = new ArrayList<>();
 
@@ -27,6 +28,7 @@ public class Wallet {
         validate(amount);
        
         balance = balance.subtract(amount);
+        totalSpent = totalSpent.add(amount);
         transactions.add(new Transaction(userId, amount, TransactionType.WITHDRAW));
     }
 
