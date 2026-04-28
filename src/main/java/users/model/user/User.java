@@ -61,6 +61,10 @@ public class User {
     }
 
     // ====== VIP ======
+    public void upgrade(VIPLevel newLevel){
+        vipInfo.upgrade(newLevel);
+    }
+    
     public VIPInfo getVipInfo(){
         return vipInfo;
     }
