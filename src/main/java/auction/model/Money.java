@@ -12,11 +12,13 @@ public class Money {
     }
 
     public Money(double value){
-        this.amount = BigDecimal.valueOf(value); // convert từ double sang bigdecimal
+        BigDecimal bd = BigDecimal.valueOf(value); // convert từ double sang bigdecimal
+        validate(bd);
+        this.amount = bd;
     }
 
     public void validate(BigDecimal amount){
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0){
             throw new IllegalArgumentException("Số tiền phải lớn hơn 0");
         }
     }
