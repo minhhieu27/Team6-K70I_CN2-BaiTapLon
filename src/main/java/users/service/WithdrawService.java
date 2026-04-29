@@ -23,10 +23,14 @@ public class WithdrawService {
 
         Money total = user.getWallet().getTotalSpent();
 
+        VIPLevel newLevel = VIPLevel.NORMAL;
+
         for (VIPLevel level : VIPLevel.values()){
             if (total.isGreaterThanOrEqual(level.getRequiredWithdraw())){
-                user.setVIPLevel(level);
+                newLevel = level;
             }
         }
+
+        user.setVIPLevel(newLevel);
     }
 }
