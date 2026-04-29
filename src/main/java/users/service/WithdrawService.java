@@ -1,7 +1,6 @@
 package users.service;
 
 import auction.model.Money;
-import users.enums.Role;
 import users.enums.VIPLevel;
 import users.model.user.User;
 
@@ -14,9 +13,7 @@ public class WithdrawService {
 
         user.getWallet().withdraw(amount);
 
-        if (user.hasRole(Role.BIDDER)){
-            upgradeVIP(user);
-        }
+       upgradeVIP(user);
     }
 
     private void upgradeVIP(User user){
