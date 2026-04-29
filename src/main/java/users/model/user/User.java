@@ -47,13 +47,17 @@ public class User {
     public UserRole getRole(){
         return role;
     }
+
+    public void addRole(Role role){
+        this.role.addRole(role);
+    }
+
+    public void removeRole(Role role){
+        this.role.removeRole(role);
+    }
     
     public boolean hasRole(Role role) {
         return this.role.hasRole(role);
-    }
-
-    public boolean hasAnyRole(Role... role){
-        return this.role.hasAnyRole(role);
     }
 
     // ====== WALLET ======

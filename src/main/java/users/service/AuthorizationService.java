@@ -6,8 +6,10 @@ import users.model.user.User;
 public class AuthorizationService {
     
     public void checkRole(User user, Role... roles){
-        if (!user.hasAnyRole(roles)){
-            throw new RuntimeException("Không có quyền");
+        for (Role role : roles){
+            if (!user.hasRole(role)){
+                throw new RuntimeException("Không có quyền");
+            }
         }
     }
 }

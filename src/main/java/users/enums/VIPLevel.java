@@ -4,19 +4,19 @@ import java.math.BigDecimal;
 import auction.model.Money;;
 
 public enum VIPLevel {
-    NORMAL(new Money(BigDecimal.ZERO)),
-    BRONZE(new Money(new BigDecimal("1000"))),
-    SILVER(new Money(new BigDecimal("5000"))),
-    GOLD(new Money(new BigDecimal("10000)"))),
-    DIAMOND(new Money(new BigDecimal("50000")));
+    NORMAL(BigDecimal.valueOf(0)),
+    BRONZE(BigDecimal.valueOf(1000)),
+    SILVER(BigDecimal.valueOf(5000)),
+    GOLD(BigDecimal.valueOf(10000)),
+    DIAMOND(BigDecimal.valueOf(50000));
 
-    private final Money requiredWithdraw;
+    private final BigDecimal requiredWithdraw;
     
-    VIPLevel(Money requiredWithdraw){
+    VIPLevel(BigDecimal requiredWithdraw){
         this.requiredWithdraw = requiredWithdraw;
     }
 
     public Money getRequiredWithdraw(){
-        return requiredWithdraw;
+        return new Money(requiredWithdraw);
     }
 }
