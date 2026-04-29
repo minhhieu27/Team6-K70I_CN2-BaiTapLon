@@ -19,6 +19,7 @@ public class User {
         this.role = new UserRole();
         this.profile = new UserProfile();
         this.wallet = new Wallet();
+        this.vipInfo = new VIPInfo();
     }
     
     // ====== ACCOUNT ======
