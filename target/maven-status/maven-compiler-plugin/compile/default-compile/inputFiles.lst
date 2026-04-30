@@ -22,7 +22,6 @@ C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\service\AuctionServic
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\service\BidLockManager.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\service\NetworkService.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\strategy\BidStrategy.java
-C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\strategy\FixedIncrementStrategy.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\strategy\PercentBidStrategy.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\tool\DateTimeUtil.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\auction\tool\FormatUtil.java
@@ -44,5 +43,6 @@ C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\users\model\wallet\Wallet.jav
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\users\service\AuthorizationService.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\users\service\AuthService.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\users\service\DepositService.java
+C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\users\service\RoleService.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\users\service\UserProfileService.java
 C:\Users\hp\Team6-K70I_CN2-BaiTapLon\src\main\java\users\service\WithdrawService.java

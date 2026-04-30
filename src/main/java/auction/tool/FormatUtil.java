@@ -15,6 +15,6 @@ public class FormatUtil {
     }
 
     public static String formatBid(Bid bid){
-        return bid.getBidder() + " bid " + formatMoney(bid.getAmount());
+        return bid.getUserId() + " bid " + formatMoney(bid.getAmount());
     }
 }

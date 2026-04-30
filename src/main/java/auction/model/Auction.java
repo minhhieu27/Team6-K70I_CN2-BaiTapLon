@@ -66,7 +66,7 @@ public class Auction {
             return null;
         }
         
-        return bidHistory.get(bidHistory.size() - 1).getBidder();
+        return bidHistory.get(bidHistory.size() - 1).getUserId();
     }
 
     public AuctionStatus geStatus(){

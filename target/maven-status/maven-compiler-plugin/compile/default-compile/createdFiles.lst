@@ -12,7 +12,6 @@ auction\tool\IDGenerator.class
 users\model\user\User.class
 users\service\UserProfileService.class
 users\service\AuthService.class
-auction\strategy\FixedIncrementStrategy.class
 auction\tool\FormatUtil.class
 users\model\user\VIPInfo.class
 auction\tool\Validator.class

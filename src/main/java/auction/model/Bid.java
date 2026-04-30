@@ -1,16 +1,16 @@
 package auction.model;
 
 public class Bid {
-    private final String bidder;
+    private final String userId;
     private final Money amount;
 
-    public Bid(String bidder, Money amount){
-        this.bidder = bidder;
+    public Bid(String userId, Money amount){
+        this.userId = userId;
         this.amount = amount;
     }
 
-    public String getBidder(){
-        return bidder;
+    public String getUserId(){
+        return userId;
     }
 
     public Money getAmount(){
