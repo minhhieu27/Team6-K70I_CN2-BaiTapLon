@@ -44,4 +44,19 @@ public class MoneyTest {
     void shouldNotAllowNegativwMoney(){
         assertThrows(IllegalArgumentException.class, ()-> new Money(-10));
     }
+
+    @Test
+    void shouldThrowWhenSubtractTooMuch(){
+        Money m1 = new Money(50);
+        Money m2 = new Money(100);
+
+        assertThrows(IllegalArgumentException.class,()-> m1.subtract(m2));
+    }
+
+    @Test
+    void shouldThrowWhenMultipyNegative(){
+        Money m = new Money(100);
+
+        assertThrows(IllegalArgumentException.class, ()-> m.multiply(-2));
+    }
 }
