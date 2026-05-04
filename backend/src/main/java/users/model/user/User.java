@@ -1,11 +1,12 @@
 package users.model.user;
 
+import auction.observer.Observer;
 import auction.tool.IDGenerator;
 import users.enums.Role;
 import users.enums.VIPLevel;
 import users.model.wallet.Wallet;
 
-public class User {
+public class User implements Observer {
     private final String id;
 
     private UserAccount account;
@@ -81,6 +82,12 @@ public class User {
 
     public void setVIPLevel(VIPLevel level) {
         this.vipInfo.setVIPLevel(level);
+    }
+
+    // ====== Observer ======
+    @Override
+    public void update(String msg){
+        System.out.println();
     }
 }
     
