@@ -21,7 +21,7 @@ public class AuctionService {
 
         updateStatus(auction);
        
-        if (auction.geStatus() != AuctionStatus.OPEN){
+        if (auction.getStatus() != AuctionStatus.OPEN){
             throw new AuctionClosedException("Auction is closed");
         }
 

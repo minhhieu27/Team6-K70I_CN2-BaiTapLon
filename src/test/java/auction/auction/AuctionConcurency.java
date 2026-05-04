@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AuctionConcurency {
     @Test
     void shouldHandleConcurrentBids() throws AppException, InterruptedException{
-        Auction auction = new Auction("Airpods", new Money(100), new PercentBidStrategy(1.05));
+        Auction auction = new Auction("Airpods","AUC123", new Money(100), new PercentBidStrategy(1.05));
         AuctionService auctionService = new AuctionService(null);
 
         Thread t1 = new Thread(()-> {

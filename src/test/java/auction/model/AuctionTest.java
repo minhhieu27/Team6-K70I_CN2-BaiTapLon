@@ -13,7 +13,7 @@ public class AuctionTest {
     
     @Test
     void shouldAcceptFirstBid() throws AppException{
-        Auction auction = new Auction("Laptop", new Money(50), new PercentBidStrategy(1.1));
+        Auction auction = new Auction("Laptop","AUC-999", new Money(50), new PercentBidStrategy(1.1));
 
         AuctionService auctionService = new AuctionService(null);
         Bid bid = new Bid("A00", new Money(70));
@@ -24,7 +24,7 @@ public class AuctionTest {
 
     @Test
     void shouldAcceptHigherBid() throws AppException{
-        Auction auction = new Auction("Iphone 15", new Money(70), new PercentBidStrategy(1.3));
+        Auction auction = new Auction("Iphone 15","AUC-666", new Money(70), new PercentBidStrategy(1.3));
 
         AuctionService auctionService = new AuctionService(null);
 
@@ -39,7 +39,7 @@ public class AuctionTest {
 
     @Test
     void shouldRejectEqualBid() throws AppException{
-        Auction auction = new Auction("Buggatti", new Money(100000), new PercentBidStrategy(1.5));
+        Auction auction = new Auction("Buggatti","AUC-888", new Money(100000), new PercentBidStrategy(1.5));
 
         Bid bid = new Bid("B05", new Money(200000));
         AuctionService auctionService = new AuctionService(null);
@@ -52,7 +52,7 @@ public class AuctionTest {
 
     @Test
     void shouldRejectLowerBid() throws AppException{
-        Auction auction = new Auction("Warm-up Barcelona shirt", new Money(250), new PercentBidStrategy(1.25));
+        Auction auction = new Auction("Warm-up Barcelona shirt","AUC-456", new Money(250), new PercentBidStrategy(1.25));
 
         Bid bid = new Bid("D01", new Money(320));
         AuctionService auctionService = new AuctionService(null);
@@ -63,7 +63,7 @@ public class AuctionTest {
 
     @Test
     void shouldRejectNegativeBid() throws AppException{
-        Auction auction = new Auction("Key-Board", new Money(125), new PercentBidStrategy(1.15));
+        Auction auction = new Auction("Key-Board","AUC-778", new Money(125), new PercentBidStrategy(1.15));
         AuctionService auctionService = new AuctionService(null);
 
         assertThrows(IllegalArgumentException.class, ()-> auctionService.placeBid(auction, new Bid("D05", new Money(-10))));

@@ -1,11 +1,12 @@
 package users.model.user;
 
+import auction.tool.IDGenerator;
 import users.enums.Role;
 import users.enums.VIPLevel;
 import users.model.wallet.Wallet;
 
 public class User {
-    private String id;
+    private final String id;
 
     private UserAccount account;
     private UserRole role;
@@ -14,7 +15,7 @@ public class User {
     private VIPInfo vipInfo;
     
     public User(String id, UserAccount account){
-        this.id = id;
+        this.id = IDGenerator.generateUserId();
         this.account = account;
         this.role = new UserRole();
         this.profile = new UserProfile();

@@ -3,12 +3,14 @@ package auction.model;
 import java.util.*;
 
 import auction.strategy.BidStrategy;
+import auction.tool.IDGenerator;
 
 import java.time.LocalDateTime;
 
 public class Auction {
     
     private final String itemName;
+    private final String id;
     private final Money startPrice;
     private final  BidStrategy strategy;
 
@@ -18,16 +20,21 @@ public class Auction {
     private final List<Bid> bidHistory = new ArrayList<>();
     private AuctionStatus status = AuctionStatus.SCHEDULED;
     
-    public Auction(String itemName, Money startPrice, BidStrategy strategy){
+    public Auction(String itemName,String id, Money startPrice, BidStrategy strategy){
         this.itemName = itemName;
         this.startPrice = startPrice;
         this.strategy = strategy;
+        this.id = IDGenerator.generateAuctionId();
         
     }
 
     // ======= GETTER / SETTER =======
     public String getItemName(){
         return itemName;
+    }
+
+    public String getId(){
+        return id;
     }
 
     public LocalDateTime getStartTime(){
@@ -69,7 +76,7 @@ public class Auction {
         return bidHistory.get(bidHistory.size() - 1).getUserId();
     }
 
-    public AuctionStatus geStatus(){
+    public AuctionStatus getStatus(){
         return status;
     }
 
