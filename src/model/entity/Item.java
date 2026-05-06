@@ -27,7 +27,7 @@ public abstract class Item extends Entity {
     public String getDescription(){
         return description;
     }
-    public  double getStartPrice(){
+    public  double getStartPrice() {
         return startPrice;
     }
 
