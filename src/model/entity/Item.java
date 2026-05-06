@@ -28,31 +28,7 @@ public abstract class Item extends Entity {
         this.bidHistory = new ArrayList<>();
     }
 
-    public enum AuctionStatus {    // tạo tập giá trị cố định
-        NOT_STARTED,
-        COMING_SOON,
-        RUNNING,
-        FINISHED
-    }
-    // trạng thái phiên đấu giá
-    public AuctionStatus getStatus() {
-        LocalDateTime now = LocalDateTime.now();
 
-        if (now.isAfter(endTime))
-            return AuctionStatus.FINISHED;
-
-        if (now.isAfter(startTime) && now.isBefore(endTime))
-            return AuctionStatus.RUNNING;
-
-        Duration duration = Duration.between(now, startTime);
-        long minutes = duration.toMinutes();
-
-        if (minutes <= 10 && minutes >= 0) {
-            return AuctionStatus.COMING_SOON;
-        }
-
-        return AuctionStatus.NOT_STARTED;
-    }
     public String getName() {
         return name;
     }
