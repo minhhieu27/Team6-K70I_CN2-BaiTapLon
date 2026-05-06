@@ -8,10 +8,9 @@ public class Art extends Item {
     private String style;
 
     public Art(String name,String description,double startPrice,
-               LocalDateTime startTime,LocalDateTime endTime,
                String artist,String style) {
 
-        super(name,description,startPrice,startTime,endTime);
+        super(name,description,startPrice);
         this.artist = artist;
         this.style = style;
     }

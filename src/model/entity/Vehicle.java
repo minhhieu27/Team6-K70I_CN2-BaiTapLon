@@ -8,10 +8,9 @@ public class Vehicle extends Item {
     private int year;
 
     public Vehicle(String name,String description,double startPrice,
-                   LocalDateTime startTime,LocalDateTime endTime,
                    String brand,int year) {
 
-        super(name,description,startPrice,startTime,endTime);
+        super(name,description,startPrice);
         this.brand = brand;
         this.year = year;
     }
