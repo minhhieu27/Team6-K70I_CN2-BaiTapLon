@@ -1,13 +1,14 @@
 package auction.auction;
 
-import auction.exception.base.AppException;
-import auction.model.Auction;
-import auction.model.Bid;
-import auction.model.Money;
-import auction.service.AuctionService;
-import auction.strategy.PercentBidStrategy;
-
 import org.junit.jupiter.api.Test;
+
+import com.app.domain.exception.base.AppException;
+import com.app.domain.model.Auction;
+import com.app.domain.model.Bid;
+import com.app.domain.model.Money;
+import com.app.domain.service.AuctionService;
+import com.app.domain.strategy.PercentBidStrategy;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AuctionConcurency {

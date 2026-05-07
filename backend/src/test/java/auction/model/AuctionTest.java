@@ -2,10 +2,13 @@ package auction.model;
 
 import org.junit.jupiter.api.Test;
 
-import auction.exception.BusinessError.InvalidBidException;
-import auction.exception.base.AppException;
-import auction.service.AuctionService;
-import auction.strategy.PercentBidStrategy;
+import com.app.domain.exception.BusinessError.InvalidBidException;
+import com.app.domain.exception.base.AppException;
+import com.app.domain.model.Auction;
+import com.app.domain.model.Bid;
+import com.app.domain.model.Money;
+import com.app.domain.service.AuctionService;
+import com.app.domain.strategy.PercentBidStrategy;
 
 import static org.junit.jupiter.api.Assertions.*;
 

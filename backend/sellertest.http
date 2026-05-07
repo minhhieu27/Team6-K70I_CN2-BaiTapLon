@@ -1,0 +1,2 @@
+GET http://localhost:8080/users/seller/create-auction
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyNyIsInJvbGVzIjpbIlJPTEVfVVNFUiIsIlJPTEVfU0VMTEVSIl0sImlhdCI6MTc3ODE4MTgwOCwiZXhwIjoxNzc4MjY4MjA4fQ.E0IK11PKErSTnoo2kGNUxYz2j46HtYJ8baMTffZrTO4

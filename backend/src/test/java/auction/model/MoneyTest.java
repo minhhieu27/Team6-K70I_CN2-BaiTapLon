@@ -1,6 +1,9 @@
 package auction.model;
 
 import org.junit.jupiter.api.Test;
+
+import com.app.domain.model.Money;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MoneyTest {

@@ -1,9 +1,11 @@
 package auction.wallet;
 
 import org.junit.jupiter.api.Test;
+
+import com.app.domain.model.Money;
+import com.app.domain.wallet.Wallet;
+
 import static org.junit.jupiter.api.Assertions.*;
-import auction.model.Money;
-import users.model.wallet.Wallet;
 
 public class WalletTest {
 

@@ -2,12 +2,12 @@ package auction.users;
 
 import org.junit.jupiter.api.Test;
 
-import auction.model.Money;
-import users.enums.VIPLevel;
-import users.model.user.User;
-import users.model.user.UserAccount;
-import users.service.DepositService;
-import users.service.WithdrawService;
+import com.app.domain.enums.VIPLevel;
+import com.app.domain.model.Money;
+import com.app.domain.service.DepositService;
+import com.app.domain.service.WithdrawService;
+import com.app.domain.user.User;
+import com.app.domain.user.UserAccount;
 
 import static org.junit.jupiter.api.Assertions.*;
 
