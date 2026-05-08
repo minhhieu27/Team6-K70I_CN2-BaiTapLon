@@ -4,14 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.app.domain.enums.Role;
 import com.app.entity.User;
 import com.app.repository.UserRepository;
 import com.app.security.JWTUtil;
 import com.app.service.UserService;
 
 import java.security.Principal;
-import java.util.stream.Collectors;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -42,18 +41,19 @@ public class AuthController {
             throw new RuntimeException("Sai mật khẩu");
         }
 
-        Set<String> roles = userDb.getRoles().stream()
-                .map(Enum::name)
-                .collect(Collectors.toSet());
-
-        return JWTUtil.generateToken(userDb.getUsername(), roles);
+        return JWTUtil.generateToken(userDb.getUsername(), userDb.getRoles());
     }
 
     // Nâng cấp seller
     @PostMapping("/become-seller")
     public String becomeSeller(Principal principal){
-        userService.becomeSeller(principal.getName());
-        return "Bạn đã trở thành SELLER";
+        String userId = principal.getName();
+        User user = userRepository.findByUserId(userId).orElseThrow();
+
+        user.getRoles().add(Role.ROLE_SELLER);
+        userRepository.save(user);
+
+        return JWTUtil.generateToken(user.getUserid(), user.getRoles());
     }
 
     // Test seller

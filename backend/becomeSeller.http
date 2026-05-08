@@ -1,2 +1,0 @@
-POST http://localhost:8080/users/become-seller
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyNyIsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NzgxODE1NjksImV4cCI6MTc3ODI2Nzk2OX0.SEzjrF2T-t0iGcKiBb1R2CdwGn7XdsjaCq4kW3A7xgY

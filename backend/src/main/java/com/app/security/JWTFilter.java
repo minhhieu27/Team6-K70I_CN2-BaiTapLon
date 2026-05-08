@@ -30,7 +30,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             Claims claims = JWTUtil.parseToken(token);
 
-            String username = claims.getSubject();
+            String userId = claims.getSubject();
 
             List<String> roles = (List<String>) claims.get("roles");
 
@@ -40,7 +40,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
-                            username,
+                            userId,
                             null,
                             authorities
                     );

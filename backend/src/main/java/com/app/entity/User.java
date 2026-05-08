@@ -30,8 +30,8 @@ public class User {
     @Column (name = "password",nullable = true, length = 255)
     private String password;
 
-    @Column (precision = 15, scale = 2)
-    private BigDecimal balance;
+    @Column (precision = 19, scale = 2)
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @Column (name = "created_at")
     private LocalDateTime createAt;

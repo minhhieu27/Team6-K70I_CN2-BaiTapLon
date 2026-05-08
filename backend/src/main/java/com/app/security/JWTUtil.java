@@ -6,15 +6,21 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.app.domain.enums.Role;
 
 public class JWTUtil {
     private static final String SECRET = "mysecretkeymysecretkeymysecretkey123";
     private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public static String generateToken(String username, Set<String> roles){
+    public static String generateToken(String userId, Set<Role> roles){
+        Set<String> roleNames = roles.stream().map(Role::name).collect(Collectors.toSet());
+
         return Jwts.builder()
-                .setSubject(username)
-                .claim("roles", roles)
+                .setSubject(userId)
+                .claim("userId", userId)
+                .claim("roles", roleNames)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key, SignatureAlgorithm.HS256)

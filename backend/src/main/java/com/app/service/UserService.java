@@ -1,9 +1,6 @@
 package com.app.service;
 
 import java.util.HashSet;
-import java.util.stream.Collectors;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,14 +57,13 @@ public class UserService implements UserDetailsService{
     }
 
     //Login
-    public String login (com.app.entity.User user) throws Exception{
+    public String login (User user) throws Exception{
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
         User userDb = userRepository.findByUsername(user.getUsername()).orElseThrow();
-        Set<String> roles = userDb.getRoles().stream().map(Enum::name).collect(Collectors.toSet());
 
-        return JWTUtil.generateToken(user.getUsername(),roles);
+        return JWTUtil.generateToken(user.getUsername(),userDb.getRoles());
     }
 
     // Seller

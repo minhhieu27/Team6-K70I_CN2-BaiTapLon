@@ -2,6 +2,7 @@ package com.app.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,10 +36,24 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                // auth
                 .requestMatchers("/users/register").permitAll()
                 .requestMatchers("/users/login").permitAll()
+
+                // auction
+                .requestMatchers(HttpMethod.GET, "/auctions/**").permitAll()
+                .requestMatchers(HttpMethod.POST,"/auctions").hasRole("SELLER")
+
+                // bid 
+                .requestMatchers("/bids").authenticated()
+
+                // become-seller
                 .requestMatchers("/users/become-seller").authenticated()
+
+                // seller API
                 .requestMatchers("/seller/**").hasRole("SELLER")
+
+                // còn lại
                 .anyRequest().authenticated()
             )
         .formLogin(form -> form.disable())
