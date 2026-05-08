@@ -8,10 +8,9 @@ public class Electronics extends Item {
     private String model;
 
     public Electronics(String name,String description,double startPrice,
-                       LocalDateTime startTime,LocalDateTime endTime,
                        String brand,String model) {
 
-        super(name,description,startPrice,startTime,endTime);
+        super(name,description,startPrice);
         this.brand = brand;
         this.model = model;
     }

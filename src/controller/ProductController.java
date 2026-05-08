@@ -1,50 +1,83 @@
 package controller;
 
 import model.entity.Item;
+import service.ProductService;
+
+import java.util.List;
 
 public class ProductController {
 
-    private Item item;
+    private ProductService productService;
 
-    public ProductController(Item item) {
-        this.item = item;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
-    public String getStatusMessage() {
-        switch (item.getStatus()) {
-            case RUNNING:
-                return "Phiên đấu giá đang diễn ra";
+    // Thêm sản phẩm
+    public String addItem(Item item) {
 
-            case COMING_SOON:
-                return "Phiên đấu giá sắp diễn ra";
-
-            case NOT_STARTED:
-                return "Phiên đấu giá chưa diễn ra";
-
-            case FINISHED:
-                return "Phiên đấu giá đã kết thúc";
+        if (item == null) {
+            return "Sản phẩm không hợp lệ!";
         }
-        return "";
+
+        boolean success = productService.addItem(item);
+
+        if (success) {
+            return "Thêm sản phẩm thành công!";
+        }
+
+        return "Thêm sản phẩm thất bại!";
     }
 
-    public String handleBid(String user, double price) {
+    //  Xóa sản phẩm
+    public String removeItem(String id) {
 
-        if (!item.canBid()) {
-            return "Không thể đấu giá lúc này!";
+        boolean success = productService.removeItem(id);
+
+        if (success) {
+            return "Xóa sản phẩm thành công!";
         }
 
-        if (!item.isValidBid(price)) {
-            return "Đặt giá không hợp lệ!";
-        }
-
-        item.placeBid(user, price);
-
-        return "Đặt giá thành công! Giá hiện tại: " + item.getCurrentPrice();
+        return "Không tìm thấy sản phẩm!";
     }
 
-    public String getItemInfo() {
-        return "Tên: " + item.getName()
-                + "\nGiá hiện tại: " + item.getCurrentPrice()
-                + "\nNgười dẫn đầu: " + item.getCurrentWinner();
+    // Cập nhật sản phẩm
+    public String updateItem(String id, Item newItem) {
+
+        boolean success = productService.updateItem(id, newItem);
+
+        if (success) {
+            return "Cập nhật sản phẩm thành công!";
+        }
+
+        return "Cập nhật thất bại!";
+    }
+
+    // Tìm sản phẩm theo ID
+    public Item findItemById(String id) {
+        return productService.getItemById(id);
+    }
+
+    // Lấy tất cả sản phẩm
+    public List<Item> getAllItems() {
+        return productService.getAllItems();
+    }
+
+    // Tìm kiếm theo tên
+    public List<Item> searchByName(String keyword) {
+        return productService.searchByName(keyword);
+    }
+
+    // Hiển thị thông tin sản phẩm
+    public String getItemInfo(Item item) {
+
+        if (item == null) {
+            return "Không tìm thấy sản phẩm!";
+        }
+
+        return "ID: " + item.getId()
+                + "\nTên: " + item.getName()
+                + "\nMô tả: " + item.getDescription()
+                + "\nGiá khởi điểm: " + item.getStartPrice();
     }
 }

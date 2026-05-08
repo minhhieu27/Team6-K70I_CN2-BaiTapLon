@@ -6,75 +6,64 @@ import java.util.*;
 
 public class ProductService {
 
-    private Map<String, Item> items;
+    private final Map<String, Item> items = new HashMap<>();
 
-    public ProductService() {
-        items = new HashMap<>();
-    }
+ // thêm sản phẩm
     public boolean addItem(Item item) {
-            if (item == null)
-                return false;
+        if (item == null || item.getId() == null)
+            return false;
 
-            if (items.containsKey(item.getId())) {
-                return false; // trùng id
-            }
+        if (items.containsKey(item.getId()))
+            return false;
+
         items.put(item.getId(), item);
         return true;
     }
+    // xoá sản phẩm
     public boolean removeItem(String id) {
-        if (!items.containsKey(id))
+        if (id == null || !items.containsKey(id))
             return false;
 
         items.remove(id);
         return true;
     }
 
+    //Cập nhật sản phẩm
     public boolean updateItem(String id, Item newItem) {
-        if (!items.containsKey(id))
+        if (id == null || newItem == null || !items.containsKey(id))
+            return false;
+
+        // đảm bảo không lệch id
+        if (!id.equals(newItem.getId()))
             return false;
 
         items.put(id, newItem);
         return true;
     }
 
+    // Lấy tất cả sản phẩm
     public List<Item> getAllItems() {
         return new ArrayList<>(items.values());
     }
 
-    public Item findById(String id) {
+    // Lấy theo ID
+    public Item getItemById(String id) {
         return items.get(id);
     }
 
-    public String placeBid(String id, String user, double price) {
-
-        Item item = items.get(id);
-
-        if (item == null) {
-            return "Không tìm thấy sản phẩm!";
-        }
-
-        if (!item.canBid()) {
-            return "Phiên đấu giá không diễn ra!";
-        }
-
-        if (!item.isValidBid(price)) {
-            return "Giá phải lớn hơn giá hiện tại!";
-        }
-
-        boolean success = item.placeBid(user, price);
-
-        if (success) {
-            return "Đặt giá thành công! Giá hiện tại: " + item.getCurrentPrice();
-        }
-
-        return "Đặt giá thất bại!";
+    // Kiểm tra tồn tại
+    public boolean exists(String id) {
+        return id != null && items.containsKey(id);
     }
 
-    public List<Item> getRunningItems() {
+    // Tìm kiếm theo tên
+    public List<Item> searchByName(String keyword) {
         List<Item> result = new ArrayList<>();
 
+        if (keyword == null) return result;
+
         for (Item item : items.values()) {
-            if (item.canBid()) {
+            if (item.getName().toLowerCase().contains(keyword.toLowerCase())) {
                 result.add(item);
             }
         }
