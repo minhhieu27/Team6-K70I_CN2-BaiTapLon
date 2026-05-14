@@ -2,13 +2,14 @@ package auction.model;
 
 import org.junit.jupiter.api.Test;
 
-import com.app.domain.exception.BusinessError.InvalidBidException;
+import com.app.application.service.AuctionService;
+import com.app.domain.auction.Auction;
+import com.app.domain.auction.Bid;
+import com.app.domain.auction.PercentBidStrategy;
+import com.app.domain.exception.auction.InvalidBidException;
 import com.app.domain.exception.base.AppException;
-import com.app.domain.model.Auction;
-import com.app.domain.model.Bid;
-import com.app.domain.model.Money;
-import com.app.domain.service.AuctionService;
-import com.app.domain.strategy.PercentBidStrategy;
+import com.app.domain.exception.validation.ValidationException;
+import com.app.domain.wallet.Money;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,6 +70,6 @@ public class AuctionTest {
         Auction auction = new Auction("Key-Board","AUC-778", new Money(125), new PercentBidStrategy(1.15));
         AuctionService auctionService = new AuctionService(null);
 
-        assertThrows(IllegalArgumentException.class, ()-> auctionService.placeBid(auction, new Bid("D05", new Money(-10))));
+        assertThrows(ValidationException.class, ()-> auctionService.placeBid(auction, new Bid("D05", new Money(-10))));
     }
 }

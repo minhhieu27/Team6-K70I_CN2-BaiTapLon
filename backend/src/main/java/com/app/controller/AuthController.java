@@ -1,19 +1,26 @@
 package com.app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import com.app.domain.enums.Role;
-import com.app.entity.User;
+import com.app.dto.request.LoginRequest;
+import com.app.dto.request.RegisterRequest;
+import com.app.dto.response.LoginResponse;
+import com.app.dto.response.UserResponse;
+import com.app.entity.UserEntity;
+import com.app.exception.security.LoginException;
+import com.app.exception.user.AccountLockedException;
 import com.app.repository.UserRepository;
-import com.app.security.JWTUtil;
 import com.app.service.UserService;
+
+import jakarta.validation.Valid;
 
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/auth")
 public class AuthController {
     
     @Autowired
@@ -27,33 +34,28 @@ public class AuthController {
 
     // Register
     @PostMapping("/register")
-    public User register(@RequestBody User user){
-        return userService.register(user);
+    public UserResponse register(@Valid @RequestBody RegisterRequest req){
+        return userService.register(req.getUsername(), req.getEmail(), req.getPassword());
     }
 
     // Login
     @PostMapping("/login")
-    public String login(@RequestBody User user){
-        User userDb = userRepository.findByUsername(user.getUsername())
-                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+    public LoginResponse login(@Valid @RequestBody LoginRequest req) throws Exception{
+        UserEntity userDb = userRepository.findByUsernameOrEmailOrPhone(req.getIdentifier(), req.getIdentifier(), req.getIdentifier())
+                .orElseThrow(() -> new UsernameNotFoundException("User không tồn tại"));
 
-        if (!passwordEncoder.matches(user.getPassword(), userDb.getPassword())){
-            throw new RuntimeException("Sai mật khẩu");
+        if (!passwordEncoder.matches(req.getPassword(), userDb.getPassword())){
+            throw new LoginException("Sai mật khẩu");
         }
 
-        return JWTUtil.generateToken(userDb.getUsername(), userDb.getRoles());
+        return userService.login(req.getIdentifier(), req.getPassword());
     }
 
     // Nâng cấp seller
     @PostMapping("/become-seller")
-    public String becomeSeller(Principal principal){
-        String userId = principal.getName();
-        User user = userRepository.findByUserId(userId).orElseThrow();
+    public LoginResponse becomeSeller(Principal principal) throws AccountLockedException{
 
-        user.getRoles().add(Role.ROLE_SELLER);
-        userRepository.save(user);
-
-        return JWTUtil.generateToken(user.getUserid(), user.getRoles());
+        return userService.becomeSeller(principal.getName());
     }
 
     // Test seller

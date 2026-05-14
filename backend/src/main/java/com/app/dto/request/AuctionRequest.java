@@ -2,23 +2,21 @@ package com.app.dto.request;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.Data;
+
+@Data
 public class AuctionRequest {
+
+    @NotBlank (message = "Tiêu đề không được trống")
     private String title;
+
+    @NotNull (message = "Giá bán không được để trống")
+    @Positive (message = "Giá phải lớn hơn 0")
     private BigDecimal startPrice;
 
-    public String getTitle(){
-        return title;
-    }
-
-    public void setTitle(String title){
-        this.title = title;
-    }
-
-    public BigDecimal getStartPrice(){
-        return startPrice;
-    }
-
-    public void setStartPrice(BigDecimal startPrice){
-        this.startPrice = startPrice;
-    }
+    @NotBlank (message = "Mô tả không được để trống")
+    private String description;
 }

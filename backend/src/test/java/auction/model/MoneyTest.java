@@ -2,7 +2,9 @@ package auction.model;
 
 import org.junit.jupiter.api.Test;
 
-import com.app.domain.model.Money;
+import com.app.domain.exception.validation.ValidationException;
+import com.app.domain.exception.wallet.InsufficientBalanceException;
+import com.app.domain.wallet.Money;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +47,7 @@ public class MoneyTest {
 
     @Test
     void shouldNotAllowNegativwMoney(){
-        assertThrows(IllegalArgumentException.class, ()-> new Money(-10));
+        assertThrows(ValidationException.class, ()-> new Money(-10));
     }
 
     @Test
@@ -53,13 +55,13 @@ public class MoneyTest {
         Money m1 = new Money(50);
         Money m2 = new Money(100);
 
-        assertThrows(IllegalArgumentException.class,()-> m1.subtract(m2));
+        assertThrows(InsufficientBalanceException.class,()-> m1.subtract(m2));
     }
 
     @Test
     void shouldThrowWhenMultipyNegative(){
         Money m = new Money(100);
 
-        assertThrows(IllegalArgumentException.class, ()-> m.multiply(-2));
+        assertThrows(ValidationException.class, ()-> m.multiply(-2));
     }
 }

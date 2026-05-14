@@ -1,15 +1,17 @@
 package com.app.controller;
 
-import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.common.money.Money;
 import com.app.dto.request.AuctionRequest;
-import com.app.entity.Auction;
+import com.app.dto.response.AuctionResponse;
 import com.app.service.AuctionService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,21 +26,21 @@ public class AuctionController {
     @Autowired
     private AuctionService auctionService;
 
+    // ====== CREATE AUCTION ======
     @PostMapping
-    public Auction create(@RequestBody AuctionRequest req, Principal principal){
-        return auctionService.createAuction(req.getTitle().toString(),
-                new BigDecimal(req.getStartPrice().toString()),
-                principal.getName());
+    public AuctionResponse create(@Valid @RequestBody AuctionRequest req, Principal principal){
+
+        return auctionService.createAuction(req.getTitle(), req.getDescription(), new Money(req.getStartPrice()), principal.getName());
     }
 
     @GetMapping
-    public List<Auction> getAll(){
+    public List<AuctionResponse> getAll(){
         return auctionService.getAll();
     }
     
 
     @GetMapping ("/{auctionId}")
-    public Auction get(@PathVariable String auctionId){
+    public AuctionResponse get(@PathVariable String auctionId){
         return auctionService.getByAuctionId(auctionId);
     }
 }

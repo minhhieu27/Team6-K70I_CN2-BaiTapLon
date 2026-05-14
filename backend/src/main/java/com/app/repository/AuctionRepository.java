@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.app.entity.Auction;
+import com.app.entity.AuctionEntity;
 
-public interface AuctionRepository extends JpaRepository<Auction, Long>{
-    Optional<Auction> findByAuctionId(String auctionId);
+public interface AuctionRepository extends JpaRepository<AuctionEntity, Long>{
+    Optional<AuctionEntity> findByAuctionId(String auctionId);
 }

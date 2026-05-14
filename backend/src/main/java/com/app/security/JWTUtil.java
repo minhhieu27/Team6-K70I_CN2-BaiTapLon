@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.app.domain.enums.Role;
+import com.app.common.enums.Role;
 
 public class JWTUtil {
     private static final String SECRET = "mysecretkeymysecretkeymysecretkey123";

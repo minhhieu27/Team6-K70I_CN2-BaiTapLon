@@ -1,13 +1,21 @@
 package com.app.service;
 
-import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
-import com.app.entity.Auction;
-import com.app.entity.Bid;
+import com.app.common.enums.AuctionStatus;
+import com.app.common.money.Money;
+import com.app.dto.response.BidResponse;
+import com.app.entity.AuctionEntity;
+import com.app.entity.BidEntity;
+import com.app.entity.UserEntity;
+import com.app.exception.auction.AuctionClosedException;
+import com.app.exception.wallet.InvalidBidException;
+import com.app.mapper.BidMapper;
 import com.app.repository.BidRepository;
+import com.app.repository.UserRepository;
 
 @Service
 public class BidService {
@@ -16,21 +24,57 @@ public class BidService {
     private AuctionService auctionService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
+    private BidMapper bidMapper;
+
+    @Autowired 
     private BidRepository bidRepository;
 
-    public String placeBid(String auctionId, BigDecimal amount, String userId){
-        Auction auction = auctionService.getByAuctionId(auctionId);
+    @Autowired
+    private UserRepository userRepository;
 
-        auction.setCurrentPrice(amount);
-        auctionService.save(auction);
+    // ====== PLACE BID ======
+    public BidResponse placeBid(String auctionId, Money amount, String userId) {
 
-        Bid bid = new Bid();
+        AuctionEntity auction = auctionService.getEntityByAuctionId(auctionId);
+
+        auctionService.updateStatus(auction);
+       
+        if (auction.getStatus() != AuctionStatus.OPEN){
+            throw new AuctionClosedException("Auction đã đóng");
+        }
+
+        if (auction.getCurrentPrice().isGreaterThan(amount)){
+            throw new InvalidBidException("Giá đấu giá phải lớn hơn giá hiện tại");
+        }
+
+        UserEntity bidder = userService.getEntityByUserId(userId);
+
+        BidEntity oldBid = bidRepository.findTopByBidderAndAuctionOrderByAmountDesc(bidder, auction).orElse(null);
+
+        Money oldAmount = oldBid == null ? Money.isZero() : oldBid.getAmount();
+
+        Money extreToLock = amount.subtract(oldAmount);
+
+        bidder.getWallet().lock(extreToLock);
+
+        // ====== CREATE BID ======
+        BidEntity bid = new BidEntity(bidder, amount);
+
         bid.setAuction(auction);
-        bid.setAmount(amount);
-        bid.setUserId(userId);
+
+        auction.addBid(bid);
+
+        auctionService.extendTime(auction);
 
         bidRepository.save(bid);
 
-        return "Bid thành công";
+        auctionService.save(auction);
+
+        userRepository.save(bidder);
+
+        return bidMapper.toResponse(bid);
     }
 }

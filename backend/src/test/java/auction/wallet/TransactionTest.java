@@ -2,9 +2,9 @@ package auction.wallet;
 
 import org.junit.jupiter.api.Test;
 
-import com.app.domain.enums.TransactionType;
-import com.app.domain.model.Money;
+import com.app.domain.wallet.Money;
 import com.app.domain.wallet.Transaction;
+import com.app.domain.wallet.TransactionType;
 
 import static org.junit.jupiter.api.Assertions.*;
 
