@@ -13,9 +13,15 @@ public class UpdateProfileRequest {
     @Pattern (regexp = "^(0|\\+84)[0-9]{9}$")
     private String phone;
 
+    @Size (max = 100)
+    private String email;
+
     @Size (max = 255)
     private String address;
 
     @Size(max = 500)
     private String bio;
+
+    @Size (max = 500)
+    private String avatar;
 }

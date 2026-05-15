@@ -1,4 +1,4 @@
-package com.app.domain.event;
+package com.app.event;
 
 public interface Event {
     

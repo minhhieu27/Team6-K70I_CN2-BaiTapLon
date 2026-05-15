@@ -1,4 +1,4 @@
-package com.app.infrastructure.notify.observer;
+package com.app.notify.observer;
 
 public interface Observer {
     void update(String message);

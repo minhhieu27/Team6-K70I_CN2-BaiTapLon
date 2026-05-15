@@ -1,4 +1,4 @@
-package com.app.service.strategy;
+package com.app.common.strategy;
 
 import com.app.common.money.Money;
 import com.app.entity.AuctionEntity;

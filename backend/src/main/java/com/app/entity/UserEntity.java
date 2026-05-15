@@ -28,14 +28,8 @@ public class UserEntity {
     @Column (name = "user_id", nullable = false, length = 20, unique = true)
     private String userId;
 
-    @Column (name = "email", nullable = false, length = 100, unique = true)
-    private String email;
-
     @Column (name = "password", nullable = false, length = 255)
     private String password;
-
-    @Column (name = "phone", nullable = false, unique = true)
-    private String phone;
 
     @Embedded
     private UserProfile profile = new UserProfile();
@@ -68,8 +62,10 @@ public class UserEntity {
     public UserEntity(String username, String email, String password){
         this.userId = IDGenerator.generateUserId();
         this.username = username;
-        this.email = email;
+        this.profile.setEmail(email);
         this.password = password;
+
+        this.wallet = new Wallet();
 
         this.roles.add(Role.ROLE_USER);
     }
@@ -114,8 +110,6 @@ public class UserEntity {
     public boolean isSeller(){
         return roles.contains(Role.ROLE_SELLER);
     }
-
-   
 
     // ====== VIP ======
 

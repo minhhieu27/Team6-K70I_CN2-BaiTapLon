@@ -1,10 +1,10 @@
-package auction.model;
+package auction.money;
 
 import org.junit.jupiter.api.Test;
 
-import com.app.domain.exception.validation.ValidationException;
-import com.app.domain.exception.wallet.InsufficientBalanceException;
-import com.app.domain.wallet.Money;
+import com.app.common.money.Money;
+import com.app.exception.validation.ValidationException;
+import com.app.exception.wallet.InsufficientBalanceException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

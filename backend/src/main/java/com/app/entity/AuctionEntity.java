@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.app.common.enums.AuctionStatus;
 import com.app.common.money.Money;
+import com.app.common.strategy.BidStrategy;
+import com.app.common.strategy.FixedBidStrategy;
 import com.app.common.tool.IDGenerator;
 import com.app.exception.wallet.InvalidBidException;
 
@@ -35,6 +37,9 @@ public class AuctionEntity {
     @Column(length = 1000)
     private String description;
 
+    @Transient
+    private BidStrategy bidStrategy = new FixedBidStrategy();
+
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "start_price", nullable = false))
     private Money startPrice;
@@ -43,9 +48,9 @@ public class AuctionEntity {
     @AttributeOverride(name = "value", column = @Column(name = "current_price", nullable = false))
     private Money currentPrice;
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "seller_id", nullable = false)
-   private UserEntity seller;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private UserEntity seller;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -61,11 +66,12 @@ public class AuctionEntity {
     @OneToMany(mappedBy = "auction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BidEntity> bidHistory = new ArrayList<>();
 
-    public AuctionEntity(String title, String itemName, Money startPrice, UserEntity seller, LocalDateTime startTime){
+    public AuctionEntity(String title, String itemName, String description, Money startPrice, UserEntity seller, LocalDateTime startTime){
         this.auctionId = IDGenerator.generateAuctionId();
 
         this.title = title;
         this.itemName = itemName;
+        this.description = description;
 
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
@@ -80,6 +86,10 @@ public class AuctionEntity {
         
         if (bid == null){
             throw new InvalidBidException("Bid không được trống");
+        }
+
+        if (!bidStrategy.isValidBid(this, bid)){
+            throw new InvalidBidException("Đấu giá không hợp lệ");
         }
 
         bid.setAuction(this);
@@ -107,6 +117,10 @@ public class AuctionEntity {
 
     public void setStartPrice(Money startPrice){
         this.startPrice = startPrice;
+    }
+
+    public void setBidStrategy(BidStrategy bidStrategy){
+        this.bidStrategy = bidStrategy;
     }
 
     public void setDescription(String description){

@@ -1,6 +1,6 @@
-package com.app.domain.event;
+package com.app.event;
 
-import com.app.domain.wallet.Money;
+import com.app.common.money.Money;
 
 public class WithdrawEvent implements Event {
     private final String userId;

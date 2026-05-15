@@ -1,13 +1,13 @@
 package com.app.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.app.common.money.Money;
 import com.app.dto.response.WalletResponse;
 import com.app.entity.UserEntity;
 import com.app.entity.Wallet;
+import com.app.exception.security.UserNotFoundException;
 import com.app.exception.wallet.InsufficientBalanceException;
 import com.app.mapper.WalletMapper;
 import com.app.repository.UserRepository;
@@ -24,7 +24,7 @@ public class WalletService {
     // ====== GET WALLET ======
     public WalletResponse getWallet(String userId){
 
-        UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng"));
+        UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
         Wallet wallet = user.getWallet();
 
@@ -34,7 +34,7 @@ public class WalletService {
     // ======= DEPOSIT ======
     public WalletResponse deposit(String userId, Money amount){
 
-        UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng"));
+        UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
         Wallet wallet = user.getWallet();
 
@@ -48,7 +48,7 @@ public class WalletService {
     // ====== WITHDRAW ======
     public WalletResponse withdraw(String userId, Money amount){
 
-        UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng"));
+        UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
         Wallet wallet = user.getWallet();
 

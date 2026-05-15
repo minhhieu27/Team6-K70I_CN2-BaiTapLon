@@ -1,8 +1,9 @@
 package com.app.security;
 
+import org.springframework.security.access.AccessDeniedException;
+
 import com.app.common.enums.Role;
 import com.app.entity.UserEntity;
-import com.app.exception.security.AuthorizationException;
 
 public class AuthorizationService {
     
@@ -12,6 +13,6 @@ public class AuthorizationService {
                 return;
             }
         }
-        throw new AuthorizationException("Không có quyền");
+        throw new AccessDeniedException("Không có quyền");
     }
 }

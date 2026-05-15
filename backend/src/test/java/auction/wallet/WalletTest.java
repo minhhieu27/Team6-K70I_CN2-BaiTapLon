@@ -2,17 +2,20 @@ package auction.wallet;
 
 import org.junit.jupiter.api.Test;
 
-import com.app.domain.exception.wallet.InsufficientBalanceException;
-import com.app.domain.wallet.Money;
-import com.app.domain.wallet.Wallet;
+import com.app.common.money.Money;
+import com.app.entity.Wallet;
+import com.app.exception.wallet.InsufficientBalanceException;
+
+import lombok.NoArgsConstructor;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@NoArgsConstructor
 public class WalletTest {
 
     @Test
     void depositShouldIncreaseBalance(){
-        Wallet wallet = new Wallet(new Money(0));
+        Wallet wallet = new Wallet();
 
         wallet.deposit(new Money(200));
 
@@ -21,7 +24,7 @@ public class WalletTest {
 
     @Test
     void withdrawShouldDecreaseBalance(){
-        Wallet wallet = new Wallet(new Money(0));
+        Wallet wallet = new Wallet();
 
         wallet.deposit(new Money(200));
         wallet.withdraw(new Money(150));
@@ -31,7 +34,7 @@ public class WalletTest {
 
     @Test
     void withdrawShouldFailWhenNotEnoughMoney(){
-        Wallet wallet = new Wallet(new Money(0));
+        Wallet wallet = new Wallet();
 
         wallet.deposit(new Money(50));
 

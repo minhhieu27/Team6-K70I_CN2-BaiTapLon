@@ -7,15 +7,24 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class UserProfile {
-    
-    @Column(length = 10)
-    private String phone;
+
+    @Column(length = 50)
+    private String fullname;
 
     @Column(length = 255)
     private String address;
 
     @Column(length = 500)
     private String bio;
+
+    @Column(length = 500)
+    private String avatar;
+
+    @Column (name = "email", nullable = false, length = 100, unique = true)
+    private String email;
+
+    @Column (name = "phone", length = 20, unique = true)
+    private String phone;
 
     protected UserProfile() {}
 
@@ -35,6 +44,10 @@ public class UserProfile {
         return bio;
     }
 
+    public String getEmail(){
+        return email;
+    }
+
     public void setPhone(String phone){
         if (phone == null || !phone.matches("0\\d{9}")){
             // Kiểm tra tính hợp lệ của SĐT
@@ -51,5 +64,17 @@ public class UserProfile {
 
     public void setBio(String bio){
         this.bio = bio;
+    }
+
+    public void setAvatar(String avatar){
+        this.avatar = avatar;
+    }
+
+    public void setFullname(String fullname){
+        this.fullname = fullname;
+    }
+
+    public void setEmail(String email){
+        this.email = email;
     }
 }
