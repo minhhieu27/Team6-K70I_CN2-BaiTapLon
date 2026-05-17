@@ -1,10 +1,10 @@
 POST http://localhost:8080/auctions
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyNyIsInVzZXJJZCI6InVzZXI3Iiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9TRUxMRVIiXSwiaWF0IjoxNzc4MjA0MDMyLCJleHAiOjE3NzgyOTA0MzJ9.mqvP5lOgbhr8uuxxt1C1ee-XURtL-lUbCmVLcXXrQ6Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVU1ItMmNmYTkxYzgiLCJ1c2VySWQiOiJVU1ItMmNmYTkxYzgiLCJyb2xlcyI6WyJST0xFX1VTRVIiLCJST0xFX1NFTExFUiJdLCJpYXQiOjE3NzkwNTUyNTYsImV4cCI6MTc3OTE0MTY1Nn0.kWbKTHkc_kQbMrd31hZsi-ErqrWtiELtJuzXHP4On2o
 Content-Type: application/json
 
 {
-  "title": "iPhone 15",
-  "startPrice": 1000.50
+  "title": "IPhone 15",
+  "itemName": "Iphone 15 promax",
+  "description": "new, 256GB",
+  "startPrice": 450
 }
-
-GET http://localhost:8080/auctions/AUC-a0c8a0c9-

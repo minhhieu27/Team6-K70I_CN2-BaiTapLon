@@ -1,8 +1,8 @@
 POST http://localhost:8080/bids
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyNyIsInVzZXJJZCI6InVzZXI3Iiwicm9sZXMiOlsiUk9MRV9VU0VSIiwiUk9MRV9TRUxMRVIiXSwiaWF0IjoxNzc4MjAzMjc1LCJleHAiOjE3NzgyODk2NzV9.fMdHb8xDpBcvsSP7Vr2a8e9O2u6bPpP5bDP8R1xZoAA
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVU1ItMmNmYTkxYzgiLCJ1c2VySWQiOiJVU1ItMmNmYTkxYzgiLCJyb2xlcyI6WyJST0xFX1VTRVIiLCJST0xFX1NFTExFUiJdLCJpYXQiOjE3NzkwNTUyNTYsImV4cCI6MTc3OTE0MTY1Nn0.kWbKTHkc_kQbMrd31hZsi-ErqrWtiELtJuzXHP4On2o
 Content-Type: application/json
 
 {
-    "auctionId": "AUC-a0c8a0c9-",
-    "amount": 1200.50
+    "auctionId": "AUC-e55cd6c7-",
+    "amount": 750
 }

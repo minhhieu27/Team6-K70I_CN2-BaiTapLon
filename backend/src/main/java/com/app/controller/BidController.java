@@ -24,6 +24,6 @@ public class BidController {
     @PostMapping
     public BidResponse bid(@Valid @RequestBody BidRequest req, Principal principal){
         
-        return bidService.placeBid(req.getAuctionId(), new Money(req.getAmount()), req.getAuctionId());
+        return bidService.placeBid(req.getAuctionId(), new Money(req.getAmount()), principal.getName());
     }
 }

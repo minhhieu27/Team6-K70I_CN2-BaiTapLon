@@ -11,4 +11,5 @@ public class WalletResponse {
     private BigDecimal balance;
     private String userId;
     private BigDecimal lockedBalance;
+    private BigDecimal totalSpent;
 }

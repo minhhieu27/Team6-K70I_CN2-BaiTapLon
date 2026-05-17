@@ -37,8 +37,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 // auth
-                .requestMatchers("/users/register").permitAll()
-                .requestMatchers("/users/login").permitAll()
+                .requestMatchers("/auth/register").permitAll()
+                .requestMatchers("/auth/login").permitAll()
 
                 // auction
                 .requestMatchers(HttpMethod.GET, "/auctions/**").permitAll()
@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/bids").authenticated()
 
                 // become-seller
-                .requestMatchers("/users/become-seller").authenticated()
+                .requestMatchers("/auth/become-seller").authenticated()
 
                 // seller API
                 .requestMatchers("/seller/**").hasRole("SELLER")

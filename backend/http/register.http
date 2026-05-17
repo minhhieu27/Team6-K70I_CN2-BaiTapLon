@@ -1,7 +1,9 @@
-POST http://localhost:8080/users/register
+POST http://localhost:8080/auth/register
 Content-Type: application/json
 
 {
-  "username": "user7",
-  "password": "123456"
+  "username": "user3",
+  "email": "abca1@gmail.com",
+  "phone": "0123456787",
+  "password": "12345678"
 }

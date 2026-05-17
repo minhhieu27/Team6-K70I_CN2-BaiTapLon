@@ -32,10 +32,10 @@ public class UserEntity {
     private String password;
 
     @Embedded
-    private UserProfile profile = new UserProfile();
+    private UserProfile userProfile = new UserProfile();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "walleta_id")
+    @JoinColumn(name = "walleta_id", referencedColumnName = "id")
     private Wallet wallet;
 
     
@@ -59,11 +59,14 @@ public class UserEntity {
     protected UserEntity() {
     }
 
-    public UserEntity(String username, String email, String password){
+    public UserEntity(String username, String email, String phone, String password){
         this.userId = IDGenerator.generateUserId();
         this.username = username;
-        this.profile.setEmail(email);
+        this.userProfile.setEmail(email);
+        this.userProfile.setPhone(phone);
         this.password = password;
+
+        this.active = true;
 
         this.wallet = new Wallet();
 

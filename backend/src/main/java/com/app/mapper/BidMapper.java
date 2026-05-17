@@ -13,7 +13,7 @@ public class BidMapper {
         return BidResponse.builder()
                 .bidId(bid.getId())
                 .auctionId(bid.getAuction().getAuctionId())
-                .amount(bid.getAmount().getAmount())
+                .amount(bid.getAmount().getValue())
                 .bidderId(bid.getUser().getUserId())
                 .build();
     }

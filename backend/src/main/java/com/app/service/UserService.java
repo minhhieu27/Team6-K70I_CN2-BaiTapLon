@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -33,9 +34,9 @@ import com.app.exception.security.EmailAlreadyExistxException;
 import com.app.exception.security.OldPasswordNotMatchesException;
 import com.app.exception.security.PasswordNotMatchesException;
 import com.app.exception.security.PhoneAlreadyExistsException;
-import com.app.exception.security.UserNotFoundException;
 import com.app.exception.security.UsernameAlreadyExistException;
 import com.app.exception.user.AccountLockedException;
+import com.app.exception.user.UserNotFoundException;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -53,13 +54,13 @@ public class UserService implements UserDetailsService {
     private AuthMapper authMapper;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthenticationConfiguration authenticationConfiguration;
 
     // ====== LOAD USER ======
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException{
 
-        UserEntity userEntity = userRepository.findByUsernameOrEmailOrPhone(identifier, identifier, identifier).orElseThrow(()-> new UsernameNotFoundException("Không tìm thấy user"));
+        UserEntity userEntity = userRepository.findByUsernameOrUserProfile_EmailOrUserProfile_Phone(identifier, identifier, identifier).orElseThrow(()-> new UsernameNotFoundException("Không tìm thấy user"));
 
         List<GrantedAuthority> authorities = userEntity.getRoles().stream().map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role.name())).toList();
 
@@ -73,17 +74,21 @@ public class UserService implements UserDetailsService {
     }
 
     // ====== REGISTER ======
-    public UserResponse register(String username, String email, String password){
+    public UserResponse register(String username, String email, String phone, String password){
 
-        if (userRepository.existByUsername(username)) {
+        if (userRepository.existsByUsername(username)) {
             throw new UsernameAlreadyExistException("Tên đăng nhập đã tồn tại");
         }
 
-        if (userRepository.existByEmail(email)) {
-            throw new EmailAlreadyExistxException("Tài khoản đã tồn tại");
+        if (userRepository.existsByUserProfile_Email(email)) {
+            throw new EmailAlreadyExistxException("Email đã được đăng ký");
+        }
+
+        if (userRepository.existsByUserProfile_Phone(phone)){
+            throw new PhoneAlreadyExistsException("SĐT đã được đăng ký");
         }
         
-        UserEntity userEntity = new UserEntity(username, email, passwordEncoder.encode(password));
+        UserEntity userEntity = new UserEntity(username, email, phone, passwordEncoder.encode(password));
 
         userEntity.addRole(Role.ROLE_USER);
 
@@ -93,11 +98,13 @@ public class UserService implements UserDetailsService {
     }
 
     // ====== LOGIN ======
-    public LoginResponse login (String identifier, String password){
+    public LoginResponse login (String identifier, String password) throws Exception{
+
+        AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(identifier, password));
 
-        UserEntity user = userRepository.findByUsernameOrEmailOrPhone(identifier, identifier, identifier).orElseThrow();
+        UserEntity user = userRepository.findByUsernameOrUserProfile_EmailOrUserProfile_Phone(identifier, identifier, identifier).orElseThrow();
 
         String token = JWTUtil.generateToken(user.getUserId(), user.getRoles());
 
@@ -189,7 +196,7 @@ public class UserService implements UserDetailsService {
     // ====== RESET PASSWORD ======
     public MessageResponse resetPassword(ResetPasswordRequest req) {
 
-        UserEntity user = userRepository.findByPhoneOrEmail(req.getPhone(), req.getEmail()).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
+        UserEntity user = userRepository.findByUserProfile_PhoneOrUserProfile_Email(req.getPhone(), req.getEmail()).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
         // ====== CHECK CONFIRM PASSWORD ======
         if (!req.getNewPassword().equals(req.getConfirmPassword())){
@@ -209,11 +216,11 @@ public class UserService implements UserDetailsService {
 
         UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
-        if (req.getEmail() != null && !req.getEmail().equals(user.getProfile().getEmail()) && userRepository.existByEmail(req.getEmail())){
+        if (req.getEmail() != null && !req.getEmail().equals(user.getUserProfile().getEmail()) && userRepository.existsByUserProfile_Email(req.getEmail())){
             throw new EmailAlreadyExistxException("Email đã tồn tại");
         }
 
-        if (req.getPhone() != null && userRepository.existByPhone(req.getPhone()) && !req.getPhone().equals(user.getProfile().getPhone())){
+        if (req.getPhone() != null && userRepository.existsByUserProfile_Phone(req.getPhone()) && !req.getPhone().equals(user.getUserProfile().getPhone())){
             throw new PhoneAlreadyExistsException("Số điện thoại đã tồn tại");
         }
 
@@ -223,19 +230,19 @@ public class UserService implements UserDetailsService {
         }
 
         if (req.getEmail() != null){
-            user.getProfile().setEmail(req.getEmail());
+            user.getUserProfile().setEmail(req.getEmail());
         }
 
         if (req.getPhone() != null){
-            user.getProfile().setPhone(req.getPhone());
+            user.getUserProfile().setPhone(req.getPhone());
         }
 
         if (req.getBio() != null){
-            user.getProfile().setBio(req.getBio());
+            user.getUserProfile().setBio(req.getBio());
         }
 
         if (req.getAvatar() != null){
-            user.getProfile().setAvatar(req.getAvatar());
+            user.getUserProfile().setAvatar(req.getAvatar());
         }
 
         userRepository.save(user);

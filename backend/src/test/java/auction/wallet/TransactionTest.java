@@ -15,7 +15,8 @@ public class TransactionTest {
     // ====== DEPOSIT ======
     @Test
     void shouldCreateDepositTransaction(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
         Wallet wallet = user.getWallet();
 
         Transaction t = new Transaction(new Money(100), TransactionType.DEPOSIT, wallet);
@@ -28,7 +29,8 @@ public class TransactionTest {
     // ====== WITHDRAW ======
     @Test
     void shouldCreateWithdrawTransaction(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
         Wallet wallet = user.getWallet();
 
         Transaction t = new Transaction(new Money(500), TransactionType.WITHDRAW, wallet);

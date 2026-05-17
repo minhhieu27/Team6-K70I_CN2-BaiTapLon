@@ -32,6 +32,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             String userId = claims.getSubject();
 
+            @SuppressWarnings("unchecked")
             List<String> roles = (List<String>) claims.get("roles");
 
             var authorities = roles.stream()

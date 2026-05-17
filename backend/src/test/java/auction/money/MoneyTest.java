@@ -13,7 +13,7 @@ public class MoneyTest {
     @Test
     void shoulCreateMoney(){
     Money m = new Money(100);
-        assertEquals(100, m.getAmount().doubleValue());
+        assertEquals(100, m.getValue().doubleValue());
     }
 
     @Test
@@ -23,7 +23,7 @@ public class MoneyTest {
 
         Money result = m1.add(m2);
 
-        assertEquals(150, result.getAmount().doubleValue());
+        assertEquals(150, result.getValue().doubleValue());
     }
 
     @Test
@@ -33,7 +33,7 @@ public class MoneyTest {
 
         Money result = m1.subtract(m2);
 
-        assertEquals(70, result.getAmount().doubleValue());
+        assertEquals(70, result.getValue().doubleValue());
     }
 
     @Test
@@ -42,7 +42,7 @@ public class MoneyTest {
         
         Money result = m1.multiply(1.2);
 
-        assertEquals(120, result.getAmount().doubleValue());
+        assertEquals(120, result.getValue().doubleValue());
     }
 
     @Test

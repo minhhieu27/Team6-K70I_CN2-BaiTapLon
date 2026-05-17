@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class BidRequest {
 
-    @NotBlank (message = "AuctionId không được để trống")
+    @NotBlank
     private String auctionId;
 
     @NotNull (message = "Số tiền đấu giá không được để trống")

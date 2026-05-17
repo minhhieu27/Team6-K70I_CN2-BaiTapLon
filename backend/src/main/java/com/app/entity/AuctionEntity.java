@@ -8,15 +8,16 @@ import com.app.common.enums.AuctionStatus;
 import com.app.common.money.Money;
 import com.app.common.strategy.BidStrategy;
 import com.app.common.strategy.FixedBidStrategy;
-import com.app.common.tool.IDGenerator;
 import com.app.exception.wallet.InvalidBidException;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "auctions")
 public class AuctionEntity {
@@ -49,16 +50,19 @@ public class AuctionEntity {
     private Money currentPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
+    @JoinColumn(name = "seller_id", nullable = false, referencedColumnName = "user_id")
     private UserEntity seller;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuctionStatus status = AuctionStatus.SCHEDULED;
 
+    @ManyToMany
+    @JoinTable(name = "auction_followers", joinColumns = @JoinColumn(name = "auction_id"), inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"))
+    private List<UserEntity> followers = new ArrayList<>();
+
     @Column(name = "start_time")
     private LocalDateTime startTime;
-
 
     @Column(name = "end_time")
     private LocalDateTime endTime;
@@ -66,8 +70,10 @@ public class AuctionEntity {
     @OneToMany(mappedBy = "auction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BidEntity> bidHistory = new ArrayList<>();
 
+    @Column (name = "paid_status", nullable = false )
+    private boolean paid;
+
     public AuctionEntity(String title, String itemName, String description, Money startPrice, UserEntity seller, LocalDateTime startTime){
-        this.auctionId = IDGenerator.generateAuctionId();
 
         this.title = title;
         this.itemName = itemName;
@@ -99,31 +105,7 @@ public class AuctionEntity {
         bidHistory.add(bid);
     }
 
-    public void setStatus(AuctionStatus status){
-        this.status = status;
-    }
-
-    public void setEndTime(LocalDateTime endTime){
-        this.endTime = endTime;
-    }
-
-    public void setTitle(String title){
-        this.title = title;
-    }
-
-    public void setSeller(UserEntity seller){
-        this.seller = seller;
-    }
-
-    public void setStartPrice(Money startPrice){
-        this.startPrice = startPrice;
-    }
-
-    public void setBidStrategy(BidStrategy bidStrategy){
-        this.bidStrategy = bidStrategy;
-    }
-
-    public void setDescription(String description){
-        this.description = description;
+    public void addFollower(UserEntity user){
+        followers.add(user);
     }
 }

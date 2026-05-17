@@ -6,19 +6,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.app.entity.UserEntity;
 
+
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-    Optional<UserEntity> findByUsernameOrEmailOrPhone(String username, String email, String phone);
+    Optional<UserEntity> findByUsernameOrUserProfile_EmailOrUserProfile_Phone(String username, String userProfile_Email, String userProfile_Phone);
 
     Optional<UserEntity> findByUserId(String userId);
 
     Optional<UserEntity> findByUsername(String username);
 
-    Optional<UserEntity> findByPhoneOrEmail(String phone, String email);
+    Optional<UserEntity> findByUserProfile_PhoneOrUserProfile_Email(String userProfile_phone, String userProfile_email);
 
-    boolean existByEmail(String email);
+    boolean existsByUserProfile_Email(String userProfile_email);
 
-    boolean existByUsername(String username);
+    boolean existsByUsername(String username);
 
-    boolean existByPhone(String phone);
+    boolean existsByUserProfile_Phone(String userProfile_phone);
 }

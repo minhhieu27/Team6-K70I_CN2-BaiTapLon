@@ -9,8 +9,8 @@ import com.app.entity.UserEntity;
 import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<BidEntity, Long> {
-    Optional<BidEntity> findTopByBidderAndAuctionOrderByAmountDesc(UserEntity bidder, AuctionEntity auction);
+    Optional<BidEntity> findTopByUserAndAuctionOrderByAmount_ValueDesc(UserEntity user, AuctionEntity auction);
 
-    Optional<BidEntity>findTopByAuctionOrderByAmountDesc(AuctionEntity auction);
+    Optional<BidEntity>findTopByAuctionOrderByAmount_ValueDesc(AuctionEntity auction);
 
 }

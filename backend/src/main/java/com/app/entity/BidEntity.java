@@ -19,7 +19,7 @@ public class BidEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id")
     private UserEntity user;
 
     @Embedded

@@ -64,8 +64,6 @@ public class Wallet {
        
         balance = balance.subtract(amount);
 
-        totalSpent = totalSpent.add(amount);
-
         transactions.add(new Transaction(amount, TransactionType.WITHDRAW, this));
     }
 
@@ -89,10 +87,11 @@ public class Wallet {
 
     public void consumeLocked(Money amount){
         if (amount.isGreaterThan(lockedAmount)){
-            throw new ValidationException("Có người ra giá lớn hơn");
+            throw new ValidationException("Số tiền không đủ");
         }
 
         lockedAmount = lockedAmount.subtract(amount);
+        totalSpent = totalSpent.add(amount);
     }
 
     public Money getBalance(){

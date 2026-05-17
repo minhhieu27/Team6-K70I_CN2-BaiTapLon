@@ -10,6 +10,6 @@ public class UserProfileService {
     
     public UserProfile getProfile(UserEntity user){
 
-        return user.getProfile();
+        return user.getUserProfile();
     }
 }

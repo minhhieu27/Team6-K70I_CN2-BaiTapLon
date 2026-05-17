@@ -17,7 +17,7 @@ public class AuctionMapper {
                 .auctionId(auction.getAuctionId())
                 .title(auction.getTitle())
                 .description(auction.getDescription())
-                .currentPrice(auction.getCurrentPrice().getAmount())
+                .currentPrice(auction.getCurrentPrice().getValue())
                 .status(auction.getStatus())
                 .sellerId(auction.getSeller().getUserId())
                 .build();

@@ -24,12 +24,12 @@ public class AuthController {
     @PostMapping("/register")
     public UserResponse register(@Valid @RequestBody RegisterRequest req){
 
-        return userService.register(req.getUsername(), req.getEmail(), req.getPassword());
+        return userService.register(req.getUsername(), req.getEmail(), req.getPhone(), req.getPassword());
     }
 
     // Login
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest req){
+    public LoginResponse login(@Valid @RequestBody LoginRequest req) throws Exception{
 
         return userService.login(req.getIdentifier(), req.getPassword());
     }

@@ -13,6 +13,9 @@ public class AuctionRequest {
     @NotBlank (message = "Tiêu đề không được trống")
     private String title;
 
+    @NotBlank (message = "Tên sản phẩm không được để trống")
+    private String itemName;
+
     @NotNull (message = "Giá bán không được để trống")
     @Positive (message = "Giá phải lớn hơn 0")
     private BigDecimal startPrice;

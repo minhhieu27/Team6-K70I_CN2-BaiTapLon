@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.common.money.Money;
 import com.app.dto.request.AuctionRequest;
 import com.app.dto.response.AuctionResponse;
+import com.app.dto.response.MessageResponse;
 import com.app.service.AuctionService;
 
 import jakarta.validation.Valid;
@@ -30,7 +31,7 @@ public class AuctionController {
     @PostMapping
     public AuctionResponse create(@Valid @RequestBody AuctionRequest req, Principal principal){
 
-        return auctionService.createAuction(req.getTitle(), req.getDescription(), new Money(req.getStartPrice()), principal.getName());
+        return auctionService.createAuction(req.getTitle(), req.getItemName(), req.getDescription(), new Money(req.getStartPrice()), principal.getName());
     }
 
     @GetMapping
@@ -42,5 +43,13 @@ public class AuctionController {
     @GetMapping ("/{auctionId}")
     public AuctionResponse get(@PathVariable String auctionId){
         return auctionService.getByAuctionId(auctionId);
+    }
+
+    @PostMapping("/{auctionId}/finish")
+    public MessageResponse finishAuction(@PathVariable String auctionId){
+
+        auctionService.finishAuction(auctionId);
+
+        return new MessageResponse("Đấu giá thành công");
     }
 }

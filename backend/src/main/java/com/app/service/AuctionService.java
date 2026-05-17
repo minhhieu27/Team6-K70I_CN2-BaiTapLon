@@ -9,26 +9,33 @@ import org.springframework.stereotype.Service;
 import com.app.common.enums.AuctionStatus;
 import com.app.common.money.Money;
 import com.app.common.tool.DateTimeUtil;
+import com.app.common.tool.IDGenerator;
 import com.app.dto.response.AuctionResponse;
 import com.app.entity.AuctionEntity;
 import com.app.entity.BidEntity;
 import com.app.entity.UserEntity;
+import com.app.exception.auction.AuctionClosedException;
 import com.app.exception.auction.AuctionNotFoundException;
+import com.app.exception.user.UserNotFoundException;
+import com.app.exception.wallet.AuctionAlreadyPaidException;
 import com.app.mapper.AuctionMapper;
 import com.app.repository.AuctionRepository;
 import com.app.repository.BidRepository;
+import com.app.repository.UserRepository;
 
 @Service
 public class AuctionService {
 
+    private final WalletService walletService;
     private static final int EXTEND_THRESHOLD = 30;
     private static final int EXTEND_TIME = 60;
+    private static final int AUCTION_TIME = 30;
     
     @Autowired
     private AuctionRepository auctionRepository;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
     private BidRepository bidRepository;
@@ -36,17 +43,30 @@ public class AuctionService {
     @Autowired
     private AuctionMapper auctionMapper;
 
-    // ====== CREATE AUCTION ======
-    public AuctionResponse createAuction(String title, String description,Money startPrice, String sellerId){
+    AuctionService(WalletService walletService) {
+        this.walletService = walletService;
+    }
 
-        UserEntity seller = userService.getEntityByUserId(sellerId);
+    // ====== CREATE AUCTION ======
+    public AuctionResponse createAuction(String title, String itemName, String description, Money startPrice, String sellerId){
+
+        UserEntity seller = userRepository.findByUserId(sellerId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
         AuctionEntity auction = new AuctionEntity();
 
+        LocalDateTime start = LocalDateTime.now();
+
+        auction.setAuctionId(IDGenerator.generateAuctionId());
+
         auction.setTitle(title);
+        auction.setItemName(itemName);
         auction.setDescription(description);
         auction.setStartPrice(startPrice);
+        auction.setCurrentPrice(startPrice);
         auction.setSeller(seller);
+
+        auction.setStartTime(start);
+        auction.setEndTime(start.plusSeconds(AUCTION_TIME));
 
         AuctionEntity saveAuction = auctionRepository.save(auction);
 
@@ -98,16 +118,44 @@ public class AuctionService {
     // ====== HIGHEST BIDDER ======
     public String getHighestBidder(String auctionId){
 
-        AuctionEntity auction = auctionRepository.findByAuctionId(auctionId).orElseThrow(() -> new AuctionNotFoundException("Không tìm thấy phiên đấu giá"));
+        AuctionEntity auction = getEntityByAuctionId(auctionId);
 
-        return bidRepository.findTopByAuctionOrderByAmountDesc(auction).map(bid -> bid.getUser().getUserId()).orElse(null);
+        return bidRepository.findTopByAuctionOrderByAmount_ValueDesc(auction).map(bid -> bid.getUser().getUserId()).orElse(null);
     }
 
-    // ====== CURRENT PRICE
+    // ====== CURRENT PRICE ======
     public Money getCurrentPrice(String auctionId){
-        AuctionEntity auction = auctionRepository.findByAuctionId(auctionId).orElseThrow(() -> new AuctionNotFoundException("Không tìm thấy phiên đấu giá"));
+        AuctionEntity auction = getEntityByAuctionId(auctionId);
 
-        return bidRepository.findTopByAuctionOrderByAmountDesc(auction).map(BidEntity::getAmount).orElse(auction.getStartPrice());
+        return bidRepository.findTopByAuctionOrderByAmount_ValueDesc(auction).map(BidEntity::getAmount).orElse(auction.getStartPrice());
+    }
+
+    // ====== FINISH AUCTION ======
+    public void finishAuction(String auctionId){
+
+        AuctionEntity auction = getEntityByAuctionId(auctionId);
+
+        updateStatus(auction);
+
+        if (auction.getStatus() != AuctionStatus.FINISHED){
+            throw new AuctionClosedException("Đấu giá chưa kết thúc");
+        }
+
+        if (auction.isPaid()) {
+            throw new AuctionAlreadyPaidException("Đã thanh toán");
+        }
+
+        BidEntity highestBid = bidRepository.findTopByAuctionOrderByAmount_ValueDesc(auction).orElse(null);
+
+        UserEntity winner = highestBid.getUser();
+
+        UserEntity seller = auction.getSeller();
+
+        Money amount = highestBid.getAmount();
+
+        walletService.paySeller(winner, seller, amount);
+
+        auctionRepository.save(auction);
     }
 
     // ====== SAVE ======

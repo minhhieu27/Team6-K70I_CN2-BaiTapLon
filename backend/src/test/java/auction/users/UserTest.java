@@ -15,11 +15,12 @@ public class UserTest {
     // ====== CREATE USER ======
     @Test
     void shouldCreateUser(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         assertNotNull(user.getUserId());
-        assertEquals("abc", user.getUsername());
-        assertEquals("123@gmail.com", user.getProfile().getEmail());
+        assertEquals("hieu", user.getUsername());
+        assertEquals("abc123@gmail.com", user.getUserProfile().getEmail());
 
         assertTrue(user.isActive());
 
@@ -29,7 +30,8 @@ public class UserTest {
     // ====== DEFAULT ROLE ======
     @Test
     void shouldHaveDefaultUserRole(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         assertTrue(user.hasRole(Role.ROLE_USER));
     }
@@ -37,7 +39,8 @@ public class UserTest {
     // ====== ADD ROLE ======
     @Test
     void shouldAddSellerRole(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.addRole(Role.ROLE_SELLER);
 
@@ -47,7 +50,8 @@ public class UserTest {
     // ====== REMOVE ROLE ======
     @Test
     void shouldRemoveRole(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.addRole(Role.ROLE_SELLER);
         user.removeRole(Role.ROLE_SELLER);
@@ -58,7 +62,8 @@ public class UserTest {
     // ====== LOCK ACCOUNT ======
     @Test
     void shouldLockAccount(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.lockAccount();
 
@@ -68,7 +73,8 @@ public class UserTest {
     // ====== UNLOCK ACCOUNT ======
     @Test
     void shouldUnlockAccount(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.lockAccount();
         user.unlockAccount();
@@ -79,7 +85,8 @@ public class UserTest {
     // ====== HAS ANY ROLE ======
     @Test
     void shouldReturnTrueWhenHasAnyRole(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.addRole(Role.ROLE_SELLER);
         user.addRole(Role.ROLE_ADMIN);
@@ -90,7 +97,8 @@ public class UserTest {
     // ====== BECOME SELLER ======
     @Test
     void shouldBecomeSeller(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.becomeSeller();
 
@@ -100,10 +108,12 @@ public class UserTest {
     // ====== UPGRADE BRONZE LEVEL ======
     @Test
     void shouldUpgradeToBronzeLevel(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.getWallet().deposit(new Money(2000));
-        user.getWallet().withdraw(new Money(1000));
+        user.getWallet().lock(new Money(1000));
+        user.getWallet().consumeLocked(new Money(1000));
 
         user.upgradeVIP();
 
@@ -113,10 +123,12 @@ public class UserTest {
     // ====== UPGRADE SILVER LEVEL ======
     @Test
     void shouldUpgradeToSilverLevel(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.getWallet().deposit(new Money(6000));
-        user.getWallet().withdraw(new Money(5000));
+        user.getWallet().lock(new Money(5000));
+        user.getWallet().consumeLocked(new Money(5000));
 
         user.upgradeVIP();
 
@@ -126,10 +138,12 @@ public class UserTest {
     // ====== UPGRADE GOLD LEVEL ======
     @Test
     void shouldUpgradeToGoldLevel(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.getWallet().deposit(new Money(12000));
-        user.getWallet().withdraw(new Money(10000));
+        user.getWallet().lock(new Money(10000));
+        user.getWallet().consumeLocked(new Money(10000));
 
         user.upgradeVIP();
 
@@ -139,10 +153,12 @@ public class UserTest {
     // ====== UPGRADE DIAMOND LEVEL ======
     @Test
     void shouldUpgradeToDiamondLevel(){
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "123456");
+        // User
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         user.getWallet().deposit(new Money(60000));
-        user.getWallet().withdraw(new Money(50000));
+        user.getWallet().lock(new Money(50000));
+        user.getWallet().consumeLocked(new Money(50000));
 
         user.upgradeVIP();
 

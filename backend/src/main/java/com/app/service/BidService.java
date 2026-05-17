@@ -12,6 +12,7 @@ import com.app.entity.AuctionEntity;
 import com.app.entity.BidEntity;
 import com.app.entity.UserEntity;
 import com.app.exception.auction.AuctionClosedException;
+import com.app.exception.user.UserNotFoundException;
 import com.app.exception.wallet.InvalidBidException;
 import com.app.mapper.BidMapper;
 import com.app.repository.BidRepository;
@@ -21,10 +22,10 @@ import com.app.repository.UserRepository;
 public class BidService {
     
     @Autowired
-    private AuctionService auctionService;
+    private NotificationService notificationService;
 
     @Autowired
-    private UserService userService;
+    private AuctionService auctionService;
 
     @Autowired
     private BidMapper bidMapper;
@@ -35,7 +36,10 @@ public class BidService {
     @Autowired
     private UserRepository userRepository;
 
-    // ====== PLACE BID ======
+    @Autowired
+    private WalletService walletService;
+
+    // ====== ĐẤU GIÁ ======
     public BidResponse placeBid(String auctionId, Money amount, String userId) {
 
         AuctionEntity auction = auctionService.getEntityByAuctionId(auctionId);
@@ -50,17 +54,23 @@ public class BidService {
             throw new InvalidBidException("Giá đấu giá phải lớn hơn giá hiện tại");
         }
 
-        UserEntity bidder = userService.getEntityByUserId(userId);
+        UserEntity bidder = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
-        BidEntity oldBid = bidRepository.findTopByBidderAndAuctionOrderByAmountDesc(bidder, auction).orElse(null);
+        // ====== TÌM GIÁ CAO NHẤT HIỆN TẠI  ======
+        BidEntity highestBid = bidRepository.findTopByAuctionOrderByAmount_ValueDesc(auction).orElse(null);
+
+        // ====== TÌM GIÁ CŨ ======
+        BidEntity oldBid = bidRepository.findTopByUserAndAuctionOrderByAmount_ValueDesc(bidder, auction).orElse(null);
+
+        // ====== TÍNH TIỀN KHÓA THÊM ======
 
         Money oldAmount = oldBid == null ? Money.isZero() : oldBid.getAmount();
 
-        Money extreToLock = amount.subtract(oldAmount);
+        Money extraToLock = amount.subtract(oldAmount);
 
-        bidder.getWallet().lock(extreToLock);
+        bidder.getWallet().lock(extraToLock);
 
-        // ====== CREATE BID ======
+        // ====== TẠO BID ======
         BidEntity bid = new BidEntity(bidder, amount);
 
         bid.setAuction(auction);
@@ -69,6 +79,19 @@ public class BidService {
 
         auctionService.extendTime(auction);
 
+        // ====== HOÀN TIỀN LẠI KHI OUTBID ======
+        if (highestBid != null && !highestBid.getUser().equals(bidder)){
+
+            walletService.refundBid(highestBid.getUser(), highestBid.getAmount());
+        }
+
+        // ====== THÔNG BÁO ======
+        for (UserEntity follower : auction.getFollowers()){
+
+            notificationService.notifyUser(follower, bidder.getUserId() + " đã đấu giá " + amount.getValue() + " cho auction " + auction.getTitle());
+        }
+
+        // ====== SAVE ======
         bidRepository.save(bid);
 
         auctionService.save(auction);

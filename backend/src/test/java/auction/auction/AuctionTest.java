@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.app.common.enums.AuctionStatus;
 import com.app.common.money.Money;
@@ -15,24 +18,30 @@ import com.app.entity.AuctionEntity;
 import com.app.entity.BidEntity;
 import com.app.entity.UserEntity;
 import com.app.exception.wallet.InvalidBidException;
+import com.app.repository.AuctionRepository;
 import com.app.service.AuctionService;
+import com.app.service.WalletService;
 
+@ExtendWith(MockitoExtension.class)
 public class AuctionTest {
-    private AuctionService auctionService;
 
-    @BeforeEach
-    void setUp() {
-        auctionService = new AuctionService();
-    }
+    @Mock
+    private AuctionRepository auctionRepository;
+
+    @Mock
+    private WalletService walletService;
+
+    @InjectMocks
+    private AuctionService auctionService;
     
     // ====== SUCCESS BID ======
     @Test
     void shouldAcceptValidBid(){
         
         // User
-        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "123456");
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        UserEntity seller = new UserEntity("seller", "123@gmail.com", "12345678");
+        UserEntity seller = new UserEntity("seller", "123@gmail.com","0223456789", "12345678");
         // Auction 
         AuctionEntity auction = new AuctionEntity("Iphone", "IPhone 16prm", "256GB", new Money(300), seller, LocalDateTime.now());
 
@@ -41,16 +50,16 @@ public class AuctionTest {
 
         auction.addBid(bid);
 
-        assertEquals(400, auction.getCurrentPrice().getAmount().doubleValue());
+        assertEquals(400, auction.getCurrentPrice().getValue().doubleValue());
     }
 
     // ====== INVALID BID ======
     @Test
     void shouldRejectLowBid(){
         // User
-        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "123456");
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        UserEntity seller = new UserEntity("seller", "123@gmail.com", "12345678");
+        UserEntity seller = new UserEntity("seller", "123@gmail.com","0223456789", "12345678");
         // Auction 
         AuctionEntity auction = new AuctionEntity("Iphone", "IPhone 16prm", "256GB", new Money(300), seller, LocalDateTime.now());
 
@@ -65,7 +74,8 @@ public class AuctionTest {
     @Test
     void shouldRejectNullBid(){
 
-        UserEntity seller = new UserEntity("seller", "123@gmail.com", "12345678");
+
+        UserEntity seller = new UserEntity("seller", "123@gmail.com","0223456789", "12345678");
         // Auction 
         AuctionEntity auction = new AuctionEntity("Iphone", "IPhone 16prm", "256GB", new Money(300), seller, LocalDateTime.now());
 
@@ -77,10 +87,11 @@ public class AuctionTest {
     // ====== MULTIPLE BID ======
     @Test
     void shouldAcceptHigherBid(){
-        UserEntity user1 = new UserEntity("hieu", "abc123@gmail.com", "123456");
-        UserEntity user2 = new UserEntity("2", "abcd123@gmail.com", "123456");
+        UserEntity user1 = new UserEntity("hieu", "abc123@gmail.com","0123456788", "123456");
+         // User
+        UserEntity user2 = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        UserEntity seller = new UserEntity("seller", "123@gmail.com", "12345678");
+        UserEntity seller = new UserEntity("seller", "123@gmail.com","0223456789", "12345678");
         // Auction 
         AuctionEntity auction = new AuctionEntity("Iphone", "IPhone 16prm", "256GB", new Money(300), seller, LocalDateTime.now());
 
@@ -92,14 +103,14 @@ public class AuctionTest {
         auction.addBid(bid1);
         auction.addBid(bid2);
 
-        assertEquals(350, auction.getCurrentPrice().getAmount().doubleValue());
+        assertEquals(350, auction.getCurrentPrice().getValue().doubleValue());
     }
 
     // ====== AUTO EXTEND ======
     @Test
     void shouldExtendAuctionTime(){
 
-        UserEntity seller = new UserEntity("seller", "123@gmail.com", "12345678");
+        UserEntity seller = new UserEntity("seller", "123@gmail.com","0223456789", "12345678");
         // Auction 
         AuctionEntity auction = new AuctionEntity("Iphone", "IPhone 16prm", "256GB", new Money(300), seller, LocalDateTime.now());
 

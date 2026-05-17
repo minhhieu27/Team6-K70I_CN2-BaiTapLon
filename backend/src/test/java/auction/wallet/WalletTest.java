@@ -19,7 +19,7 @@ public class WalletTest {
 
         wallet.deposit(new Money(200));
 
-        assertEquals(200, wallet.getBalance().getAmount().doubleValue());
+        assertEquals(200, wallet.getBalance().getValue().doubleValue());
     }
 
     @Test
@@ -29,7 +29,7 @@ public class WalletTest {
         wallet.deposit(new Money(200));
         wallet.withdraw(new Money(150));
 
-        assertEquals(50, wallet.getBalance().getAmount().doubleValue());
+        assertEquals(50, wallet.getBalance().getValue().doubleValue());
     }
 
     @Test

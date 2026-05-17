@@ -12,8 +12,9 @@ public class WalletMapper {
 
         return WalletResponse.builder()
                 .userId(wallet.getUser().getUserId())
-                .balance(wallet.getBalance().getAmount())
-                .lockedBalance(wallet.getLockedAmount().getAmount())
+                .balance(wallet.getBalance().getValue())
+                .lockedBalance(wallet.getLockedAmount().getValue())
+                .totalSpent(wallet.getTotalSpent().getValue())
                 .build();
     }
 }

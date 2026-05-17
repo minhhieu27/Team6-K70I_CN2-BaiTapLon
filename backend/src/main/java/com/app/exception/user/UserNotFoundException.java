@@ -1,4 +1,4 @@
-package com.app.exception.security;
+package com.app.exception.user;
 
 import com.app.common.enums.ErrorCode;
 import com.app.exception.base.AppException;
