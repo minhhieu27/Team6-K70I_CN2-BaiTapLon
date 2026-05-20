@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import com.app.common.enums.AuctionStatus;
 import com.app.common.money.Money;
 import com.app.dto.response.BidResponse;
@@ -38,6 +40,15 @@ public class BidService {
 
     @Autowired
     private WalletService walletService;
+
+    public List<BidResponse> getBidHistory(String auctionId) {
+        AuctionEntity auction = auctionService.getEntityByAuctionId(auctionId);
+
+        return bidRepository.findByAuctionOrderByCreateBidAtDesc(auction)
+                .stream()
+                .map(bidMapper::toResponse)
+                .toList();
+    }
 
     // ====== ĐẤU GIÁ ======
     public BidResponse placeBid(String auctionId, Money amount, String userId) {
