@@ -71,7 +71,14 @@ public class AuctionEntity {
     private List<BidEntity> bidHistory = new ArrayList<>();
 
     @Column (name = "paid_status", nullable = false )
-    private boolean paid;
+    private boolean paid = false;
+
+    @Column (name = "notified_ending", nullable = true)
+    private LocalDateTime lastEndingNotificationAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "highest_bidder_id")
+    private UserEntity highestBidder;
 
     public AuctionEntity(String title, String itemName, String description, Money startPrice, UserEntity seller, LocalDateTime startTime){
 
@@ -101,6 +108,8 @@ public class AuctionEntity {
         bid.setAuction(this);
 
         this.currentPrice = bid.getAmount();
+
+        this.highestBidder = bid.getUser();
 
         bidHistory.add(bid);
     }

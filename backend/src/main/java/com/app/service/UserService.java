@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.app.common.enums.Role;
+import com.app.common.enums.UserStatus;
 import com.app.dto.request.ChangePasswordRequest;
 import com.app.dto.request.ResetPasswordRequest;
 import com.app.dto.request.UpdateProfileRequest;
@@ -35,6 +36,7 @@ import com.app.exception.security.OldPasswordNotMatchesException;
 import com.app.exception.security.PasswordNotMatchesException;
 import com.app.exception.security.PhoneAlreadyExistsException;
 import com.app.exception.security.UsernameAlreadyExistException;
+import com.app.exception.user.AccountBannedException;
 import com.app.exception.user.AccountLockedException;
 import com.app.exception.user.UserNotFoundException;
 
@@ -68,7 +70,6 @@ public class UserService implements UserDetailsService {
                 .username(userEntity.getUserId())
                 .password(userEntity.getPassword())
                 .authorities(authorities)
-                .disabled(!userEntity.isActive())
                 .build();
 
     }
@@ -106,6 +107,17 @@ public class UserService implements UserDetailsService {
 
         UserEntity user = userRepository.findByUsernameOrUserProfile_EmailOrUserProfile_Phone(identifier, identifier, identifier).orElseThrow();
 
+        if (user.getStatus() == UserStatus.BANNED){
+            throw new AccountBannedException("Tài khoản đã bị cấm");
+        }
+        
+        if (user.getStatus() == UserStatus.LOCKED){
+
+            user.setStatus(UserStatus.ACTIVE);
+
+            userRepository.save(user);
+        }
+
         String token = JWTUtil.generateToken(user.getUserId(), user.getRoles());
 
         return authMapper.toLoginResponse(user, token);
@@ -117,8 +129,8 @@ public class UserService implements UserDetailsService {
         UserEntity userEntity = userRepository.findByUserId(userId).orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người dùng"));
 
         // ====== CHECK STATUS ======
-        if (!userEntity.isActive()){
-            throw new AccountLockedException("Tài khoản không hoạt động!");
+        if (userEntity.getStatus() == UserStatus.BANNED){
+            throw new AccountLockedException("Tài khoản đã bị ban");
         }
 
         if (userEntity.getRoles().contains(Role.ROLE_SELLER)){
@@ -135,23 +147,15 @@ public class UserService implements UserDetailsService {
     }
 
     // ====== LOCK USER ======
-    public void lockUser(String userId){
+    public MessageResponse lockUser(String userId){
 
         UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
         user.lockAccount();
 
         userRepository.save(user);
-    }
 
-    // ====== UNLOCK USER ======
-    public void unlockUser(String userId){
-
-        UserEntity user = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
-
-        user.unlockAccount();
-
-        userRepository.save(user);
+        return new MessageResponse("Đã khóa tài khoản");
     }
 
     // ====== GET USER ======

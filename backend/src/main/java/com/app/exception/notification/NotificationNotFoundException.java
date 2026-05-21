@@ -1,4 +1,4 @@
-package com.app.exception.user;
+package com.app.exception.notification;
 
 import com.app.common.enums.ErrorCode;
 import com.app.exception.base.AppException;

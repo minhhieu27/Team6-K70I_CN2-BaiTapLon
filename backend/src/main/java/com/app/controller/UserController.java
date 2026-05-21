@@ -4,8 +4,9 @@ import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,21 +52,12 @@ public class UserController {
     }
 
     // ====== LOCK USER ======
-    @PutMapping("/{userId}/lock")
-    public String lockUser(@PathVariable String userId){
+    @PutMapping("/me/lock")
+    public MessageResponse lockUser(Authentication authentication){
 
-        userService.lockUser(userId);
+        userService.lockUser(authentication.getName());
 
-        return "User đã bị khóa";
-    }
-
-    // ====== UNLOCK USER ======   
-    @PutMapping("/{userId}/unlock")
-    public String unlockUser(@PathVariable String userId){
-
-        userService.unlockUser(userId);
-
-        return "User đã được mở khóa";
+        return new MessageResponse( "User đã bị khóa");
     }
 
     // ====== CHANGE PASSWORD ======

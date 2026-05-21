@@ -3,13 +3,17 @@ package auction.auction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.app.common.enums.AuctionStatus;
@@ -33,6 +37,11 @@ public class AuctionTest {
 
     @InjectMocks
     private AuctionService auctionService;
+
+    @BeforeEach
+        void setup(){
+            MockitoAnnotations.openMocks(this);
+        }
     
     // ====== SUCCESS BID ======
     @Test
@@ -119,6 +128,8 @@ public class AuctionTest {
         auction.setEndTime(LocalDateTime.now().plusSeconds(20));
 
         LocalDateTime oldEndTime = auction.getEndTime();
+
+        when(auctionRepository.save(any(AuctionEntity.class))).thenReturn(auction);
 
         auctionService.extendTime(auction);
 

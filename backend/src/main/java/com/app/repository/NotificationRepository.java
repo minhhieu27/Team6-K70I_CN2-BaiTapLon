@@ -8,4 +8,6 @@ import com.app.entity.NotificationEntity;
 
 public interface NotificationRepository extends JpaRepository<NotificationEntity, String> {
     List<NotificationEntity> findByUser_UserIdOrderByCreateAtDesc(String userId);
+
+    List<NotificationEntity> findByUser_UserId(String userId);
 }

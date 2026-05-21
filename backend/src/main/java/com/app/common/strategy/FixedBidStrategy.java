@@ -1,9 +1,12 @@
 package com.app.common.strategy;
 
+import org.springframework.stereotype.Component;
+
 import com.app.common.money.Money;
 import com.app.entity.AuctionEntity;
 import com.app.entity.BidEntity;
 
+@Component
 public class FixedBidStrategy implements BidStrategy {
     
     @Override

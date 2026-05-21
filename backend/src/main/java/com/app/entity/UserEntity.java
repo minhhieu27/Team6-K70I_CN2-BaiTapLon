@@ -5,9 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.app.common.enums.Role;
+import com.app.common.enums.UserStatus;
 import com.app.common.enums.VIPLevel;
 import com.app.common.money.Money;
 import com.app.common.tool.IDGenerator;
+import com.app.exception.user.AccountBannedException;
 import com.app.exception.user.AccountLockedException;
 
 import jakarta.persistence.*;
@@ -31,7 +33,8 @@ public class UserEntity {
     @Column (name = "password", nullable = false, length = 255)
     private String password;
 
-    @Embedded
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_id")
     private UserProfile userProfile = new UserProfile();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -53,8 +56,9 @@ public class UserEntity {
     @Column(name = "update_at")
     private LocalDateTime update_At;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private boolean active = true;
+    private UserStatus status = UserStatus.ACTIVE;
 
     protected UserEntity() {
     }
@@ -65,8 +69,6 @@ public class UserEntity {
         this.userProfile.setEmail(email);
         this.userProfile.setPhone(phone);
         this.password = password;
-
-        this.active = true;
 
         this.wallet = new Wallet();
 
@@ -132,16 +134,24 @@ public class UserEntity {
 
     // ====== STATUS ======
     public void lockAccount(){
-        this.active = false;
+        this.status = UserStatus.LOCKED;
     }
 
     public void unlockAccount(){
-        this.active = true;
+        this.status = UserStatus.ACTIVE;
+    }
+
+    public void banAccount(){
+        this.status = UserStatus.BANNED;
     }
 
     public void validateActive(){
-        if (!active){
+        if (status == UserStatus.LOCKED){
             throw new AccountLockedException("Tài khoản bị khóa");
+        }
+
+        if (status == UserStatus.BANNED){
+            throw new AccountBannedException("Tài khoản bị cấm");
         }
     }
 }

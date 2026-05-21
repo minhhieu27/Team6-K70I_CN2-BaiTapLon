@@ -3,6 +3,7 @@ package auction.users;
 import org.junit.jupiter.api.Test;
 
 import com.app.common.enums.Role;
+import com.app.common.enums.UserStatus;
 import com.app.common.enums.VIPLevel;
 import com.app.common.money.Money;
 import com.app.entity.UserEntity;
@@ -22,7 +23,7 @@ public class UserTest {
         assertEquals("hieu", user.getUsername());
         assertEquals("abc123@gmail.com", user.getUserProfile().getEmail());
 
-        assertTrue(user.isActive());
+        assertEquals(UserStatus.ACTIVE, user.getStatus());
 
         assertEquals(VIPLevel.NORMAL, user.getVipLevel());
     }
@@ -67,7 +68,7 @@ public class UserTest {
 
         user.lockAccount();
 
-        assertFalse(user.isActive());
+        assertEquals(UserStatus.LOCKED, user.getStatus());
     }
 
     // ====== UNLOCK ACCOUNT ======
@@ -79,7 +80,7 @@ public class UserTest {
         user.lockAccount();
         user.unlockAccount();
 
-        assertTrue(user.isActive());
+        assertEquals(UserStatus.ACTIVE, user.getStatus());
     }
 
     // ====== HAS ANY ROLE ======
