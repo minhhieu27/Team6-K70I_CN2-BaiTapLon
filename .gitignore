@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ===== JAVA =====
 *.class
 *.log
@@ -47,4 +48,35 @@ replay_pid*
 build/
 
 # ===== OS =====
+=======
+### IntelliJ IDEA ###
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+.kotlin
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+>>>>>>> 9b400298307a283b9dda72788ed460b6d762656f
 .DS_Store
