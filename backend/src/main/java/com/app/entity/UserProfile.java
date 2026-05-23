@@ -3,10 +3,25 @@ package com.app.entity;
 import com.app.exception.validation.ValidationException;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Embeddable
+@Entity
+@Table (name = "users_profile")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserProfile {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(length = 50)
     private String fullname;
@@ -25,8 +40,6 @@ public class UserProfile {
 
     @Column (name = "phone", length = 20, unique = true)
     private String phone;
-
-    protected UserProfile() {}
 
     public UserProfile(String phone){
         setPhone(phone);

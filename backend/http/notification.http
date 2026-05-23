@@ -1,0 +1,9 @@
+GET http://localhost:8080/notifications
+Authorization: Bearer 
+
+PUT http://localhost:8080/notifications/1/read
+Authorization: Bearer
+
+
+POST http://localhost:8080/notifications/read-all
+Authorization: Bearer

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
-public class BidRequest {
+public class CreateBidRequest {
 
     @NotBlank
     private String auctionId;

@@ -1,5 +1,7 @@
 package com.app.dto.response;
 
+import com.app.common.enums.UserStatus;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,5 +13,5 @@ public class UserResponse {
     private String username;
     private String email;
     private String phone;
-    private boolean active;
+    private UserStatus status;
 }

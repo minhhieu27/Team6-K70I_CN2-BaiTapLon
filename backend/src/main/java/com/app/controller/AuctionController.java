@@ -3,11 +3,11 @@ package com.app.controller;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.common.money.Money;
-import com.app.dto.request.AuctionRequest;
+import com.app.dto.request.CreateAuctionRequest;
 import com.app.dto.response.AuctionResponse;
 import com.app.dto.response.MessageResponse;
 import com.app.service.AuctionService;
@@ -29,9 +29,9 @@ public class AuctionController {
 
     // ====== CREATE AUCTION ======
     @PostMapping
-    public AuctionResponse create(@Valid @RequestBody AuctionRequest req, Principal principal){
+    public AuctionResponse create(@Valid @RequestBody CreateAuctionRequest req, Principal principal){
 
-        return auctionService.createAuction(req.getTitle(), req.getItemName(), req.getDescription(), new Money(req.getStartPrice()), principal.getName());
+        return auctionService.createAuction(req, principal.getName());
     }
 
     @GetMapping
@@ -43,6 +43,12 @@ public class AuctionController {
     @GetMapping ("/{auctionId}")
     public AuctionResponse get(@PathVariable String auctionId){
         return auctionService.getByAuctionId(auctionId);
+    }
+
+    @PostMapping("/{auctionId}/follow")
+    public MessageResponse followAuction(@PathVariable String auctionId, Authentication authentication){
+
+        return auctionService.followAuction(auctionId, authentication.getName());
     }
 
     @PostMapping("/{auctionId}/finish")

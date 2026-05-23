@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
-public class AuctionRequest {
+public class CreateAuctionRequest {
 
     @NotBlank (message = "Tiêu đề không được trống")
     private String title;

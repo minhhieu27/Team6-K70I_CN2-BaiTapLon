@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.common.money.Money;
-import com.app.dto.request.BidRequest;
+import com.app.dto.request.CreateBidRequest;
 import com.app.dto.response.BidResponse;
 import com.app.service.BidService;
 
@@ -22,7 +22,7 @@ public class BidController {
     private BidService bidService;
 
     @PostMapping
-    public BidResponse bid(@Valid @RequestBody BidRequest req, Principal principal){
+    public BidResponse bid(@Valid @RequestBody CreateBidRequest req, Principal principal){
         
         return bidService.placeBid(req.getAuctionId(), new Money(req.getAmount()), principal.getName());
     }

@@ -1,11 +1,8 @@
 package com.app.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import com.app.common.enums.AuctionStatus;
 import com.app.common.money.Money;
@@ -27,12 +24,13 @@ public class BidService {
     private NotificationService notificationService;
 
     @Autowired
+    @Lazy
     private AuctionService auctionService;
 
     @Autowired
     private BidMapper bidMapper;
 
-    @Autowired 
+    @Autowired
     private BidRepository bidRepository;
 
     @Autowired
@@ -41,15 +39,9 @@ public class BidService {
     @Autowired
     private WalletService walletService;
 
-    public List<BidResponse> getBidHistory(String auctionId) {
-        AuctionEntity auction = auctionService.getEntityByAuctionId(auctionId);
-
-        return bidRepository.findByAuctionOrderByCreateBidAtDesc(auction)
-                .stream()
-                .map(bidMapper::toResponse)
-                .toList();
-    }
-
+    @Autowired
+    @Lazy
+    private AutoBidService autoBidService;
     // ====== ĐẤU GIÁ ======
     public BidResponse placeBid(String auctionId, Money amount, String userId) {
 
@@ -58,42 +50,47 @@ public class BidService {
         auctionService.updateStatus(auction);
        
         if (auction.getStatus() != AuctionStatus.OPEN){
-            throw new AuctionClosedException("Auction đã đóng");
+            throw new AuctionClosedException("Phiên đấu giá đã đóng");
         }
 
         if (auction.getCurrentPrice().isGreaterThan(amount)){
             throw new InvalidBidException("Giá đấu giá phải lớn hơn giá hiện tại");
         }
 
+        if (auction.getSeller().getUserId().equals(userId)){
+            throw new InvalidBidException("Người bán không thể tham gia đấu giá");
+        }
+
         UserEntity bidder = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
+        bidder.validateActive();
 
-        // ====== TÌM GIÁ CAO NHẤT HIỆN TẠI  ======
-        BidEntity highestBid = bidRepository.findTopByAuctionOrderByAmount_ValueDesc(auction).orElse(null);
+        // ====== LƯU GIÁ CAO NHẤT HIỆN TẠI TRƯỚC KHI CÓ BID MỚI ======
+        Money oldPrice = auction.getCurrentPrice();
 
-        // ====== TÌM GIÁ CŨ ======
+        UserEntity oldHighestBidder = auction.getHighestBidder();
+
+        // ====== TÌM GIÁ CŨ CAO CỦA NGƯỜI ĐÃ ĐẤU GIÁ ======
         BidEntity oldBid = bidRepository.findTopByUserAndAuctionOrderByAmount_ValueDesc(bidder, auction).orElse(null);
 
         // ====== TÍNH TIỀN KHÓA THÊM ======
 
-        Money oldAmount = oldBid == null ? Money.isZero() : oldBid.getAmount();
+        Money oldUserBidAmount = oldBid == null ? Money.isZero() : oldBid.getAmount();
 
-        Money extraToLock = amount.subtract(oldAmount);
+        Money extraToLock = amount.subtract(oldUserBidAmount);
 
         bidder.getWallet().lock(extraToLock);
 
         // ====== TẠO BID ======
         BidEntity bid = new BidEntity(bidder, amount);
 
-        bid.setAuction(auction);
-
         auction.addBid(bid);
 
         auctionService.extendTime(auction);
 
         // ====== HOÀN TIỀN LẠI KHI OUTBID ======
-        if (highestBid != null && !highestBid.getUser().equals(bidder)){
+        if (oldHighestBidder != null && !oldHighestBidder.getUserId().equals(bidder.getUserId())){
 
-            walletService.refundBid(highestBid.getUser(), highestBid.getAmount());
+            walletService.refundBid(oldHighestBidder, oldPrice);
         }
 
         // ====== THÔNG BÁO ======
@@ -104,6 +101,8 @@ public class BidService {
 
         // ====== SAVE ======
         bidRepository.save(bid);
+
+        autoBidService.processAutoBid(auction);
 
         auctionService.save(auction);
 
