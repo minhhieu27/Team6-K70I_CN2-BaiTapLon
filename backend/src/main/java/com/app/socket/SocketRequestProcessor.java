@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.app.dto.response.LoginResponse;
 import com.app.dto.response.UserResponse;
 import com.app.service.UserService;
+import com.app.dto.request.CreateAuctionRequest;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -215,13 +216,15 @@ public class SocketRequestProcessor {
             return Response.error("Start price is missing or invalid");
         }
 
-        Money startPrice = toMoney(startPriceValue);
+        CreateAuctionRequest createAuctionRequest = new CreateAuctionRequest();
+
+        createAuctionRequest.setTitle(title);
+        createAuctionRequest.setItemName(itemName);
+        createAuctionRequest.setDescription(description);
+        createAuctionRequest.setStartPrice(BigDecimal.valueOf(startPriceValue));
 
         AuctionResponse auction = auctionService.createAuction(
-                title,
-                itemName,
-                description,
-                startPrice,
+                createAuctionRequest,
                 sellerId
         );
 
@@ -231,6 +234,8 @@ public class SocketRequestProcessor {
                 auction
         );
     }
+
+
 
     private Response handleJoinAuction(
             Request request,
