@@ -7,8 +7,9 @@ import com.app.entity.BidEntity;
 import com.app.entity.UserEntity;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface BidRepository extends JpaRepository<BidEntity, Long> {
     Optional<BidEntity> findTopByUserAndAuctionOrderByAmount_ValueDesc(UserEntity user, AuctionEntity auction);
-
+    List<BidEntity> findByAuctionOrderByCreateBidAtDesc(AuctionEntity auction);
 }

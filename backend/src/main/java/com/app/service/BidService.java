@@ -17,6 +17,8 @@ import com.app.mapper.BidMapper;
 import com.app.repository.BidRepository;
 import com.app.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 public class BidService {
     
@@ -42,6 +44,16 @@ public class BidService {
     @Autowired
     @Lazy
     private AutoBidService autoBidService;
+
+    public List<BidResponse> getBidHistory(String auctionId) {
+        AuctionEntity auction = auctionService.getEntityByAuctionId(auctionId);
+
+        return bidRepository.findByAuctionOrderByCreateBidAtDesc(auction)
+                .stream()
+                .map(bidMapper::toResponse)
+                .toList();
+    }
+
     // ====== ĐẤU GIÁ ======
     public BidResponse placeBid(String auctionId, Money amount, String userId) {
 
