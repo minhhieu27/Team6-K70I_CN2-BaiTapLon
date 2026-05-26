@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.app.entity.AutoBidEntity;
+import com.app.entity.bid.AutoBidEntity;
 
 public interface AutoBidRepository extends JpaRepository<AutoBidEntity, String> {
     

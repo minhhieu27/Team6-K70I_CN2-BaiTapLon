@@ -3,6 +3,8 @@ package com.app.common.enums;
 public enum TransactionType {
     DEPOSIT,
     WITHDRAW,
-    BID,
-    REFUND
+    BID_LOCK,
+    REFUND,
+    PAYMENT,
+    RECEIVE
 }

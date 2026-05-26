@@ -2,8 +2,8 @@ package com.app.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.app.dto.response.BidResponse;
-import com.app.entity.BidEntity;
+import com.app.dto.response.bid.BidResponse;
+import com.app.entity.bid.BidEntity;
 
 @Component
 public class BidMapper {

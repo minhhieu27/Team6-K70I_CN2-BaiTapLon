@@ -3,29 +3,28 @@ package com.app.scheduler;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.app.common.enums.AuctionStatus;
 import com.app.common.tool.DateTimeUtil;
-import com.app.entity.AuctionEntity;
-import com.app.entity.UserEntity;
+import com.app.entity.auction.AuctionEntity;
+import com.app.entity.user.UserEntity;
 import com.app.repository.AuctionRepository;
-import com.app.service.AuctionService;
-import com.app.service.NotificationService;
+import com.app.service.auction.AuctionManagementService;
+import com.app.service.notification.NotificationService;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class AuctionScheduler {
     
-    @Autowired
-    private AuctionRepository auctionRepository;
+    private final AuctionRepository auctionRepository;
 
-    @Autowired
-    private AuctionService auctionService;
+    private final AuctionManagementService auctionManagementService;
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
     private static final int EXTEND_THRESHOLD = 30;
     private static final int COOLDOWN_TIME = 30;
@@ -40,7 +39,7 @@ public class AuctionScheduler {
         for (AuctionEntity auction : auctions){
 
             // ====== OPEN ======
-            if (auction.getStatus() == AuctionStatus.SCHEDULED && now.isAfter(auction.getStartTime())){
+            if (auction.getStatus() == AuctionStatus.SCHEDULED && !now.isBefore(auction.getStartTime())){
 
                 auction.setStatus(AuctionStatus.OPEN);
 
@@ -52,7 +51,7 @@ public class AuctionScheduler {
             // ====== FINISH ======
             if (auction.getStatus() == AuctionStatus.OPEN && now.isAfter(auction.getEndTime())){
 
-                auctionService.finishAuction(auction.getAuctionId());
+               auctionManagementService.finishAuction(auction.getAuctionId());
             }
         }
     }

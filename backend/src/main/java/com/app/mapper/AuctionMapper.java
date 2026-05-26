@@ -5,23 +5,39 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.app.dto.response.AuctionResponse;
-import com.app.entity.AuctionEntity;
+import com.app.dto.response.auction.AuctionImageResponse;
+import com.app.dto.response.auction.AuctionResponse;
+import com.app.entity.auction.AuctionEntity;
+import com.app.entity.auction.AuctionImageEntity;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class AuctionMapper {
+
+    private final ItemMapper itemMapper;
 
     public AuctionResponse toResponse(AuctionEntity auction){
 
         return AuctionResponse.builder()
                 .auctionId(auction.getAuctionId())
                 .title(auction.getTitle())
-                .description(auction.getDescription())
-                .startPrice(auction.getStartPrice().getValue())
+                .item(itemMapper.toResponse(auction.getItem()))
+                .images(auction.getImages().stream().map(this::toImageResponse).toList())
                 .currentPrice(auction.getCurrentPrice().getValue())
                 .status(auction.getStatus())
                 .sellerId(auction.getSeller().getUserId())
                 .build();
+    }
+
+    private AuctionImageResponse toImageResponse(AuctionImageEntity image){
+
+        return AuctionImageResponse.builder()
+                                .imageId(image.getImageId())
+                                .imageUrl(image.getImageUrl())
+                                .displayOrder(image.getDisplayOrder())
+                                .build();
     }
 
     public List<AuctionResponse> toResponseList(List<AuctionEntity> auctions){

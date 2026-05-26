@@ -3,11 +3,11 @@ package com.app.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.app.dto.request.LoginRequest;
-import com.app.dto.request.RegisterRequest;
-import com.app.dto.response.LoginResponse;
-import com.app.dto.response.UserResponse;
-import com.app.service.UserService;
+import com.app.dto.request.security.LoginRequest;
+import com.app.dto.request.security.RegisterRequest;
+import com.app.dto.response.security.LoginResponse;
+import com.app.dto.response.user.UserResponse;
+import com.app.service.user.UserService;
 
 import jakarta.validation.Valid;
 

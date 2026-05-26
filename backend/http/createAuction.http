@@ -1,10 +1,20 @@
 POST http://localhost:8080/auctions
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVU1ItNGIxOGI0NGEiLCJ1c2VySWQiOiJVU1ItNGIxOGI0NGEiLCJyb2xlcyI6WyJST0xFX1VTRVIiLCJST0xFX1NFTExFUiJdLCJpYXQiOjE3NzkzMTcyMjQsImV4cCI6MTc3OTQwMzYyNH0.-BbQVK61yiUawaBZjWshCC50pkoULgWWTc9fUlaUtlg
+Authorization: Bearer eyJhbGc...
 Content-Type: application/json
 
 {
-  "title": "IPhone 15",
-  "itemName": "Iphone 15 promax",
-  "description": "new, 256GB",
-  "startPrice": 450
+  "title": "IPhone 15 Auction",
+
+  "itemType": "ELECTRONICS",
+
+  "itemName": "IPhone 15 Pro Max",
+  "description": "New 256GB",
+  "startPrice": 450,
+
+  "brand": "Apple",
+  "model": "15 Pro Max",
+  "color": "red",
+  "storage": "256GB",
+  "conditionStatus": "new",
+  "warrantyMonths": "6"
 }

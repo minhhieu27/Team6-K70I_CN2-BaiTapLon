@@ -4,10 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,14 +17,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.app.dto.response.MessageResponse;
-import com.app.entity.NotificationEntity;
-import com.app.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import com.app.dto.response.message.MessageResponse;
+import com.app.dto.response.notification.NotificationResponse;
+import com.app.entity.notification.NotificationEntity;
+import com.app.entity.user.UserEntity;
 import com.app.exception.notification.NotificationNotFoundException;
+import com.app.mapper.NotificationMapper;
 import com.app.repository.NotificationRepository;
 import com.app.repository.UserRepository;
-import com.app.service.NotificationService;
+import com.app.service.notification.NotificationService;
 
 @ExtendWith(MockitoExtension.class)
 public class NotificationServiceTest {
@@ -34,16 +39,15 @@ public class NotificationServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private NotificationMapper notificationMapper;
+
     @InjectMocks
     private NotificationService notificationService;
 
     // ====== CREATE NOTIFICATION ======
     @Test
     void shouldCreateNotification(){
-
-        NotificationRepository notificationRepository = mock(NotificationRepository.class);
-
-        NotificationService notificationService = new NotificationService(notificationRepository);
 
         // User
         UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
@@ -57,34 +61,31 @@ public class NotificationServiceTest {
     @Test
     void shouldGetUserNotifications(){
 
-        NotificationRepository notificationRepository = mock(NotificationRepository.class);
-
-        NotificationService notificationService = new NotificationService(notificationRepository);
-
         // User
         UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
         NotificationEntity notification1 = new NotificationEntity("Có bid mới", user);
+
         NotificationEntity notification2 = new NotificationEntity("Đấu giá sắp kết thúc", user);
 
         List<NotificationEntity> notifications = List.of(notification1, notification2);
 
-        when(notificationRepository.findByUser_UserIdOrderByCreateAtDesc(user.getUserId())).thenReturn(notifications);
+        Page<NotificationEntity> page = new PageImpl<>(notifications);
 
-        List<NotificationEntity> result = notificationService.getUserNotifications(user.getUserId());
+        NotificationResponse response = new NotificationResponse();
 
-        assertEquals(2, result.size());
+        when(notificationMapper.toResponse(any(NotificationEntity.class))).thenReturn(response);
 
-        assertEquals("Có bid mới", result.get(0).getMessage());
+        when(notificationRepository.findByUser_UserIdOrderByCreateAtDesc(eq(user.getUserId()), any(Pageable.class))).thenReturn(page);
+
+        Page<NotificationResponse> result = notificationService.getUserNotifications(user.getUserId(), 0, 10);
+
+        assertEquals(2, result.getContent().size());
     }
 
     // ====== MARK AS READ ======
     @Test
     void shouldMarkNotificationAsRead(){
-
-        NotificationRepository notificationRepository = mock(NotificationRepository.class);
-
-        NotificationService notificationService = new NotificationService(notificationRepository);
 
         // User
         UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
@@ -106,9 +107,9 @@ public class NotificationServiceTest {
     @Test
     void shouldThrowNotificationNotFound(){
 
-        NotificationRepository notificationRepository = mock(NotificationRepository.class);
+        UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        NotificationService notificationService = new NotificationService(notificationRepository);
+        when(userRepository.findByUserId("U1")).thenReturn(Optional.of(user));
 
         when(notificationRepository.findById("invalid")).thenReturn(Optional.empty());
 
@@ -127,7 +128,10 @@ public class NotificationServiceTest {
         notification1.setRead(false);
         notification2.setRead(false);
 
-        List<NotificationEntity> notifications = List.of(notification1, notification2);
+        List<NotificationEntity> notifications = new ArrayList<>();
+
+        notifications.add(notification1);
+        notifications.add(notification2);
 
         when(notificationRepository.findByUser_UserId("U1")).thenReturn(notifications);
 

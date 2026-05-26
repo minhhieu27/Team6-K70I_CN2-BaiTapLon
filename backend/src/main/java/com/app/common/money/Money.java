@@ -22,7 +22,7 @@ public class Money {
         this.value = value;
     }
 
-    public Money(double value1){
+    public Money(long value1){
         BigDecimal bd = BigDecimal.valueOf(value1); // convert từ double sang bigdecimal
         validate(bd);
         this.value = bd;
@@ -51,6 +51,14 @@ public class Money {
 
     public Money multiply(double factor){ // Nhân tiền với hệ số factor
         return new Money(this.value.multiply(BigDecimal.valueOf(factor))); 
+    }
+
+    // ====== PERCENTAGE ======
+    public Money percentage(int percent){
+
+        BigDecimal result = this.value.multiply(BigDecimal.valueOf(percent)).divide(BigDecimal.valueOf(100));
+
+        return new Money(result);
     }
 
     public int compareTo(Money other){
@@ -84,7 +92,11 @@ public class Money {
         // stripTrailingZeros() dùng để loại bỏ các số 0 dư ở cuối phần thập phân
     }
 
-    public static Money isZero() {
+    public boolean isZero() {
+        return value.compareTo(BigDecimal.ZERO) == 0;
+    }
+
+    public static Money zero(){
         return new Money(BigDecimal.ZERO);
     }
 }

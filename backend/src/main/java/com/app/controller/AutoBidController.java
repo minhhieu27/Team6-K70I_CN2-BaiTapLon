@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.common.money.Money;
-import com.app.dto.request.CreateAutoBidRequest;
-import com.app.dto.response.MessageResponse;
-import com.app.entity.AutoBidEntity;
-import com.app.service.AutoBidService;
+import com.app.dto.request.bid.CreateAutoBidRequest;
+import com.app.dto.response.message.MessageResponse;
+import com.app.entity.bid.AutoBidEntity;
+import com.app.service.bid.AutoBidService;
 
 import jakarta.validation.Valid;
 

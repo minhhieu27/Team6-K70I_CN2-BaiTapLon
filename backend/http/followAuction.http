@@ -1,0 +1,2 @@
+POST http://localhost:8080/auctions/AUC-/follow
+Authorization: Bearer 

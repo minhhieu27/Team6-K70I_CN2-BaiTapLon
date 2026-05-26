@@ -1,14 +1,17 @@
 package com.app.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.app.entity.AuctionEntity;
-import com.app.entity.BidEntity;
-import com.app.entity.UserEntity;
+import com.app.entity.auction.AuctionEntity;
+import com.app.entity.bid.BidEntity;
+import com.app.entity.user.UserEntity;
 
 import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<BidEntity, Long> {
     Optional<BidEntity> findTopByUserAndAuctionOrderByAmount_ValueDesc(UserEntity user, AuctionEntity auction);
 
+    Page<BidEntity> findByAuction_AuctionIdOrderByCreateBidAtDesc(String auctionId, Pageable pageable);
 }

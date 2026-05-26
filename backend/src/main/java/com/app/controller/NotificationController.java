@@ -1,18 +1,18 @@
 package com.app.controller;
 
-import com.app.service.NotificationService;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.dto.response.MessageResponse;
-import com.app.entity.NotificationEntity;
+import com.app.dto.response.message.MessageResponse;
+import com.app.dto.response.notification.NotificationResponse;
+import com.app.service.notification.NotificationService;
 
 @RestController
 @RequestMapping("/notifications")
@@ -27,9 +27,11 @@ public class NotificationController {
 
     // ====== MY NOTIFICATIONS ======
     @GetMapping
-    public List<NotificationEntity> myNotifications(Authentication authentication) {
+    public Page<NotificationResponse> myNotifications(Authentication authentication, 
+                                                    @RequestParam (defaultValue = "0") int page,
+                                                    @RequestParam (defaultValue = "10") int size) {
 
-        return notificationService.getUserNotifications(authentication.getName());
+        return notificationService.getUserNotifications(authentication.getName(),page, size);
     }
 
     // ====== MARK AS READ ======

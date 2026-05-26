@@ -6,7 +6,7 @@ import com.app.common.enums.Role;
 import com.app.common.enums.UserStatus;
 import com.app.common.enums.VIPLevel;
 import com.app.common.money.Money;
-import com.app.entity.UserEntity;
+import com.app.entity.user.UserEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -112,9 +112,23 @@ public class UserTest {
         // User
         UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        user.getWallet().deposit(new Money(2000));
-        user.getWallet().lock(new Money(1000));
-        user.getWallet().consumeLocked(new Money(1000));
+        user.setVipLevel(VIPLevel.NORMAL);
+
+        user.getWallet().deposit(new Money(10000000));
+
+        Money originalAmount = new Money(7000000);
+
+        user.getWallet().lock(originalAmount);
+
+        int discountPercent = user.getVipLevel().getDiscountPercent();
+
+        Money discount = originalAmount.percentage(discountPercent);
+
+        Money finalAmount = originalAmount.subtract(discount);
+
+        user.getWallet().consumeLocked(finalAmount);
+
+        user.getWallet().addSpent(finalAmount);
 
         user.upgradeVIP();
 
@@ -127,9 +141,23 @@ public class UserTest {
         // User
         UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        user.getWallet().deposit(new Money(6000));
-        user.getWallet().lock(new Money(5000));
-        user.getWallet().consumeLocked(new Money(5000));
+       user.setVipLevel(VIPLevel.BRONZE);
+
+        user.getWallet().deposit(new Money(100000000));
+
+        Money originalAmount = new Money(70000000);
+
+        user.getWallet().lock(originalAmount);
+
+        int discountPercent = user.getVipLevel().getDiscountPercent();
+
+        Money discount = originalAmount.percentage(discountPercent);
+
+        Money finalAmount = originalAmount.subtract(discount);
+
+        user.getWallet().consumeLocked(finalAmount);
+
+        user.getWallet().addSpent(finalAmount);
 
         user.upgradeVIP();
 
@@ -142,9 +170,23 @@ public class UserTest {
         // User
         UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        user.getWallet().deposit(new Money(12000));
-        user.getWallet().lock(new Money(10000));
-        user.getWallet().consumeLocked(new Money(10000));
+        user.setVipLevel(VIPLevel.SILVER);
+
+        user.getWallet().deposit(new Money(700000000));
+
+        Money originalAmount = new Money(650000000);
+
+        user.getWallet().lock(originalAmount);
+
+        int discountPercent = user.getVipLevel().getDiscountPercent();
+
+        Money discount = originalAmount.percentage(discountPercent);
+
+        Money finalAmount = originalAmount.subtract(discount);
+
+        user.getWallet().consumeLocked(finalAmount);
+
+        user.getWallet().addSpent(finalAmount);
 
         user.upgradeVIP();
 
@@ -157,9 +199,23 @@ public class UserTest {
         // User
         UserEntity user = new UserEntity("hieu", "abc123@gmail.com", "0123456788", "12345678");
 
-        user.getWallet().deposit(new Money(60000));
-        user.getWallet().lock(new Money(50000));
-        user.getWallet().consumeLocked(new Money(50000));
+        user.setVipLevel(VIPLevel.GOLD);
+
+        user.getWallet().deposit(new Money(10000000000L));
+
+        Money originalAmount = new Money(7000000000L);
+
+        user.getWallet().lock(originalAmount);
+
+        int discountPercent = user.getVipLevel().getDiscountPercent();
+
+        Money discount = originalAmount.percentage(discountPercent);
+
+        Money finalAmount = originalAmount.subtract(discount);
+
+        user.getWallet().consumeLocked(finalAmount);
+
+        user.getWallet().addSpent(finalAmount);
 
         user.upgradeVIP();
 

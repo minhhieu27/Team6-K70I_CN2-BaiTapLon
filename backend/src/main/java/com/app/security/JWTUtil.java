@@ -8,13 +8,16 @@ import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
 import com.app.common.enums.Role;
 
+@Component
 public class JWTUtil {
     private static final String SECRET = "mysecretkeymysecretkeymysecretkey123";
-    private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public static String generateToken(String userId, Set<Role> roles){
+    public String generateToken(String userId, Set<Role> roles){
         Set<String> roleNames = roles.stream().map(Role::name).collect(Collectors.toSet());
 
         return Jwts.builder()
@@ -27,7 +30,7 @@ public class JWTUtil {
                 .compact();
     }
 
-    public static Claims parseToken(String token){
+    public Claims parseToken(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

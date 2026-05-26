@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.dto.request.ChangePasswordRequest;
-import com.app.dto.request.ResetPasswordRequest;
-import com.app.dto.request.UpdateProfileRequest;
-import com.app.dto.response.MessageResponse;
-import com.app.dto.response.UserResponse;
-import com.app.service.UserService;
+import com.app.dto.request.security.ChangePasswordRequest;
+import com.app.dto.request.security.ResetPasswordRequest;
+import com.app.dto.request.user.UpdateProfileRequest;
+import com.app.dto.response.message.MessageResponse;
+import com.app.dto.response.user.UserResponse;
+import com.app.service.user.UserService;
 
 import jakarta.validation.Valid;
 

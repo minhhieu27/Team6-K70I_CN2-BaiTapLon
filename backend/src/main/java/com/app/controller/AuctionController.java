@@ -3,14 +3,18 @@ package com.app.controller;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.dto.request.CreateAuctionRequest;
-import com.app.dto.response.AuctionResponse;
-import com.app.dto.response.MessageResponse;
-import com.app.service.AuctionService;
+import com.app.dto.request.auction.AuctionSearchRequest;
+import com.app.dto.request.auction.CreateAuctionRequest;
+import com.app.dto.response.auction.AuctionResponse;
+import com.app.dto.response.message.MessageResponse;
+import com.app.service.auction.AuctionFollowService;
+import com.app.service.auction.AuctionManagementService;
+import com.app.service.auction.AuctionQuerryService;
 
 import jakarta.validation.Valid;
 
@@ -25,37 +29,47 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuctionController {
     
     @Autowired
-    private AuctionService auctionService;
+    private AuctionManagementService auctionManagementService;
+
+    @Autowired
+    private AuctionQuerryService auctionQuerryService;
+
+    @Autowired
+    private AuctionFollowService auctionFollowService;
 
     // ====== CREATE AUCTION ======
     @PostMapping
     public AuctionResponse create(@Valid @RequestBody CreateAuctionRequest req, Principal principal){
 
-        return auctionService.createAuction(req, principal.getName());
+        return auctionManagementService.createAuction(req, principal.getName());
     }
 
     @GetMapping
     public List<AuctionResponse> getAll(){
-        return auctionService.getAll();
+        return auctionQuerryService.getAll();
     }
     
 
     @GetMapping ("/{auctionId}")
     public AuctionResponse get(@PathVariable String auctionId){
-        return auctionService.getByAuctionId(auctionId);
+        return auctionQuerryService.getByAuctionId(auctionId);
     }
 
     @PostMapping("/{auctionId}/follow")
     public MessageResponse followAuction(@PathVariable String auctionId, Authentication authentication){
 
-        return auctionService.followAuction(auctionId, authentication.getName());
+        return auctionFollowService.followAuction(auctionId, authentication.getName());
     }
 
-    @PostMapping("/{auctionId}/finish")
-    public MessageResponse finishAuction(@PathVariable String auctionId){
+    @PostMapping("/{auctionId}/unfollow")
+    public MessageResponse unfollowAuction(@PathVariable String auctionId, Authentication authentication){
 
-        auctionService.finishAuction(auctionId);
+        return auctionFollowService.unfollowAuction(auctionId, authentication.getName());
+    }
 
-        return new MessageResponse("Đấu giá thành công");
+    @PostMapping("/search")
+    public Page<AuctionResponse> search(@RequestBody AuctionSearchRequest req){
+
+        return auctionQuerryService.search(req);
     }
 }

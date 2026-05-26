@@ -1,0 +1,10 @@
+POST http://localhost:8080/auctions/search
+Content-Type: application/json
+
+{
+  "keyword": "iphone",
+  "status": "OPEN",
+  "itemType": "ELECTRONICS",
+  "minPrice": 100,
+  "maxPrice": 1000
+}

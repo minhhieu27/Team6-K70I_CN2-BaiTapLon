@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.app.exception.auction.BidConflictException;
 import com.app.exception.base.AppException;;
 
 @RestControllerAdvice
@@ -70,6 +71,18 @@ public class GlobalExceptionHandler {
                 .body(Map.of(
                         "error", "SYSTEM_ERROR",
                         "message", e.getMessage()  
+                ));
+    }
+
+    // ====== BID CONFLICT ======
+    @ExceptionHandler(BidConflictException.class)
+    public ResponseEntity<?> handleBidConflict(BidConflictException e){
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "error", "BID_CONFLICT",
+                        "message", e.getMessage()
                 ));
     }
 }

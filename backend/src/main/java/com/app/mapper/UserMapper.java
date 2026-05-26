@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-import com.app.dto.response.UserResponse;
-import com.app.entity.UserEntity;
+
+import com.app.dto.response.user.UserResponse;
+import com.app.entity.user.UserEntity;
 
 
 @Component

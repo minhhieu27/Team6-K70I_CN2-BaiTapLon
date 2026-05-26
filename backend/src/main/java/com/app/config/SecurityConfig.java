@@ -1,11 +1,10 @@
 package com.app.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,11 +13,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.app.security.JWTFilter;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration // Báo cho Spring đây là config
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private JWTFilter jwtFilter;
+    private final JWTFilter jwtFilter;
 
     @Bean // Tạo object cho Spring quản lý
     public PasswordEncoder passwordEncoder(){ // Mã hóa mật khẩu
@@ -36,24 +38,10 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // auth
-                .requestMatchers("/auth/register").permitAll()
-                .requestMatchers("/auth/login").permitAll()
-
-                // auction
-                .requestMatchers(HttpMethod.GET, "/auctions/**").permitAll()
-                .requestMatchers(HttpMethod.POST,"/auctions").hasRole("SELLER")
-
-                // bid 
-                .requestMatchers("/bids").authenticated()
-
-                // become-seller
-                .requestMatchers("/auth/become-seller").authenticated()
-
-                // seller API
-                .requestMatchers("/seller/**").hasRole("SELLER")
-
-                // còn lại
+                // ====== PUBLIC ======
+                .requestMatchers("/auth/**",
+                                            "/swagger-ui/**",
+                                            "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
             )
         .formLogin(form -> form.disable())

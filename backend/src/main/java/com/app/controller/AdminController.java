@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.dto.response.MessageResponse;
-import com.app.service.AdminService;
+import com.app.dto.response.message.MessageResponse;
+import com.app.service.user.AdminService;
 
 @RestController
 @RequestMapping("/admin")

@@ -2,8 +2,8 @@ package com.app.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.app.dto.response.LoginResponse;
-import com.app.entity.UserEntity;
+import com.app.dto.response.security.LoginResponse;
+import com.app.entity.user.UserEntity;
 
 @Component
 public class AuthMapper {

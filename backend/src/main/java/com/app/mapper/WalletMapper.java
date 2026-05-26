@@ -2,8 +2,8 @@ package com.app.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.app.dto.response.WalletResponse;
-import com.app.entity.Wallet;
+import com.app.dto.response.wallet.WalletResponse;
+import com.app.entity.wallet.Wallet;
 
 @Component
 public class WalletMapper {
