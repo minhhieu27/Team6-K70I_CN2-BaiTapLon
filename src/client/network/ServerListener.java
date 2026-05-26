@@ -1,40 +1,45 @@
 package client.network;
 
-import shared.Response;
+import shared.socket.dto.Response;
 
-import java.io.ObjectInputStream;
+import java.io.BufferedReader;
 
 public class ServerListener extends Thread {
-    private final ObjectInputStream input;
-    private ClientMessageHandler messageHandler;
+
+    private final BufferedReader input;
+    private final SocketResponseHandler responseHandler;
 
     private boolean running = true;
 
-    public ServerListener(ObjectInputStream input, ClientMessageHandler messageHandler) {
+    public ServerListener(BufferedReader input, SocketResponseHandler responseHandler) {
         this.input = input;
-        this.messageHandler = messageHandler;
+        this.responseHandler = responseHandler;
     }
 
     @Override
     public void run() {
         try {
-            while (running) {
-                Object object = input.readObject();
+            String json;
 
-                if (object instanceof Response) {
-                    Response response = (Response) object;
+            while (running && (json = input.readLine()) != null) {
+                Response response = Response.fromJson(json);
 
-                    if (messageHandler != null) {
-                        messageHandler.handle(response);
-                    }
-                } else {
-                    System.out.println("Invalid response from server");
+                if (responseHandler != null) {
+                    responseHandler.handle(response);
                 }
             }
 
+            if (running && responseHandler != null) {
+                responseHandler.handle(
+                        Response.connectionError("Server closed the connection")
+                );
+            }
+
         } catch (Exception e) {
-            if (running) {
-                System.out.println("Disconnected from server: " + e.getMessage());
+            if (running && responseHandler != null) {
+                responseHandler.handle(
+                        Response.connectionError("Disconnected from server: " + e.getMessage())
+                );
             }
         }
     }
@@ -42,9 +47,5 @@ public class ServerListener extends Thread {
     public void stopListening() {
         running = false;
         interrupt();
-    }
-
-    public void setMessageHandler(ClientMessageHandler messageHandler) {
-        this.messageHandler = messageHandler;
     }
 }

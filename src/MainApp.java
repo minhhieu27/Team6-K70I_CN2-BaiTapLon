@@ -15,6 +15,8 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
+import client.ui.SocketUiBridge;
+
 public class MainApp extends Application {
 
     private Stage primaryStage;
@@ -52,6 +54,9 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
+
+        SocketUiBridge.init();
+
         loadDatabase();
         showLoginScene();
         stage.setTitle("Auction Pro - Đỉnh cao Đấu giá");
