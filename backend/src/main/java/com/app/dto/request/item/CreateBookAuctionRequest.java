@@ -1,5 +1,4 @@
-package com.app.dto.request.auction;
-
+package com.app.dto.request.item;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateBookAuctionRequest extends CreateAuctionRequest {
+public class CreateBookAuctionRequest extends CreateItemRequest {
     
     @NotBlank
     private String author;

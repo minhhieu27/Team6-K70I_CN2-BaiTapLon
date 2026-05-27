@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**",
                                             "/swagger-ui/**",
                                             "/v3/api-docs/**").permitAll()
+                .requestMatchers("/images/**").permitAll()
                 .anyRequest().authenticated()
             )
         .formLogin(form -> form.disable())

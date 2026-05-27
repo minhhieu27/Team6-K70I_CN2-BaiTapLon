@@ -1,5 +1,6 @@
 package com.app.entity.item;
 
+import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
 
 import jakarta.persistence.Entity;
@@ -17,10 +18,14 @@ public class Art extends ItemEntity {
 
     private String style;
 
-    public Art(String itemName, String description, Money startPrice,
-                String artist,String style) {
+    public Art(ItemType itemType,
+        String itemName,
+        String description,
+        Money startPrice,
+        String artist, 
+        String style) {
 
-        super(itemName, description, startPrice);
+        super(itemType, itemName, description, startPrice);
 
         this.artist = artist;
         this.style = style;

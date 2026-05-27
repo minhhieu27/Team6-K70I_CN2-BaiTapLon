@@ -1,5 +1,6 @@
 package com.app.entity.item;
 
+import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
 
 import jakarta.persistence.Entity;
@@ -18,10 +19,13 @@ public class Jewelry extends ItemEntity {
     private String brand;
     private String model;
 
-    public Jewelry(String itemName, String description, Money startPrice,
+    public Jewelry(ItemType itemType,
+        String itemName,
+        String description,
+        Money startPrice,
                     String brand, String model, String material, double weight){
         
-        super(itemName, description, startPrice);
+        super(itemType, itemName, description, startPrice);
 
         this.brand = brand;
         this.model = model;

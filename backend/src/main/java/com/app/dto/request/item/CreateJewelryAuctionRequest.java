@@ -1,4 +1,5 @@
-package com.app.dto.request.auction;
+package com.app.dto.request.item;
+
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateJewelryAuctionRequest extends CreateAuctionRequest {
+public class CreateJewelryAuctionRequest extends CreateItemRequest {
     
     @NotBlank
     private String brand;
@@ -17,12 +18,6 @@ public class CreateJewelryAuctionRequest extends CreateAuctionRequest {
 
     @NotBlank
     private String material;
-
-    @NotBlank
-    private String gemStone;
-
-    @NotBlank
-    private String gemStoneColor;
 
     @NotNull
     private Double weight;

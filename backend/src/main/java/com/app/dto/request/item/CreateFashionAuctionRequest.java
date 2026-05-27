@@ -1,4 +1,4 @@
-package com.app.dto.request.auction;
+package com.app.dto.request.item;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateFashionAuctionRequest extends CreateAuctionRequest {
+public class CreateFashionAuctionRequest extends CreateItemRequest {
     
     @NotBlank
     private String brand;

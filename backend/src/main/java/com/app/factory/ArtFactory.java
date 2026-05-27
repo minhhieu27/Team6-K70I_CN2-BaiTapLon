@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
-import com.app.dto.request.auction.CreateArtAuctionRequest;
+import com.app.dto.request.item.CreateArtAuctionRequest;
 import com.app.entity.item.Art;
 import com.app.entity.item.ItemEntity;
 
@@ -20,7 +20,7 @@ public class ArtFactory implements ItemFactory<CreateArtAuctionRequest> {
     @Override
     public ItemEntity createItem(CreateArtAuctionRequest req){
 
-        return new Art(
+        return new Art(ItemType.ART,
                 req.getItemName(),
                 req.getDescription(),
                 new Money(req.getStartPrice()),

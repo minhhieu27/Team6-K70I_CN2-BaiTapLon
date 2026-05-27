@@ -1,11 +1,11 @@
 package com.app.controller;
 
 import java.security.Principal;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.request.auction.AuctionSearchRequest;
@@ -45,8 +45,10 @@ public class AuctionController {
     }
 
     @GetMapping
-    public List<AuctionResponse> getAll(){
-        return auctionQuerryService.getAll();
+    public Page<AuctionResponse> getAll(@RequestParam (defaultValue = "0") int page,
+                                        @RequestParam (defaultValue = "10") int size){
+
+        return auctionQuerryService.getAll(page, size);
     }
     
 

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
-import com.app.dto.request.auction.CreateVehicleAuctionRequest;
+import com.app.dto.request.item.CreateVehicleAuctionRequest;
 import com.app.entity.item.ItemEntity;
 import com.app.entity.item.Vehicle;
 
@@ -19,7 +19,7 @@ public class VehicleFactory implements ItemFactory<CreateVehicleAuctionRequest> 
     @Override
     public ItemEntity createItem(CreateVehicleAuctionRequest req){
 
-        return new Vehicle(
+        return new Vehicle(ItemType.VEHICLE,
                 req.getItemName(), 
                 req.getDescription(), 
                 new Money(req.getStartPrice()), 

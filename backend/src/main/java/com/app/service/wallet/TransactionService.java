@@ -26,7 +26,7 @@ public class TransactionService {
 
     public Page<TransactionResponse> getUserTransactions(String userId, int page, int size){
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("time").descending());
 
         return transactionRepository.findByWallet_User_UserIdOrderByTimeDesc(userId, pageable).map(transactionMapper::toResponse);
     }

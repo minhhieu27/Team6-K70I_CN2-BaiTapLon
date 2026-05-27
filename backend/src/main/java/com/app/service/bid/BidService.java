@@ -20,7 +20,6 @@ public class BidService {
 
     private final BidMapper bidMapper;
 
-    private final AutoBidService autoBidService;
 
     // ====== ĐẤU GIÁ ======
     @Transactional
@@ -29,8 +28,6 @@ public class BidService {
         try{
 
             BidEntity bid = bidCoreLogic.excecuteBid(auctionId, amount, userId);
-
-            autoBidService.processAutoBid(bid.getAuction());
 
             return bidMapper.toResponse(bid);
 

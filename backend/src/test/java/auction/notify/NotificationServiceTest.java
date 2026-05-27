@@ -76,7 +76,7 @@ public class NotificationServiceTest {
 
         when(notificationMapper.toResponse(any(NotificationEntity.class))).thenReturn(response);
 
-        when(notificationRepository.findByUser_UserIdOrderByCreateAtDesc(eq(user.getUserId()), any(Pageable.class))).thenReturn(page);
+        when(notificationRepository.findByUser_UserIdOrderByCreateNotifyAtDesc(eq(user.getUserId()), any(Pageable.class))).thenReturn(page);
 
         Page<NotificationResponse> result = notificationService.getUserNotifications(user.getUserId(), 0, 10);
 

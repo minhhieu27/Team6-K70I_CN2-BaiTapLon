@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import com.app.common.enums.AuctionStatus;
 import com.app.common.enums.TransactionType;
 import com.app.common.money.Money;
 import com.app.entity.auction.AuctionEntity;
 import com.app.entity.user.UserEntity;
-import com.app.exception.auction.NoUserJoinAuctionException;
 import com.app.repository.AuctionRepository;
 import com.app.service.bid.AutoBidService;
 import com.app.service.wallet.TransactionService;
@@ -44,8 +44,13 @@ public class AuctionPaymentService {
         // ====== WINNER ======
         UserEntity winner = auction.getHighestBidder();
 
-        if (winner == null){
-            throw new NoUserJoinAuctionException("Không có người tham gia đấu giá");
+        if (winner == null) {
+
+            auction.setStatus(AuctionStatus.FAILED);
+
+            auctionRepository.save(auction);
+
+            return;
         }
 
         auctionNotifyService.notifyWinner(auction);

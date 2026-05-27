@@ -1,5 +1,6 @@
 package com.app.entity.item;
 
+import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
 
 import jakarta.persistence.Entity;
@@ -17,10 +18,13 @@ public class Collectible extends ItemEntity {
     private String rarity; // Độ hiếm
     private int productionYear; //Thời gia phát hành
 
-    public Collectible(String itemName, String description, Money startPrice,
+    public Collectible(ItemType itemType,
+        String itemName,
+        String description,
+        Money startPrice,
                         String category, String rarity, int productionYear){
         
-        super(itemName, description, startPrice);
+        super(itemType, itemName, description, startPrice);
 
         this.cagetory = category;
         this.rarity = rarity;

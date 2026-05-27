@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.app.entity.notification.NotificationEntity;
 
 public interface NotificationRepository extends JpaRepository<NotificationEntity, String> {
-    Page<NotificationEntity> findByUser_UserIdOrderByCreateAtDesc(String userId, Pageable pageable);
+    Page<NotificationEntity> findByUser_UserIdOrderByCreateNotifyAtDesc(String userId, Pageable pageable);
 
     List<NotificationEntity> findByUser_UserId(String userId);
 }

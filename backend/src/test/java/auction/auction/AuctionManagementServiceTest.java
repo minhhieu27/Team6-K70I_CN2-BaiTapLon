@@ -20,9 +20,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.app.common.enums.AuctionStatus;
-import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
-import com.app.dto.request.auction.CreateElectronicsAuctionRequest;
+import com.app.dto.request.auction.CreateAuctionRequest;
+import com.app.dto.request.item.CreateElectronicsAuctionRequest;
 import com.app.entity.auction.AuctionEntity;
 import com.app.entity.item.Electronics;
 import com.app.entity.item.ItemEntity;
@@ -77,10 +77,6 @@ public class AuctionManagementServiceTest {
 
         CreateElectronicsAuctionRequest req = new CreateElectronicsAuctionRequest();
 
-        req.setTitle("IPhone 16 Pro Max");
-
-        req.setItemType(ItemType.ELECTRONICS);
-
         req.setItemName("IPhone 16 prm");
 
         req.setDescription("abcxyz");
@@ -97,17 +93,23 @@ public class AuctionManagementServiceTest {
 
         req.setConditionStatus("New");
 
-        req.setImageUrls(List.of("http://img1.jpg", "http://img2.jpg"));
+        CreateAuctionRequest aucReq = new CreateAuctionRequest();
 
-        ItemEntity item = new Electronics(req.getItemName(), req.getDescription(), new Money(req.getStartPrice()), req.getBrand(), req.getModel(), req.getColor(), req.getStorage(), req.getConditionStatus(), req.getWarrantyMonths());
+        aucReq.setTitle("IPhone 16 Pro Max");
 
-        when(itemFactoryManager.createItem(req.getItemType(), req)).thenReturn(item);
+        aucReq.setItem(req);
+
+        aucReq.setImageUrls(List.of("http://img1.jpg", "http://img2.jpg"));
+
+        ItemEntity item = new Electronics(req.getItemType(), req.getItemName(), req.getDescription(), new Money(req.getStartPrice()), req.getBrand(), req.getModel(), req.getColor(), req.getStorage(), req.getConditionStatus(), req.getWarrantyMonths());
+
+        when(itemFactoryManager.createItem(aucReq.getItem().getItemType(), req)).thenReturn(item);
 
         when(userRepository.findByUserId(seller.getUserId())).thenReturn(Optional.of(seller));
 
         when(auctionRepository.save(any(AuctionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        auctionManagementService.createAuction(req, seller.getUserId());
+        auctionManagementService.createAuction(aucReq, seller.getUserId());
 
         ArgumentCaptor<AuctionEntity> captor = ArgumentCaptor.forClass(AuctionEntity.class);
 

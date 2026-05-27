@@ -1,5 +1,6 @@
 package com.app.entity.item;
 
+import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
 
 import jakarta.persistence.Entity;
@@ -20,10 +21,13 @@ public class Electronics extends ItemEntity {
     private String color;
     private String storage;
 
-    public Electronics(String itemName, String description, Money startPrice,
+    public Electronics(ItemType itemType,
+        String itemName,
+        String description,
+        Money startPrice,
                         String brand,String model, String conditionStatus, String color, String storage, int warrantyMonths) {
 
-        super(itemName, description, startPrice);
+        super(itemType, itemName, description, startPrice);
         
         this.brand = brand;
         this.model = model;

@@ -2,19 +2,20 @@ package com.app.dto.request.auction;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateCollectibleAuctionRequest extends CreateAuctionRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ImageRequest {
     
     @NotBlank
-    private String category;
-
-    @NotBlank
-    private String rarity;
+    private String imageUrl;
 
     @NotNull
-    private Integer productionYear;
+    private Integer displayOrder;
 }

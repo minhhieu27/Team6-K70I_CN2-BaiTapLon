@@ -60,7 +60,7 @@ public class NotificationService {
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("creataAt").descending());
 
-        return notificationRepository.findByUser_UserIdOrderByCreateAtDesc(userId, pageable).map(notificationMapper::toResponse);
+        return notificationRepository.findByUser_UserIdOrderByCreateNotifyAtDesc(userId, pageable).map(notificationMapper::toResponse);
     }
 
     // ====== MARK AS READ ======

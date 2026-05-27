@@ -2,7 +2,6 @@ package auction.bid;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.app.common.enums.AuctionStatus;
+import com.app.common.enums.ItemType;
+import com.app.common.enums.TransactionType;
 import com.app.common.money.Money;
 import com.app.dto.response.bid.BidResponse;
 import com.app.entity.auction.AuctionEntity;
@@ -78,7 +79,7 @@ public class BidServiceTest{
 
     @BeforeEach
     void setUp(){
-        bidService = new BidService(bidCoreService, bidMapper, autoBidService);
+        bidService = new BidService(bidCoreService, bidMapper);
     }
 
     @Test
@@ -96,54 +97,32 @@ public class BidServiceTest{
         UserEntity seller = new UserEntity("abc", "123@gmail.com", "0987654321", "12345678");
 
         // Item
-        ItemEntity item = new Electronics("Iphone 16 prm", "abcxyz", new Money(17500000), "Smart phone", "IPhone 16", "new", "Blue", "256GB", 6);
+        ItemEntity item = new Electronics(ItemType.ELECTRONICS,"Iphone 16 prm", "abcxyz", new Money(17500000), "Smart phone", "IPhone 16", "new", "Blue", "256GB", 6);
 
         // Auction 
         AuctionEntity auction = new AuctionEntity("IPhone 16 promax",item, seller, LocalDateTime.now());
         auction.setAuctionId("A1");
         auction.setStatus(AuctionStatus.OPEN);
 
-        auction.setHighestBidder(user1);
-        auction.setCurrentPrice(new Money(18500000));
+        BidEntity oldBid = new BidEntity(user1, new Money(18500000));
+
+        BidEntity bid = new BidEntity(user2, new Money(19500000));
 
         when(auctionQuerryService.getEntityByAuctionId("A1")).thenReturn(auction);
 
-        when(userRepository.findByUserId("U2")).thenReturn(Optional.of(user2));
+        when(userRepository.findByUserId(user1.getUserId())).thenReturn(Optional.of(user1));
 
-        when(bidRepository.findTopByUserAndAuctionOrderByAmount_ValueDesc(any(), any())).thenReturn(Optional.empty());
+        when(userRepository.findByUserId(user2.getUserId())).thenReturn(Optional.of(user2));
 
-        bidService.placeBid("A1", new Money(19500000), "U2");
+        when(bidRepository.findTopByUserAndAuctionOrderByAmount_ValueDesc(any(), any())).thenReturn(Optional.of(oldBid));
 
-        verify(walletService).refundBid(any(UserEntity.class), eq(new Money(18500000)));
+        bidService.placeBid(auction.getAuctionId(), oldBid.getAmount(), user1.getUserId());
+        bidService.placeBid(auction.getAuctionId(), bid.getAmount(), user2.getUserId());
+
+        verify(walletService).refundBid(user1, oldBid.getAmount());
+
+        verify(transactionService).createTransaction(user1.getWallet(), oldBid.getAmount(), TransactionType.REFUND);
     }
-
-    @Test
-    void shouldTriggerAutoBid(){
-
-        UserEntity user = new UserEntity("abc", "123@gmail.com", "0987654321", "12345678");
-        user.setUserId("U1");
-
-        UserEntity seller = new UserEntity("abc", "123@gmail.com", "0987654321", "12345678");
-
-        // Item
-        ItemEntity item = new Electronics("Iphone 16 prm", "abcxyz", new Money(17500000), "Smart phone", "IPhone 16", "new", "Blue", "256GB", 6);
-
-        // Auction 
-        AuctionEntity auction = new AuctionEntity("IPhone 16 promax",item, seller, LocalDateTime.now());
-        auction.setAuctionId("A1");
-        auction.setStatus(AuctionStatus.OPEN);
-
-        when(auctionQuerryService.getEntityByAuctionId("A1")).thenReturn(auction);
-
-        when(userRepository.findByUserId("U1")).thenReturn(Optional.of(user));
-
-        user.getWallet().deposit(new Money(20000000));
-
-        bidService.placeBid("A1", new Money(20000000), "U1");
-
-        verify(autoBidService).processAutoBid(any(AuctionEntity.class));
-    }
-
 
     @Test
     void shouldPlaceBidSuccessfully(){
@@ -154,7 +133,7 @@ public class BidServiceTest{
         UserEntity seller = new UserEntity("abc", "123@gmail.com", "0987654321", "12345678");
 
         // Item
-        ItemEntity item = new Electronics("Iphone 16 prm", "abcxyz", new Money(17500000), "Smart phone", "IPhone 16", "new", "Blue", "256GB", 6);
+        ItemEntity item = new Electronics(ItemType.ELECTRONICS,"Iphone 16 prm", "abcxyz", new Money(17500000), "Smart phone", "IPhone 16", "new", "Blue", "256GB", 6);
 
         // Auction 
         AuctionEntity auction = new AuctionEntity("IPhone 16 promax",item, seller, LocalDateTime.now());

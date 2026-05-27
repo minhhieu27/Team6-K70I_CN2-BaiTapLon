@@ -1,7 +1,6 @@
 package auction.auction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,12 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.app.common.enums.AuctionStatus;
 import com.app.common.enums.TransactionType;
 import com.app.common.enums.VIPLevel;
 import com.app.common.money.Money;
 import com.app.entity.auction.AuctionEntity;
 import com.app.entity.user.UserEntity;
-import com.app.exception.auction.NoUserJoinAuctionException;
 import com.app.repository.AuctionRepository;
 import com.app.service.auction.AuctionNotifyService;
 import com.app.service.auction.AuctionPaymentService;
@@ -66,9 +65,15 @@ public class AuctionPaymentServiceTest {
 
         AuctionEntity auction = mock(AuctionEntity.class);
 
+        when(auction.isPaid()).thenReturn(false);
+
         when(auction.getHighestBidder()).thenReturn(null);
 
-        assertThrows(NoUserJoinAuctionException.class, () -> auctionPaymentService.settleAuction(auction));
+        auctionPaymentService.settleAuction(auction);
+
+        verify(auction).setStatus(AuctionStatus.FAILED);
+
+        verify(auctionRepository).save(auction);
     }
 
     @Test

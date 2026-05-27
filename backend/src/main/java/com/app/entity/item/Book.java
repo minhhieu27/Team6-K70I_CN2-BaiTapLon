@@ -1,5 +1,6 @@
 package com.app.entity.item;
 
+import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
 
 import jakarta.persistence.Entity;
@@ -17,10 +18,13 @@ public class Book extends ItemEntity {
     private String publisher;
     private int publishYear;
 
-    public Book(String itemName, String description, Money startPrice,
+    public Book(ItemType itemType,
+        String itemName,
+        String description,
+        Money startPrice,
                 String author, String publisher, int publishYear){
                 
-        super(itemName, description, startPrice);
+        super(itemType, itemName, description, startPrice);
 
         this.author = author;
         this.publisher = publisher;

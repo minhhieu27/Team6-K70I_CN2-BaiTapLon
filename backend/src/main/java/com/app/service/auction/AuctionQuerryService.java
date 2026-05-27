@@ -1,6 +1,5 @@
 package com.app.service.auction;
 
-import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -29,8 +28,11 @@ public class AuctionQuerryService {
     private final AuctionMapper auctionMapper;
 
     // ====== GET ALL ======
-    public List<AuctionResponse> getAll(){
-        return auctionMapper.toResponseList(auctionRepository.findAll());
+    public Page<AuctionResponse> getAll(int page, int size){
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return auctionRepository.findAll(pageable).map(auctionMapper::toResponse);
     }
 
     // ====== GET BY ID ======
@@ -68,7 +70,7 @@ public class AuctionQuerryService {
 
         Specification<AuctionEntity> spec = AuctionSpecification.search(req);
 
-        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), Sort.by("createAt").descending());
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), Sort.by("startTime").descending());
 
         Page<AuctionEntity> auctions = auctionRepository.findAll(spec, pageable);
 

@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
 import com.app.common.strategy.FixedBidStrategy;
 import com.app.dto.response.message.MessageResponse;
@@ -60,7 +61,7 @@ public class AutoBidTest {
         user.setUserId("U1");
 
         // Item
-        ItemEntity item = new Electronics("Iphone 16 prm", "abcxyz", new Money(17500000), "Smart phone", "IPhone 16", "new", "Blue", "256GB", 6);
+        ItemEntity item = new Electronics(ItemType.ELECTRONICS,"Iphone 16 prm", "abcxyz", new Money(17500000), "Smart phone", "IPhone 16", "new", "Blue", "256GB", 6);
 
         // Auction 
         AuctionEntity auction = new AuctionEntity("IPhone 16 promax",item, seller, LocalDateTime.now());

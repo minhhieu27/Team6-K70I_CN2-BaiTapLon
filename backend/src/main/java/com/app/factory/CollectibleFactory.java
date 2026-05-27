@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
-import com.app.dto.request.auction.CreateCollectibleAuctionRequest;
+import com.app.dto.request.item.CreateCollectibleAuctionRequest;
 import com.app.entity.item.Collectible;
 import com.app.entity.item.ItemEntity;
 
@@ -20,7 +20,7 @@ public class CollectibleFactory implements ItemFactory<CreateCollectibleAuctionR
     @Override
     public ItemEntity createItem(CreateCollectibleAuctionRequest req){
 
-        return new Collectible(
+        return new Collectible(ItemType.COLLECTIBLE,
                 req.getItemName(), 
                 req.getDescription(), 
                 new Money(req.getStartPrice()), 

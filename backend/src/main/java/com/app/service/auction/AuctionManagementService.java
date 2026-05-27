@@ -50,7 +50,7 @@ public class AuctionManagementService {
     public AuctionResponse createAuction(CreateAuctionRequest req, String sellerId){
 
         // ====== CREATE ITEM ======
-        ItemEntity item = itemFactoryManager.createItem(req.getItemType(), req);
+        ItemEntity item = itemFactoryManager.createItem(req.getItem().getItemType(), req.getItem());
 
         // ====== FIND SELLER ======
         UserEntity seller = userRepository.findByUserId(sellerId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
@@ -70,9 +70,9 @@ public class AuctionManagementService {
 
         auction.setItem(item);
 
-        addImages(auction, req.getImageUrls());
+        auction.setCurrentPrice(new Money(req.getItem().getStartPrice()));
 
-        auction.setCurrentPrice(new Money(req.getStartPrice()));
+        addImages(auction, req.getImageUrls());
 
         auction.setSeller(seller);
 
