@@ -222,12 +222,22 @@ public class SocketRequestProcessor {
             return Response.error("Auction id is missing");
         }
 
-        AuctionResponse auction = auctionQuerryService.getByAuctionId(auctionId);
+        AuctionEntity auction = auctionRepository.findByAuctionId(auctionId)
+                .orElseThrow(() -> new IllegalArgumentException("Auction not found: " + auctionId));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("auctionId", auction.getAuctionId());
+        data.put("title", auction.getTitle());
+        data.put("currentPrice", auction.getCurrentPrice().getValue());
+        data.put("status", auction.getStatus().toString());
+        data.put("startTime", auction.getStartTime());
+        data.put("endTime", auction.getEndTime());
+        data.put("sellerId", auction.getSeller().getUserId());
 
         return Response.success(
                 MessageType.AUCTION_DETAIL,
                 "Get auction detail success",
-                auction
+                data
         );
     }
 
