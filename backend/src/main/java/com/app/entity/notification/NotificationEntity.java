@@ -29,7 +29,7 @@ public class NotificationEntity {
 
     private boolean isRead = false;
 
-    private LocalDateTime createAt = LocalDateTime.now();
+    private LocalDateTime createNotifyAt = LocalDateTime.now();
 
     @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn (name = "user_id")

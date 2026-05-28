@@ -14,7 +14,7 @@ public class NotificationMapper {
                 .notificationId(notification.getNotificationId())
                 .message(notification.getMessage())
                 .isRead(notification.isRead())
-                .createAt(notification.getCreateAt())
+                .createAt(notification.getCreateNotifyAt())
                 .build();
     }
 }
