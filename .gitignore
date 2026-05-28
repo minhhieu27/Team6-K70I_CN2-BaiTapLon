@@ -6,6 +6,9 @@
 # ===== MAVEN BUILD =====
 backend/target/
 
+# ===== EVN =====
+.evn
+
 # ===== MAVEN WRAPPER =====
 .mvn/
 # (KHÔNG ignore maven-wrapper.jar)
