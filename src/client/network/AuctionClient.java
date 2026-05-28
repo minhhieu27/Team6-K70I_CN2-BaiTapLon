@@ -169,7 +169,13 @@ public class AuctionClient {
     // =========================
 
     public void getAuctions() {
-        send(Request.of(MessageType.GET_AUCTIONS));
+        send(new Request(
+                MessageType.GET_AUCTIONS,
+                Request.mapOf(
+                        "page", 0,
+                        "size", 20
+                )
+        ));
     }
 
     public void getAuctionDetail(String auctionId) {
@@ -234,7 +240,11 @@ public class AuctionClient {
     public void getBidHistory(String auctionId) {
         send(new Request(
                 MessageType.GET_BID_HISTORY,
-                Request.mapOf("auctionId", auctionId)
+                Request.mapOf(
+                        "auctionId", auctionId,
+                        "page", 0,
+                        "size", 20
+                )
         ));
     }
 }

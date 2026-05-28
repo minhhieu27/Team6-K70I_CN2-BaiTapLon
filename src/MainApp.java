@@ -275,7 +275,15 @@ public class MainApp extends Application {
         Button btnWallet = createNavButton("💳 Ví & Thanh toán", false);
 
         // Báo lỗi bằng ngôn ngữ chuyên nghiệp
-        btnCatalog.setOnAction(e -> showAlert(Alert.AlertType.INFORMATION, "Sắp ra mắt", "Tính năng Chợ Đấu Giá đang được phát triển và tích hợp. Vui lòng quay lại sau!"));
+        btnCatalog.setOnAction(e -> {
+            SocketUiBridge.loadAuctions();
+
+            showAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Socket",
+                    "Đã gửi yêu cầu lấy danh sách đấu giá lên server."
+            );
+        });
         btnLiveRoom.setOnAction(e -> showAlert(Alert.AlertType.INFORMATION, "Sắp ra mắt", "Hệ thống Phòng Đấu Giá trực tuyến đang được nâng cấp. Vui lòng quay lại sau!"));
         btnWallet.setOnAction(e -> showAlert(Alert.AlertType.INFORMATION, "Sắp ra mắt", "Hệ thống Thanh toán & Ví điện tử đang được bảo trì. Vui lòng quay lại sau!"));
 
