@@ -85,7 +85,7 @@ public class UserEntity {
 
         UserRoleEntity roleEntity = new UserRoleEntity();
 
-        roleEntity.setRole(Role.ROLE_USER);
+        roleEntity.setRole(role);
         roleEntity.setUser(this);
 
         return roleEntity;

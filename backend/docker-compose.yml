@@ -33,7 +33,7 @@ services:
         condition: service_healthy
 
     env_file:
-      - .evn
+      - .env
 
 volumes:
   mysql_data:
