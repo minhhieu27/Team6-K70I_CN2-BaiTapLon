@@ -76,7 +76,13 @@ public class SocketUiBridge {
             }
         });
 
-        client.connect("localhost", 9999);
+        boolean connected = client.connect("localhost", 9999);
+
+        if (connected) {
+            System.out.println("[SOCKET] Connected to server localhost:9999");
+        } else {
+            System.out.println("[SOCKET] Failed to connect to server localhost:9999");
+        }
     }
 
     public static AuctionClient getClient() {

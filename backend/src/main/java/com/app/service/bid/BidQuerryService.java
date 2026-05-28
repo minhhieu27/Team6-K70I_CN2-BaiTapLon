@@ -15,14 +15,14 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BidQuerryService {
-    
+
     private final BidRepository bidRepository;
 
     private final BidMapper bidMapper;
 
     public Page<BidResponse> getAuctionBidHistory(String auctionId, int page, int size){
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createBidAt").descending());
 
         return bidRepository.findByAuction_AuctionIdOrderByCreateBidAtDesc(auctionId, pageable).map(bidMapper::toResponse);
     }

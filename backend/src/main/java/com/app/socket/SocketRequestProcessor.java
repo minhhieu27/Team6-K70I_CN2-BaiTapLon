@@ -10,6 +10,8 @@ import com.app.service.auction.AuctionQuerryService;
 import com.app.socket.dto.MessageType;
 import com.app.socket.dto.Request;
 import com.app.socket.dto.Response;
+import com.app.entity.auction.AuctionEntity;
+import com.app.repository.AuctionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,10 +23,14 @@ import com.app.service.user.UserService;
 import com.app.dto.request.auction.CreateAuctionRequest;
 import com.app.dto.request.item.CreateArtAuctionRequest;
 import com.app.dto.request.item.CreateItemRequest;
+import org.springframework.data.domain.PageRequest;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -39,6 +45,8 @@ public class SocketRequestProcessor {
     private final UserService userService;
 
     private final AuctionQuerryService auctionQuerryService;
+
+    private final AuctionRepository auctionRepository;
 
     public Response process(
             Request request,
@@ -92,8 +100,11 @@ public class SocketRequestProcessor {
     private Response handleGetBidHistory(Request request) {
         String auctionId = request.getString("auctionId");
 
-        int page = request.getInt("page");
-        int size = request.getInt("size");
+        Integer pageValue = request.getInt("page");
+        Integer sizeValue = request.getInt("size");
+
+        int page = pageValue != null ? pageValue : 0;
+        int size = sizeValue != null ? sizeValue : 20;
 
         if (auctionId == null || auctionId.trim().isEmpty()) {
             return Response.error("Auction id is missing");
@@ -171,16 +182,36 @@ public class SocketRequestProcessor {
     }
 
     private Response handleGetAuctions(Request request) {
+        Integer pageValue = request.getInt("page");
+        Integer sizeValue = request.getInt("size");
 
-        int page = request.getInt("page");
-        int size = request.getInt("size");
+        int page = pageValue != null ? pageValue : 0;
+        int size = sizeValue != null ? sizeValue : 20;
 
-        Page<AuctionResponse> auctions = auctionQuerryService.getAll(page,size);
+        Page<AuctionEntity> auctions = auctionRepository.findAll(PageRequest.of(page, size));
+
+        List<Map<String, Object>> content = auctions.getContent()
+                .stream()
+                .map(auction -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("auctionId", auction.getAuctionId());
+                    map.put("title", auction.getTitle());
+                    map.put("currentPrice", auction.getCurrentPrice().getValue());
+                    map.put("status", auction.getStatus().toString());
+                    return map;
+                })
+                .toList();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("content", content);
+        data.put("total", auctions.getTotalElements());
+        data.put("page", page);
+        data.put("size", size);
 
         return Response.success(
                 MessageType.AUCTION_LIST,
                 "Get auctions success",
-                auctions
+                data
         );
     }
 
@@ -191,12 +222,22 @@ public class SocketRequestProcessor {
             return Response.error("Auction id is missing");
         }
 
-        AuctionResponse auction = auctionQuerryService.getByAuctionId(auctionId);
+        AuctionEntity auction = auctionRepository.findByAuctionId(auctionId)
+                .orElseThrow(() -> new IllegalArgumentException("Auction not found: " + auctionId));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("auctionId", auction.getAuctionId());
+        data.put("title", auction.getTitle());
+        data.put("currentPrice", auction.getCurrentPrice().getValue());
+        data.put("status", auction.getStatus().toString());
+        data.put("startTime", auction.getStartTime());
+        data.put("endTime", auction.getEndTime());
+        data.put("sellerId", auction.getSeller().getUserId());
 
         return Response.success(
                 MessageType.AUCTION_DETAIL,
                 "Get auction detail success",
-                auction
+                data
         );
     }
 

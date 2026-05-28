@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.scene.control.TextField;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -254,6 +255,54 @@ public class MainApp extends Application {
         primaryStage.setScene(new Scene(layout, 1000, 700));
     }
 
+    private void showAuctionRoomScene(String auctionId, String userId) {
+        VBox root = new VBox(15);
+        root.setPadding(new Insets(30));
+        root.setStyle("-fx-background-color: #11111b;");
+
+        Label title = new Label("⚡ Phòng Đấu Giá Live");
+        title.setStyle("-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        Label lblAuctionId = new Label("Mã phiên đấu giá: " + auctionId);
+        lblAuctionId.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+        TextField txtPrice = new TextField();
+        txtPrice.setPromptText("Nhập giá muốn đặt");
+
+        Button btnJoin = new Button("Tham gia phòng");
+        btnJoin.setOnAction(e -> {
+            SocketUiBridge.joinAuction(auctionId);
+            showAlert(Alert.AlertType.INFORMATION, "Socket", "Đã tham gia phòng đấu giá " + auctionId);
+        });
+
+        Button btnBid = new Button("Đặt giá");
+        btnBid.setOnAction(e -> {
+            try {
+                double price = Double.parseDouble(txtPrice.getText());
+
+                SocketUiBridge.placeBid(auctionId, userId, price);
+
+                showAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Socket",
+                        "Đã gửi yêu cầu đặt giá: " + price
+                );
+            } catch (NumberFormatException ex) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá phải là số!");
+            }
+        });
+
+        root.getChildren().addAll(
+                title,
+                lblAuctionId,
+                txtPrice,
+                btnJoin,
+                btnBid
+        );
+
+        primaryStage.setScene(new Scene(root, 1000, 700));
+    }
+
     // ==============================================================================
     // 3B. USER DASHBOARD (SẠCH SẼ, CHUYÊN NGHIỆP)
     // ==============================================================================
@@ -274,9 +323,20 @@ public class MainApp extends Application {
         Button btnLiveRoom = createNavButton("⚡ Phòng Đấu Giá Live", false);
         Button btnWallet = createNavButton("💳 Ví & Thanh toán", false);
 
-        // Báo lỗi bằng ngôn ngữ chuyên nghiệp
-        btnCatalog.setOnAction(e -> showAlert(Alert.AlertType.INFORMATION, "Sắp ra mắt", "Tính năng Chợ Đấu Giá đang được phát triển và tích hợp. Vui lòng quay lại sau!"));
-        btnLiveRoom.setOnAction(e -> showAlert(Alert.AlertType.INFORMATION, "Sắp ra mắt", "Hệ thống Phòng Đấu Giá trực tuyến đang được nâng cấp. Vui lòng quay lại sau!"));
+
+        btnCatalog.setOnAction(e -> {
+            SocketUiBridge.loadAuctions();
+
+            showAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Socket",
+                    "Đã gửi yêu cầu lấy danh sách đấu giá lên server."
+            );
+        });
+
+        btnLiveRoom.setOnAction(e -> {
+            showAuctionRoomScene("A001", "U002");
+        });
         btnWallet.setOnAction(e -> showAlert(Alert.AlertType.INFORMATION, "Sắp ra mắt", "Hệ thống Thanh toán & Ví điện tử đang được bảo trì. Vui lòng quay lại sau!"));
 
         Region spacer = new Region();
