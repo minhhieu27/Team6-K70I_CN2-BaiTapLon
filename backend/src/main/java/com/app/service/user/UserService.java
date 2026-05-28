@@ -1,6 +1,8 @@
 package com.app.service.user;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +25,7 @@ import com.app.dto.response.message.MessageResponse;
 import com.app.dto.response.security.LoginResponse;
 import com.app.dto.response.user.UserResponse;
 import com.app.entity.user.UserEntity;
+import com.app.entity.user.UserRoleEntity;
 import com.app.repository.UserRepository;
 import com.app.security.JWTUtil;
 
@@ -62,7 +65,7 @@ public class UserService implements UserDetailsService {
 
         UserEntity userEntity = userRepository.findByUsernameOrUserProfile_EmailOrUserProfile_Phone(identifier, identifier, identifier).orElseThrow(()-> new UsernameNotFoundException("Không tìm thấy người dùng"));
 
-        List<GrantedAuthority> authorities = userEntity.getRoles().stream().map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role.name())).toList();
+        List<GrantedAuthority> authorities = userEntity.getRoles().stream().map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role.getRole().name())).toList();
 
         return User.builder()
                 .username(userEntity.getUserId())
@@ -116,7 +119,9 @@ public class UserService implements UserDetailsService {
             userRepository.save(user);
         }
 
-        String token = jwtUtil.generateToken(user.getUserId(), user.getRoles());
+        Set<Role> roles = user.getRoles().stream().map(UserRoleEntity::getRole).collect(Collectors.toSet());
+
+        String token = jwtUtil.generateToken(user.getUserId(), roles);
 
         return authMapper.toLoginResponse(user, token);
     }
@@ -131,7 +136,7 @@ public class UserService implements UserDetailsService {
             throw new AccountLockedException("Tài khoản đã bị ban");
         }
 
-        if (userEntity.getRoles().contains(Role.ROLE_SELLER)){
+        if (userEntity.hasRole(Role.ROLE_SELLER)){
             throw new RuntimeException("Đã trở thành seller");
         }
 
@@ -139,7 +144,9 @@ public class UserService implements UserDetailsService {
 
         userRepository.save(userEntity);
 
-        String token = jwtUtil.generateToken(userEntity.getUserId(), userEntity.getRoles());
+        Set<Role> roles = userEntity.getRoles().stream().map(UserRoleEntity::getRole).collect(Collectors.toSet());
+
+        String token = jwtUtil.generateToken(userEntity.getUserId(), roles);
 
         return authMapper.toLoginResponse(userEntity, token);
     }
