@@ -6,7 +6,6 @@ import com.app.service.bid.BidService;
 import com.app.dto.response.auction.AuctionResponse;
 import com.app.dto.response.bid.BidResponse;
 import com.app.service.auction.AuctionManagementService;
-import com.app.service.auction.AuctionQuerryService;
 import com.app.socket.dto.MessageType;
 import com.app.socket.dto.Request;
 import com.app.socket.dto.Response;
@@ -43,8 +42,6 @@ public class SocketRequestProcessor {
     private final BidQuerryService bidQuerryService;
 
     private final UserService userService;
-
-    private final AuctionQuerryService auctionQuerryService;
 
     private final AuctionRepository auctionRepository;
 
