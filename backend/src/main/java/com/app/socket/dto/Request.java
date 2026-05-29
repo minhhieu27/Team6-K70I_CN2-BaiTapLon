@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Request {
+
     private static final Gson gson = new Gson();
 
     private MessageType type;
@@ -20,20 +21,26 @@ public class Request {
         this.data = data != null ? data : new HashMap<>();
     }
 
-    public MessageType getType() {
-        return type;
+    public static Request of(MessageType type) {
+        return new Request(type, new HashMap<>());
     }
 
-    public void setType(MessageType type) {
-        this.type = type;
+    public static Map<String, Object> mapOf(Object... values) {
+        Map<String, Object> map = new HashMap<>();
+
+        for (int i = 0; i < values.length - 1; i += 2) {
+            map.put(String.valueOf(values[i]), values[i + 1]);
+        }
+
+        return map;
     }
 
-    public Map<String, Object> getData() {
-        return data;
+    public String toJson() {
+        return gson.toJson(this);
     }
 
-    public void setData(Map<String, Object> data) {
-        this.data = data != null ? data : new HashMap<>();
+    public static Request fromJson(String json) {
+        return gson.fromJson(json, Request.class);
     }
 
     public Object get(String key) {
@@ -51,7 +58,7 @@ public class Request {
             return null;
         }
 
-        return value.toString();
+        return String.valueOf(value);
     }
 
     public Double getDouble(String key) {
@@ -61,8 +68,12 @@ public class Request {
             return null;
         }
 
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+
         try {
-            return Double.parseDouble(value.toString());
+            return Double.parseDouble(String.valueOf(value));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -75,78 +86,30 @@ public class Request {
             return null;
         }
 
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+
         try {
-            return Integer.parseInt(value.toString());
+            return Integer.parseInt(String.valueOf(value));
         } catch (NumberFormatException e) {
             return null;
         }
     }
 
-    public Boolean getBoolean(String key) {
-        Object value = get(key);
-
-        if (value == null) {
-            return null;
-        }
-
-        return Boolean.parseBoolean(value.toString());
+    public MessageType getType() {
+        return type;
     }
 
-    public void put(String key, Object value) {
-        if (data == null) {
-            data = new HashMap<>();
-        }
-
-        data.put(key, value);
+    public void setType(MessageType type) {
+        this.type = type;
     }
 
-    public boolean containsKey(String key) {
-        return data != null && data.containsKey(key);
+    public Map<String, Object> getData() {
+        return data;
     }
 
-    public String toJson() {
-        return gson.toJson(this);
-    }
-
-    public static Request fromJson(String json) {
-        if (json == null || json.trim().isEmpty()) {
-            return null;
-        }
-
-        return gson.fromJson(json, Request.class);
-    }
-
-    public static Request of(MessageType type) {
-        return new Request(type, new HashMap<>());
-    }
-
-    public static Request of(MessageType type, Map<String, Object> data) {
-        return new Request(type, data);
-    }
-
-    public static Map<String, Object> mapOf(Object... keyValues) {
-        Map<String, Object> map = new HashMap<>();
-
-        if (keyValues == null) {
-            return map;
-        }
-
-        if (keyValues.length % 2 != 0) {
-            throw new IllegalArgumentException("Key-value arguments must be even");
-        }
-
-        for (int i = 0; i < keyValues.length; i += 2) {
-            String key = String.valueOf(keyValues[i]);
-            Object value = keyValues[i + 1];
-
-            map.put(key, value);
-        }
-
-        return map;
-    }
-
-    @Override
-    public String toString() {
-        return toJson();
+    public void setData(Map<String, Object> data) {
+        this.data = data != null ? data : new HashMap<>();
     }
 }

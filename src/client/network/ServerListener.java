@@ -4,48 +4,33 @@ import shared.socket.dto.Response;
 
 import java.io.BufferedReader;
 
-public class ServerListener extends Thread {
+public class ServerListener implements Runnable {
 
-    private final BufferedReader input;
+    private final BufferedReader reader;
     private final SocketResponseHandler responseHandler;
+    private volatile boolean running = true;
 
-    private boolean running = true;
-
-    public ServerListener(BufferedReader input, SocketResponseHandler responseHandler) {
-        this.input = input;
+    public ServerListener(BufferedReader reader, SocketResponseHandler responseHandler) {
+        this.reader = reader;
         this.responseHandler = responseHandler;
     }
 
     @Override
     public void run() {
         try {
-            String json;
+            String line;
 
-            while (running && (json = input.readLine()) != null) {
-                Response response = Response.fromJson(json);
-
-                if (responseHandler != null) {
-                    responseHandler.handle(response);
-                }
-            }
-
-            if (running && responseHandler != null) {
-                responseHandler.handle(
-                        Response.connectionError("Server closed the connection")
-                );
+            while (running && (line = reader.readLine()) != null) {
+                Response response = Response.fromJson(line);
+                responseHandler.handle(response);
             }
 
         } catch (Exception e) {
-            if (running && responseHandler != null) {
-                responseHandler.handle(
-                        Response.connectionError("Disconnected from server: " + e.getMessage())
-                );
-            }
+            responseHandler.handle(Response.error("Mất kết nối server: " + e.getMessage()));
         }
     }
 
-    public void stopListening() {
+    public void stop() {
         running = false;
-        interrupt();
     }
 }

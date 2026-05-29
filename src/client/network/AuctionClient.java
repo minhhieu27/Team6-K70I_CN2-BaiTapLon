@@ -2,140 +2,89 @@ package client.network;
 
 import shared.socket.dto.MessageType;
 import shared.socket.dto.Request;
-import shared.socket.dto.Response;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class AuctionClient {
 
     private Socket socket;
-    private BufferedReader input;
-    private PrintWriter output;
+    private BufferedReader reader;
+    private PrintWriter writer;
 
+    private Thread listenerThread;
     private ServerListener serverListener;
-    private SocketResponseHandler responseHandler;
 
-    private boolean connected = false;
-
-    public AuctionClient() {
-        this.responseHandler = new SocketResponseHandler();
-    }
+    private final SocketClientCallback callback;
+    private final SocketResponseHandler responseHandler;
 
     public AuctionClient(SocketClientCallback callback) {
+        this.callback = callback;
         this.responseHandler = new SocketResponseHandler(callback);
     }
-
-    // =========================
-    // CONNECTION
-    // =========================
 
     public boolean connect(String host, int port) {
         try {
             socket = new Socket(host, port);
 
-            input = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream())
+            reader = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)
             );
 
-            output = new PrintWriter(socket.getOutputStream(), true);
+            writer = new PrintWriter(socket.getOutputStream(), true);
 
-            connected = true;
-
-            serverListener = new ServerListener(input, responseHandler);
-            serverListener.start();
+            serverListener = new ServerListener(reader, responseHandler);
+            listenerThread = new Thread(serverListener);
+            listenerThread.setDaemon(true);
+            listenerThread.start();
 
             return true;
 
         } catch (Exception e) {
-            connected = false;
-
-            if (responseHandler != null) {
-                responseHandler.handle(
-                        Response.connectionError("Cannot connect to server: " + e.getMessage())
-                );
-            }
-
+            callback.onConnectionError("Cannot connect to server: " + e.getMessage());
             return false;
         }
     }
 
     public void disconnect() {
-        connected = false;
-
         try {
             if (serverListener != null) {
-                serverListener.stopListening();
-            }
-
-            if (input != null) {
-                input.close();
-            }
-
-            if (output != null) {
-                output.close();
+                serverListener.stop();
             }
 
             if (socket != null && !socket.isClosed()) {
                 socket.close();
             }
 
-            if (responseHandler != null && responseHandler.getCallback() != null) {
-                responseHandler.getCallback().onDisconnected();
-            }
-
         } catch (Exception e) {
-            if (responseHandler != null) {
-                responseHandler.handle(
-                        Response.connectionError("Disconnect error: " + e.getMessage())
-                );
-            }
+            callback.onConnectionError("Error while disconnecting: " + e.getMessage());
         }
     }
 
     public boolean isConnected() {
-        return connected;
+        return socket != null
+                && socket.isConnected()
+                && !socket.isClosed()
+                && writer != null;
     }
 
-    public void setCallback(SocketClientCallback callback) {
-        if (responseHandler == null) {
-            responseHandler = new SocketResponseHandler(callback);
-        } else {
-            responseHandler.setCallback(callback);
-        }
-    }
-
-    // =========================
-    // SEND REQUEST
-    // =========================
-
-    private void send(Request request) {
-        if (!connected || output == null) {
-            if (responseHandler != null) {
-                responseHandler.handle(
-                        Response.connectionError("Client is not connected to server")
-                );
-            }
+    public void send(Request request) {
+        if (!isConnected()) {
+            callback.onConnectionError("Client is not connected to server");
             return;
         }
 
-        if (request == null) {
-            if (responseHandler != null) {
-                responseHandler.handle(
-                        Response.connectionError("Request is null")
-                );
-            }
-            return;
+        try {
+            writer.println(request.toJson());
+            writer.flush();
+
+        } catch (Exception e) {
+            callback.onConnectionError("Cannot send request: " + e.getMessage());
         }
-
-        output.println(request.toJson());
     }
-
-    // =========================
-    // AUTH
-    // =========================
 
     public void login(String identifier, String password) {
         send(new Request(
@@ -159,15 +108,6 @@ public class AuctionClient {
         ));
     }
 
-    public void logout() {
-        send(Request.of(MessageType.LOGOUT));
-        disconnect();
-    }
-
-    // =========================
-    // AUCTION
-    // =========================
-
     public void getAuctions() {
         send(new Request(
                 MessageType.GET_AUCTIONS,
@@ -181,7 +121,9 @@ public class AuctionClient {
     public void getAuctionDetail(String auctionId) {
         send(new Request(
                 MessageType.GET_AUCTION_DETAIL,
-                Request.mapOf("auctionId", auctionId)
+                Request.mapOf(
+                        "auctionId", auctionId
+                )
         ));
     }
 
@@ -189,8 +131,8 @@ public class AuctionClient {
             String title,
             String itemName,
             String description,
-            double startPrice,
-            String sellerId
+            String sellerId,
+            double startPrice
     ) {
         send(new Request(
                 MessageType.CREATE_AUCTION,
@@ -198,41 +140,26 @@ public class AuctionClient {
                         "title", title,
                         "itemName", itemName,
                         "description", description,
-                        "startPrice", startPrice,
-                        "sellerId", sellerId
+                        "sellerId", sellerId,
+                        "startPrice", startPrice
                 )
         ));
     }
 
-    // =========================
-    // REALTIME AUCTION ROOM
-    // =========================
-
     public void joinAuction(String auctionId) {
         send(new Request(
                 MessageType.JOIN_AUCTION,
-                Request.mapOf("auctionId", auctionId)
+                Request.mapOf(
+                        "auctionId", auctionId
+                )
         ));
     }
 
     public void leaveAuction(String auctionId) {
         send(new Request(
                 MessageType.LEAVE_AUCTION,
-                Request.mapOf("auctionId", auctionId)
-        ));
-    }
-
-    // =========================
-    // BIDDING
-    // =========================
-
-    public void placeBid(String auctionId, String userId, double price) {
-        send(new Request(
-                MessageType.PLACE_BID,
                 Request.mapOf(
-                        "auctionId", auctionId,
-                        "userId", userId,
-                        "price", price
+                        "auctionId", auctionId
                 )
         ));
     }
@@ -246,5 +173,20 @@ public class AuctionClient {
                         "size", 20
                 )
         ));
+    }
+
+    public void placeBid(String auctionId, String userId, double price) {
+        send(new Request(
+                MessageType.PLACE_BID,
+                Request.mapOf(
+                        "auctionId", auctionId,
+                        "userId", userId,
+                        "price", price
+                )
+        ));
+    }
+
+    public void logout() {
+        send(Request.of(MessageType.LOGOUT));
     }
 }
