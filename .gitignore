@@ -9,6 +9,8 @@ backend/target/
 # ===== EVN =====
 .evn
 
+.history
+
 # ===== MAVEN WRAPPER =====
 .mvn/
 # (KHÔNG ignore maven-wrapper.jar)
