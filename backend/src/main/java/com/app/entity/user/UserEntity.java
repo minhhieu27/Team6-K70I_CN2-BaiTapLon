@@ -1,6 +1,7 @@
 package com.app.entity.user;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,9 +44,8 @@ public class UserEntity {
     private Wallet wallet;
 
     
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    private Set<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<UserRoleEntity> roles = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -73,7 +73,22 @@ public class UserEntity {
 
         this.wallet = new Wallet();
 
-        this.roles.add(Role.ROLE_USER);
+        UserRoleEntity roleEntity = new UserRoleEntity();
+
+        roleEntity.setRole(Role.ROLE_USER);
+        roleEntity.setUser(this);
+
+        this.roles.add(roleEntity);
+    }
+
+    public UserRoleEntity createRoleEntity(Role role){
+
+        UserRoleEntity roleEntity = new UserRoleEntity();
+
+        roleEntity.setRole(role);
+        roleEntity.setUser(this);
+
+        return roleEntity;
     }
 
     @PrePersist
@@ -89,32 +104,28 @@ public class UserEntity {
 
     // ====== ROLE ======
     public void addRole(Role role){
-        roles.add(role);
+        roles.add(createRoleEntity(role));
     }
 
     public void removeRole(Role role){
-        roles.remove(role);
+        roles.removeIf(r -> r.getRole() == role);
     }
 
     public boolean hasRole(Role role){
-        return roles.contains(role);
+        return roles.stream().anyMatch(r ->r.getRole() == role);
     }
 
     public boolean hasAnyRole(Role... roles){
-        for (Role role : roles){
-            if (this.roles.contains(role)){
-                return true;
-            }
-        }
-        return false;
+        
+        return Arrays.stream(roles).anyMatch(this::hasRole);
     }
 
     public void becomeSeller() {
-        roles.add(Role.ROLE_SELLER);
+        addRole(Role.ROLE_SELLER);
     }
 
     public boolean isSeller(){
-        return roles.contains(Role.ROLE_SELLER);
+        return hasRole(Role.ROLE_SELLER);
     }
 
     // ====== VIP ======

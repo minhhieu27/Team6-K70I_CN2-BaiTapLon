@@ -2,7 +2,9 @@ package com.app.entity.auction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.app.common.enums.AuctionStatus;
 import com.app.common.money.Money;
@@ -56,7 +58,7 @@ public class AuctionEntity {
 
     @ManyToMany
     @JoinTable(name = "auction_followers", joinColumns = @JoinColumn(name = "auction_id"), inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"))
-    private List<UserEntity> followers = new ArrayList<>();
+    private Set<UserEntity> followers = new HashSet<>();
 
     @Column(name = "start_time")
     private LocalDateTime startTime;
