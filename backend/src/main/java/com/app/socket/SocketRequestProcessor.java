@@ -281,11 +281,18 @@ public class SocketRequestProcessor {
                 sellerId
         );
 
+        Map<String, Object> data = new HashMap<>();
+        data.put("auctionId", auction.getAuctionId());
+        data.put("title", auction.getTitle());
+        data.put("currentPrice", auction.getCurrentPrice());
+        data.put("status", auction.getStatus());
+
         return Response.success(
                 MessageType.SUCCESS,
                 "Create auction success",
-                auction
+                data
         );
+
     }
 
 
