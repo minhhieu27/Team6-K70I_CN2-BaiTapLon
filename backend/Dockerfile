@@ -2,11 +2,16 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-COPY . .
+# Copy pom.xml trước để cache dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-RUN mvn clean package -DskipTests
+# Sau đó mới copy source
+COPY src ./src
 
-FROM eclipse-temurin:17
+RUN mvn clean package -DskipTests -B
+
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
