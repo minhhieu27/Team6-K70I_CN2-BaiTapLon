@@ -1,6 +1,5 @@
 package client.network;
 
-<<<<<<< HEAD
 import shared.socket.dto.Response;
 
 import java.io.BufferedReader;
@@ -14,7 +13,6 @@ public class ServerListener implements Runnable {
     public ServerListener(BufferedReader reader, SocketResponseHandler responseHandler) {
         this.reader = reader;
         this.responseHandler = responseHandler;
-=======
 import shared.Response;
 
 import java.io.ObjectInputStream;
@@ -28,7 +26,6 @@ public class ServerListener extends Thread {
     public ServerListener(ObjectInputStream input, ClientMessageHandler messageHandler) {
         this.input = input;
         this.messageHandler = messageHandler;
->>>>>>> 9b400298307a283b9dda72788ed460b6d762656f
     }
 
     @Override

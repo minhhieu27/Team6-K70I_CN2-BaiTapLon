@@ -1,6 +1,5 @@
 package client.network;
 
-<<<<<<< HEAD
 import shared.socket.dto.MessageType;
 import shared.socket.dto.Request;
 
@@ -25,7 +24,6 @@ public class AuctionClient {
     public AuctionClient(SocketClientCallback callback) {
         this.callback = callback;
         this.responseHandler = new SocketResponseHandler(callback);
-=======
 import shared.MessageType;
 import shared.Request;
 
@@ -51,7 +49,6 @@ public class AuctionClient {
 
     public AuctionClient(ClientMessageHandler messageHandler) {
         this.messageHandler = messageHandler;
->>>>>>> 9b400298307a283b9dda72788ed460b6d762656f
     }
 
     public boolean connect(String host, int port) {
