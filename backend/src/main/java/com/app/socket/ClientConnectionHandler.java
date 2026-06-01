@@ -40,6 +40,15 @@ public class ClientConnectionHandler extends Thread {
             String json;
 
             while (running && (json = input.readLine()) != null) {
+
+                if (json.isBlank()) continue;
+
+                if (!json.trim().startsWith("{")) {
+                    send(Response.error("Invalid request format"));
+
+                    continue;
+                }
+                
                 Request request = Request.fromJson(json);
 
                 if (request == null || request.getType() == null) {
