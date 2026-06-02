@@ -16,6 +16,10 @@ import javafx.stage.Stage;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -166,7 +170,7 @@ public class MainApp extends Application {
             if(txtUser.getText().isEmpty() || !txtPass.getText().equals(txtRePass.getText())) { showAlert(Alert.AlertType.ERROR, "Lỗi", "Thông tin không hợp lệ!"); return; }
             AuthService authService = new AuthService(); btnReg.setText("ĐANG XỬ LÝ..."); btnReg.setDisable(true);
             authService.register(txtUser.getText().trim(), txtEmail.getText(), txtPhone.getText(), txtPass.getText()).thenAccept(res -> Platform.runLater(() -> {
-                if (res.statusCode() == 200) { showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đăng ký thành công!"); showLoginScene(); } 
+                if (res.statusCode() == 200) { showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đăng ký thành công!"); showLoginScene(); }
                 else { btnReg.setText("ĐĂNG KÝ"); btnReg.setDisable(false); showAlert(Alert.AlertType.ERROR, "Lỗi", "Đã tồn tại tài khoản!"); }
             }));
         });
@@ -390,7 +394,15 @@ public class MainApp extends Application {
         }
 
         Button btnJoin = new Button(buttonText);
-        btnJoin.setOnAction(e -> { if (status.equals("OPEN")) contentArea.getChildren().setAll(getLiveRoomView(id, title, price)); else showAlert(Alert.AlertType.WARNING, "Đã đóng", "Phiên đấu giá đã kết thúc!"); });
+        btnJoin.setOnAction(e -> {
+            if (status.equals("OPEN")) {
+                contentArea.getChildren().setAll(getLiveRoomView(id, title, price));
+            } else if (status.equals("SCHEDULED")) {
+                showAlert(Alert.AlertType.WARNING, "Sắp mở", "Phiên đấu giá chưa bắt đầu!");
+            } else {
+                showAlert(Alert.AlertType.WARNING, "Đã đóng", "Phiên đấu giá đã kết thúc!");
+            }
+        });
         card.getChildren().addAll(lblStatus, lblTitle, new Label("Giá cao nhất:"){{setStyle("-fx-text-fill:#bac2de;");}}, lblPrice, spacer, btnJoin); return card;
     }
 
