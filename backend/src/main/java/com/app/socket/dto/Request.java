@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 
+
+//đóng gói dữ liệu mà client và server gửi cho nhau qua socket
 public class Request {
 
     private static final Gson gson = new Gson();
@@ -12,6 +14,7 @@ public class Request {
     private MessageType type;
     private Map<String, Object> data;
 
+    //Tạo một Request rỗng, đồng thời khởi tạo data, tránh lỗi NullPointerException
     public Request() {
         this.data = new HashMap<>();
     }
@@ -21,10 +24,12 @@ public class Request {
         this.data = data != null ? data : new HashMap<>();
     }
 
+    //Tạo nhanh một request chỉ có type, không có dữ liệu kèm theo
     public static Request of(MessageType type) {
         return new Request(type, new HashMap<>());
     }
 
+    //Tạo nhanh một Map<String, Object> để đưa vào data
     public static Map<String, Object> mapOf(Object... values) {
         Map<String, Object> map = new HashMap<>();
 
@@ -35,14 +40,17 @@ public class Request {
         return map;
     }
 
+    //Chuyển object Request thành chuỗi JSON để gửi qua socket
     public String toJson() {
         return gson.toJson(this);
     }
 
+    //Chuyển chuỗi JSON nhận được từ socket thành object Request
     public static Request fromJson(String json) {
         return gson.fromJson(json, Request.class);
     }
 
+    //Lấy giá trị trong data theo key
     public Object get(String key) {
         if (data == null) {
             return null;
@@ -51,6 +59,7 @@ public class Request {
         return data.get(key);
     }
 
+    //Lấy dữ liệu trong data và chuyển về kiểu String
     public String getString(String key) {
         Object value = get(key);
 
@@ -61,6 +70,7 @@ public class Request {
         return String.valueOf(value);
     }
 
+    //Lấy dữ liệu trong data và chuyển về kiểu Double
     public Double getDouble(String key) {
         Object value = get(key);
 
@@ -79,6 +89,7 @@ public class Request {
         }
     }
 
+    //Lấy dữ liệu trong data và chuyển về kiểu Integer
     public Integer getInt(String key) {
         Object value = get(key);
 

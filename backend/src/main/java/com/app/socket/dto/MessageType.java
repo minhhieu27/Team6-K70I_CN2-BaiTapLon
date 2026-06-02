@@ -2,6 +2,9 @@ package com.app.socket.dto;
 
 public enum MessageType {
 
+    //định nghĩa các loại thông điệp mà client và server có thể gửi cho nhau trong hệ thống socket.
+
+
 
     // Client gửi yêu cầu đăng nhập
     LOGIN,
