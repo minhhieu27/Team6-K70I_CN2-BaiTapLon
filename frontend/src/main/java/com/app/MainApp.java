@@ -13,6 +13,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.URI;
@@ -25,6 +28,7 @@ import java.util.List;
 
 public class MainApp extends Application {
 
+    private WebSocketClient liveWsClient;
     private Stage primaryStage;
     private StackPane contentArea;
     private final String REMEMBER_FILE = "remember_me.txt";
@@ -405,22 +409,74 @@ public class MainApp extends Application {
         TextArea txtLog = new TextArea(">>> Đang kết nối Socket...\n"); txtLog.setEditable(false); txtLog.setStyle("-fx-control-inner-background: #181825; -fx-text-fill: #a6e3a1; -fx-font-family: 'Consolas'; -fx-font-size: 14px;"); VBox.setVgrow(txtLog, Priority.ALWAYS);
         logArea.getChildren().addAll(lblLogTitle, txtLog); mainBox.getChildren().addAll(bidArea, logArea); layout.getChildren().addAll(header, mainBox);
 
-        new Thread(() -> {
-            try {
-                liveSocket = new Socket("localhost", 9999); socketOut = new PrintWriter(liveSocket.getOutputStream(), true); socketIn = new BufferedReader(new InputStreamReader(liveSocket.getInputStream(), StandardCharsets.UTF_8));
-                socketOut.println(String.format("{\"type\":\"JOIN_AUCTION\",\"data\":{\"auctionId\":\"%s\"}}", auctionId));
-                Platform.runLater(() -> txtLog.appendText(">>> Đã vào phòng Live thành công!\n"));
-                String line; while ((line = socketIn.readLine()) != null) {
-                    JsonObject res = gson.fromJson(line, JsonObject.class); String type = res.has("type") ? res.get("type").getAsString() : "";
-                    Platform.runLater(() -> {
-                        if (type.equals("BID_UPDATE")) {
-                            JsonObject bidObj = res.getAsJsonObject("data").getAsJsonObject("bid");
-                            if (bidObj != null) { lblCurrentPrice.setText(String.format("%,d VNĐ", Long.parseLong(bidObj.get("amount").getAsString().split("\\.")[0]))); txtLog.appendText(">>> [HOT] Có người đặt giá: " + lblCurrentPrice.getText() + "!\n"); }
-                        } else if (type.equals("SUCCESS") || type.equals("ERROR")) { txtLog.appendText(">>> " + (res.has("message") ? res.get("message").getAsString() : "") + "\n"); }
-                    });
+        try {
+            URI wsUri = new URI("ws://localhost:8080/ws/auction?token=" + userToken);
+
+            liveWsClient = new WebSocketClient(wsUri) {
+                @Override
+                public void onOpen(ServerHandshake handshakedata) {
+                    Platform.runLater(() -> txtLog.appendText(">>> Đã kết nối WebSocket thành công!\n"));
+
+                    String joinRequest = String.format(
+                            "{\"type\":\"JOIN_AUCTION\",\"data\":{\"auctionId\":\"%s\"}}",
+                            auctionId
+                    );
+
+                    send(joinRequest);
                 }
-            } catch (Exception e) { Platform.runLater(() -> txtLog.appendText(">>> Đã ngắt kết nối Live.\n")); }
-        }).start();
+
+                @Override
+                public void onMessage(String message) {
+                    try {
+                        JsonObject res = gson.fromJson(message, JsonObject.class);
+                        String type = res.has("type") ? res.get("type").getAsString() : "";
+
+                        Platform.runLater(() -> {
+                            if (type.equals("BID_UPDATE")) {
+                                JsonObject data = res.getAsJsonObject("data");
+
+                                if (data != null && data.has("bid")) {
+                                    JsonObject bidObj = data.getAsJsonObject("bid");
+
+                                    if (bidObj != null && bidObj.has("amount")) {
+                                        String amount = bidObj.get("amount").getAsString();
+                                        lblCurrentPrice.setText(
+                                                String.format("%,d VNĐ", Long.parseLong(amount.split("\\.")[0]))
+                                        );
+                                        txtLog.appendText(">>> [HOT] Có người đặt giá: " + lblCurrentPrice.getText() + "!\n");
+                                    }
+                                }
+                            } else if (type.equals("VIEWER_UPDATE")) {
+                                JsonObject data = res.getAsJsonObject("data");
+                                if (data != null && data.has("viewerCount")) {
+                                    txtLog.appendText(">>> Số người đang xem: " + data.get("viewerCount").getAsString() + "\n");
+                                }
+                            } else if (type.equals("SUCCESS") || type.equals("ERROR")) {
+                                txtLog.appendText(">>> " + (res.has("message") ? res.get("message").getAsString() : "") + "\n");
+                            }
+                        });
+
+                    } catch (Exception ex) {
+                        Platform.runLater(() -> txtLog.appendText(">>> Lỗi đọc dữ liệu WebSocket: " + ex.getMessage() + "\n"));
+                    }
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                    Platform.runLater(() -> txtLog.appendText(">>> WebSocket đã ngắt kết nối: " + reason + "\n"));
+                }
+
+                @Override
+                public void onError(Exception ex) {
+                    Platform.runLater(() -> txtLog.appendText(">>> Lỗi WebSocket: " + ex.getMessage() + "\n"));
+                }
+            };
+
+            liveWsClient.connect();
+
+        } catch (Exception e) {
+            txtLog.appendText(">>> Không thể kết nối WebSocket: " + e.getMessage() + "\n");
+        }
 
         btnPlaceBid.setOnAction(e -> {
             try {
@@ -430,16 +486,27 @@ public class MainApp extends Application {
             } catch (Exception ex) { showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá tiền sai định dạng!"); }
         });
 
-        btnAutoBid.setOnAction(e -> {
-            TextInputDialog d = new TextInputDialog(); d.setTitle("Auto-Bid"); d.setHeaderText("Hệ thống tự động đấu giá"); d.setContentText("Nhập giá tối đa (VNĐ):");
-            d.showAndWait().ifPresent(max -> {
-                try {
-                    HttpRequest req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/autobids")).header("Authorization", "Bearer " + userToken).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(String.format("{\"auctionId\":\"%s\", \"maxAmount\":%d}", auctionId, Long.parseLong(max.trim())))).build();
-                    httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(res -> Platform.runLater(() -> {
-                        if (res.statusCode() == 200) { txtLog.appendText(">>> [HỆ THỐNG] Đã BẬT Auto-Bid tới: " + max + " VNĐ\n"); } else showAlert(Alert.AlertType.ERROR, "Lỗi", res.body());
-                    }));
-                } catch(Exception ex) { showAlert(Alert.AlertType.ERROR, "Lỗi", "Lỗi nhập giá"); }
-            });
+        btnPlaceBid.setOnAction(e -> {
+            try {
+                long bidAmount = Long.parseLong(txtBidAmount.getText().trim());
+
+                if (liveWsClient != null && liveWsClient.isOpen()) {
+                    String request = String.format(
+                            "{\"type\":\"PLACE_BID\",\"data\":{\"auctionId\":\"%s\",\"price\":%d}}",
+                            auctionId,
+                            bidAmount
+                    );
+
+                    liveWsClient.send(request);
+                    txtLog.appendText(">>> Bạn vừa đặt: " + String.format("%,d VNĐ", bidAmount) + "\n");
+                    txtBidAmount.clear();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Chưa kết nối WebSocket!");
+                }
+
+            } catch (Exception ex) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá tiền sai định dạng!");
+            }
         });
 
         return layout;
