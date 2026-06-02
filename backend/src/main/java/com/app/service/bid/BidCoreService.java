@@ -53,7 +53,7 @@ public class BidCoreService {
             throw new AuctionClosedException("Phiên đấu giá đã đóng");
         }
 
-        if (auction.getCurrentPrice().isGreaterThan(amount)){
+        if (!amount.isGreaterThan(auction.getCurrentPrice())){
             throw new InvalidBidException("Giá đấu giá phải lớn hơn giá hiện tại");
         }
 

@@ -40,7 +40,7 @@ public class UserEntity {
     private UserProfile userProfile = new UserProfile();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "walleta_id", referencedColumnName = "id")
+    @JoinColumn(name = "wallet_id", referencedColumnName = "id")
     private Wallet wallet;
 
     

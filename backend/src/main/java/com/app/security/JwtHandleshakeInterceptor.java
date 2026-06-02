@@ -34,17 +34,13 @@ public class JwtHandleshakeInterceptor implements HandshakeInterceptor {
             }
 
             String token = query.substring("token=".length());
-            String username = jwtUtil.extractUsername(token);
+            String userId = jwtUtil.extractUsername(token);
 
-            if (username == null) {
+            if (userId == null) {
                 return false;
             }
 
-            UserEntity user = userRepository.findByUsername(username).orElse(null);
-
-            if (user == null) {
-                return false;
-            }
+            UserEntity user = userRepository.findByUserId(userId).orElse(null);
 
             attributes.put("userId", user.getUserId());
             attributes.put("username", user.getUsername());

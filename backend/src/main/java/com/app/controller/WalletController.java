@@ -63,8 +63,9 @@ public class WalletController {
     public Page<TransactionResponse> myTransactions(Authentication authentication,
                                                     @RequestParam (defaultValue = "0") int page,
                                                     @RequestParam (defaultValue = "10") int size){
-        
-        UserEntity user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
+
+        UserEntity user = userRepository.findByUserId(authentication.getName())
+                .orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng"));
 
         return transactionService.getUserTransactions(user.getUserId(), page, size);
     }

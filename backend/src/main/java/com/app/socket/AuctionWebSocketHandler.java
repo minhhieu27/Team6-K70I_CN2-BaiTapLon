@@ -173,9 +173,8 @@ public class AuctionWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        for (WebSocketSession session : sessions){
-
-           sendToSession(session, response);
+        for (WebSocketSession session : room) {
+            sendToSession(session, response);
         }
     }
 

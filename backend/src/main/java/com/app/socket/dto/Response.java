@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+//đóng gói dữ liệu phản hồi từ server trả về client
 public class Response {
     private static final Gson gson = new Gson();
 
@@ -15,6 +16,7 @@ public class Response {
     private String message;
     private Object data;
 
+    //tạo object Response mà chưa gán dữ liệu ngay
     public Response() {
     }
 
@@ -25,18 +27,22 @@ public class Response {
         this.data = data;
     }
 
+    //tạo nhanh một phản hồi thành công
     public static Response success(MessageType type, String message, Object data) {
         return new Response(true, type, message, data);
     }
 
+    //Tạo phản hồi lỗi đơn giản, không có data kèm theo
     public static Response error(String message) {
         return new Response(false, MessageType.ERROR, message, null);
     }
+
 
     public static Response error(String message, Object data) {
         return new Response(false, MessageType.ERROR, message, data);
     }
 
+    //Tạo phản hồi lỗi liên quan đến kết nối socket
     public static Response connectionError(String message) {
         return new Response(false, MessageType.CONNECTION_ERROR, message, null);
     }
@@ -73,6 +79,7 @@ public class Response {
         this.data = data;
     }
 
+    // chuyển dữ liệu data
     public Map<String, Object> getDataAsMap() {
         if (data == null) {
             return new HashMap<>();
@@ -91,6 +98,7 @@ public class Response {
         return map.get(key);
     }
 
+    //lấy dữ liệu theo key và chuyển về kiểu String
     public String getString(String key) {
         Object value = get(key);
 
@@ -101,6 +109,7 @@ public class Response {
         return value.toString();
     }
 
+    //Lấy dữ liệu theo key và chuyển về kiểu Double
     public Double getDouble(String key) {
         Object value = get(key);
 
@@ -115,6 +124,7 @@ public class Response {
         }
     }
 
+    //Lấy dữ liệu theo key và chuyển về kiểu String
     public Integer getInt(String key) {
         Object value = get(key);
 
@@ -129,10 +139,12 @@ public class Response {
         }
     }
 
+    //Chuyển object Response thành chuỗi JSON để gửi qua socket.
     public String toJson() {
         return gson.toJson(this);
     }
 
+    //Chuyển chuỗi JSON nhận được từ socket thành object Response
     public static Response fromJson(String json) {
         if (json == null || json.trim().isEmpty()) {
             return null;
@@ -141,6 +153,7 @@ public class Response {
         return gson.fromJson(json, Response.class);
     }
 
+    //Khi in object Response, sẽ tự động in ra dạng JSON
     @Override
     public String toString() {
         return toJson();

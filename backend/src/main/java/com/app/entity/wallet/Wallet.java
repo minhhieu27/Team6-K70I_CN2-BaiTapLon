@@ -25,25 +25,25 @@ public class Wallet {
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(
-                                                name = "balance", 
-                                                nullable = false))
+            name = "balance",
+            nullable = false))
     private Money balance = new Money(0);
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(
-                                                name = "locked_amount",
-                                                nullable = false))
+            name = "locked_amount",
+            nullable = false))
     private Money lockedAmount = new Money(0);
-    
+
     @Embedded
     @AttributeOverride(name = "value", column = @Column(
-                                                name = "total_spent",
-                                                nullable = false))
+            name = "total_spent",
+            nullable = false))
     private Money totalSpent = new Money(0);
 
     @OneToOne(mappedBy = "wallet")
     private UserEntity user;
-    
+
     @OneToMany(
             mappedBy = "wallet",
             cascade = CascadeType.ALL,
@@ -53,10 +53,7 @@ public class Wallet {
     public Wallet() {}
 
     public void deposit(Money amount){
-
         balance = balance.add(amount);
-
-        transactions.add(new Transaction(amount, TransactionType.DEPOSIT, this));
     }
 
     public void withdraw(Money amount){
@@ -64,10 +61,8 @@ public class Wallet {
         if (amount.isGreaterThan(balance)){
             throw new InsufficientBalanceException("Không đủ số dư");
         }
-       
-        balance = balance.subtract(amount);
 
-        transactions.add(new Transaction(amount, TransactionType.WITHDRAW, this));
+        balance = balance.subtract(amount);
     }
 
     public void lock(Money amount){ // Khóa khi bid
