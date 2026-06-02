@@ -8,7 +8,7 @@ backend/target/
 
 # ===== EVN =====
 .evn
-
+*.env
 .history
 
 # ===== MAVEN WRAPPER =====

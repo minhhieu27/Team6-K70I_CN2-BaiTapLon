@@ -92,7 +92,6 @@ public class UserService implements UserDetailsService {
         
         UserEntity userEntity = new UserEntity(username, email, phone, passwordEncoder.encode(password));
 
-        userEntity.addRole(Role.ROLE_USER);
 
         UserEntity saveUser = userRepository.save(userEntity);
 

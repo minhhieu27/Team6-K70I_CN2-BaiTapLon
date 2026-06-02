@@ -16,13 +16,10 @@ import javafx.stage.Stage;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
-import java.io.*;
-import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +39,6 @@ public class MainApp extends Application {
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
-    private Socket liveSocket;
-    private PrintWriter socketOut;
-    private BufferedReader socketIn;
     private List<Button> navButtons = new ArrayList<>();
 
     @Override
@@ -61,9 +55,10 @@ public class MainApp extends Application {
 
     private void closeLiveSocket() {
         try {
-            if (socketOut != null) socketOut.close();
-            if (socketIn != null) socketIn.close();
-            if (liveSocket != null && !liveSocket.isClosed()) liveSocket.close();
+            if (liveWsClient != null) {
+                liveWsClient.close();
+                liveWsClient = null;
+            }
         } catch (Exception ignored) {}
     }
 
@@ -384,7 +379,17 @@ public class MainApp extends Application {
         Label lblPrice = new Label(String.format("%,d VNĐ", Long.parseLong(price.split("\\.")[0]))); lblPrice.setStyle("-fx-text-fill: #f9e2af; -fx-font-size: 20px; -fx-font-weight: bold;");
         Label lblStatus = new Label(status); String color = status.equals("OPEN") ? "#a6e3a1" : (status.equals("FINISHED") ? "#f38ba8" : "#bac2de"); lblStatus.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px; -fx-font-weight: bold; -fx-border-color: " + color + "; -fx-border-radius: 4; -fx-padding: 3 8;");
         Region spacer = new Region(); VBox.setVgrow(spacer, Priority.ALWAYS);
-        Button btnJoin = new Button(status.equals("OPEN") ? "Vào Phòng Live" : "Đã chốt sổ"); btnJoin.setMaxWidth(Double.MAX_VALUE); btnJoin.setStyle("-fx-background-color: #89b4fa; -fx-text-fill: #11111b; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10;");
+        String buttonText;
+
+        if (status.equals("OPEN")) {
+            buttonText = "Vào Phòng Live";
+        } else if (status.equals("SCHEDULED")) {
+            buttonText = "Sắp mở";
+        } else {
+            buttonText = "Đã chốt sổ";
+        }
+
+        Button btnJoin = new Button(buttonText);
         btnJoin.setOnAction(e -> { if (status.equals("OPEN")) contentArea.getChildren().setAll(getLiveRoomView(id, title, price)); else showAlert(Alert.AlertType.WARNING, "Đã đóng", "Phiên đấu giá đã kết thúc!"); });
         card.getChildren().addAll(lblStatus, lblTitle, new Label("Giá cao nhất:"){{setStyle("-fx-text-fill:#bac2de;");}}, lblPrice, spacer, btnJoin); return card;
     }
@@ -478,13 +483,6 @@ public class MainApp extends Application {
             txtLog.appendText(">>> Không thể kết nối WebSocket: " + e.getMessage() + "\n");
         }
 
-        btnPlaceBid.setOnAction(e -> {
-            try {
-                long bidAmount = Long.parseLong(txtBidAmount.getText().trim());
-                if (socketOut != null) socketOut.println(String.format("{\"type\":\"PLACE_BID\",\"data\":{\"auctionId\":\"%s\",\"userId\":\"%s\",\"price\":%d}}", auctionId, currentUserId, bidAmount));
-                txtLog.appendText(">>> Bạn vừa đặt: " + String.format("%,d VNĐ", bidAmount) + "\n"); txtBidAmount.clear();
-            } catch (Exception ex) { showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá tiền sai định dạng!"); }
-        });
 
         btnPlaceBid.setOnAction(e -> {
             try {

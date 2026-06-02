@@ -36,22 +36,23 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{ // Kiểm soát toàn bộ request
 
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // ====== PUBLIC ======
-                .requestMatchers("/auth/**",
-                                            "/swagger-ui/**",
-                                            "/v3/api-docs/**").permitAll()
-                .requestMatchers("/images/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/").permitAll()
-                .anyRequest().authenticated()
-            )
-        .formLogin(form -> form.disable())
-        .httpBasic(httpBasic -> httpBasic.disable())
-        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-        .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // ====== PUBLIC ======
+                        .requestMatchers("/auth/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 }

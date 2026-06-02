@@ -53,7 +53,7 @@ public abstract class CreateItemRequest {
     private ItemType itemType;
 
     @NotBlank (message = "Tên sản phẩm không được để trống")
-    @Size (message = "Tên sản phẩm tối đa 255 ký tự")
+    @Size(max = 255, message = "Tên sản phẩm tối đa 255 ký tự")
     private String itemName;
 
     @NotBlank (message = "Mô tả không được để trống")

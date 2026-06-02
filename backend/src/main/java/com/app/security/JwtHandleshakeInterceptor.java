@@ -42,10 +42,13 @@ public class JwtHandleshakeInterceptor implements HandshakeInterceptor {
 
             UserEntity user = userRepository.findByUserId(userId).orElse(null);
 
+            if (user == null) {
+                return false;
+            }
+
             attributes.put("userId", user.getUserId());
             attributes.put("username", user.getUsername());
             attributes.put("role", user.getRoles());
-
             return true;
 
         } catch (Exception e) {
