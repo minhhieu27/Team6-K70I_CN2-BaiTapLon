@@ -1,6 +1,7 @@
 package com.app.dto.response.auction;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.app.common.enums.AuctionStatus;
@@ -26,4 +27,8 @@ public class AuctionResponse {
     private AuctionStatus status;
     
     private String sellerId;
+
+    private LocalDateTime endTime;
+
+    private long remainingSeconds;
 }

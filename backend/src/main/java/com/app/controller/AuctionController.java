@@ -38,7 +38,7 @@ public class AuctionController {
     private AuctionFollowService auctionFollowService;
 
     // ====== CREATE AUCTION ======
-    @PostMapping
+    @PostMapping("/create")
     public AuctionResponse create(@Valid @RequestBody CreateAuctionRequest req, Principal principal){
 
         return auctionManagementService.createAuction(req, principal.getName());

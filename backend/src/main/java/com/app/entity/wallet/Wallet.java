@@ -3,7 +3,6 @@ package com.app.entity.wallet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.app.common.enums.TransactionType;
 import com.app.common.money.Money;
 import com.app.entity.user.UserEntity;
 import com.app.exception.validation.ValidationException;
@@ -94,17 +93,5 @@ public class Wallet {
     public void addSpent(Money amount){
 
         totalSpent = totalSpent.add(amount);
-    }
-
-    public Money getBalance(){
-        return balance;
-    }
-
-    public Money getTotalSpent(){
-        return totalSpent;
-    }
-
-    public Money getLockedAmount(){
-        return lockedAmount;
     }
 }

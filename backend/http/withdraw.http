@@ -1,7 +1,0 @@
-POST http://localhost:8080/wallet/withdraw
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJVU1ItMmNmYTkxYzgiLCJ1c2VySWQiOiJVU1ItMmNmYTkxYzgiLCJyb2xlcyI6WyJST0xFX1VTRVIiLCJST0xFX1NFTExFUiJdLCJpYXQiOjE3Nzg5Njc1ODQsImV4cCI6MTc3OTA1Mzk4NH0.hlkj1VayG9bg3K6lfXMrHWI9JKRYs-ZmEtPJZu-6pEY
-Content-Type: application/json
-
-{
-    "amount": 800
-}

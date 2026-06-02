@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.app.common.tool.DateTimeUtil;
 import com.app.dto.response.auction.AuctionImageResponse;
 import com.app.dto.response.auction.AuctionResponse;
 import com.app.entity.auction.AuctionEntity;
@@ -28,6 +29,8 @@ public class AuctionMapper {
                 .currentPrice(auction.getCurrentPrice().getValue())
                 .status(auction.getStatus())
                 .sellerId(auction.getSeller().getUserId())
+                .endTime(auction.getEndTime())
+                .remainingSeconds(DateTimeUtil.secondLeft(auction.getEndTime()))
                 .build();
     }
 

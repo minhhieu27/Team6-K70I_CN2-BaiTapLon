@@ -22,6 +22,8 @@ public class AuctionSearchRequest {
 
     private String sellerId;
 
+    private String auctionId;
+
     // ====== PAGINATION ======
     private Integer page = 0;
 
