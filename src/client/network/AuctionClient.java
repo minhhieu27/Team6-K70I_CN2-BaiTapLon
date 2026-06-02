@@ -2,191 +2,113 @@ package client.network;
 
 import shared.socket.dto.MessageType;
 import shared.socket.dto.Request;
+import shared.socket.dto.Response;
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class AuctionClient {
 
     private Socket socket;
     private BufferedReader reader;
     private PrintWriter writer;
-
     private Thread listenerThread;
-    private ServerListener serverListener;
+    private boolean connected = false;
+    private final Gson gson = new Gson();
 
-    private final SocketClientCallback callback;
-    private final SocketResponseHandler responseHandler;
+    private SocketClientCallback callback;
 
     public AuctionClient(SocketClientCallback callback) {
         this.callback = callback;
-        this.responseHandler = new SocketResponseHandler(callback);
     }
 
     public boolean connect(String host, int port) {
         try {
             socket = new Socket(host, port);
-
-            reader = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)
-            );
-
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             writer = new PrintWriter(socket.getOutputStream(), true);
+            connected = true;
 
-            serverListener = new ServerListener(reader, responseHandler);
-            listenerThread = new Thread(serverListener);
+            // Chạy luồng lắng nghe server
+            listenerThread = new Thread(this::listenToServer);
             listenerThread.setDaemon(true);
             listenerThread.start();
 
+            System.out.println("Đã kết nối Socket tới Server: " + host + ":" + port);
             return true;
-
         } catch (Exception e) {
-            callback.onConnectionError("Cannot connect to server: " + e.getMessage());
+            if(callback != null) callback.onConnectionError("Lỗi kết nối: " + e.getMessage());
             return false;
         }
     }
 
-    public void disconnect() {
+    private void listenToServer() {
         try {
-            if (serverListener != null) {
-                serverListener.stop();
+            String line;
+            while (connected && (line = reader.readLine()) != null) {
+                Response response = Response.fromJson(line);
+                if (callback != null) {
+                    handleResponse(response);
+                }
             }
-
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-
         } catch (Exception e) {
-            callback.onConnectionError("Error while disconnecting: " + e.getMessage());
+            if(callback != null && connected) callback.onConnectionError("Mất kết nối server!");
+        } finally {
+            disconnect();
         }
     }
 
-    public boolean isConnected() {
-        return socket != null
-                && socket.isConnected()
-                && !socket.isClosed()
-                && writer != null;
+    private void handleResponse(Response response) {
+        if (!response.isSuccess()) {
+            callback.onError(response);
+            return;
+        }
+        switch (response.getType()) {
+            case AUCTION_LIST -> callback.onAuctionList(response);
+            case AUCTION_DETAIL -> callback.onAuctionDetail(response);
+            case BID_UPDATE -> callback.onBidUpdate(response);
+            case BID_HISTORY -> callback.onBidHistory(response);
+            default -> callback.onSuccess(response);
+        }
     }
 
     public void send(Request request) {
-        if (!isConnected()) {
-            callback.onConnectionError("Client is not connected to server");
+        if (!connected || writer == null) {
+            if(callback != null) callback.onConnectionError("Chưa kết nối tới server");
             return;
         }
-
-        try {
-            writer.println(request.toJson());
-            writer.flush();
-
-        } catch (Exception e) {
-            callback.onConnectionError("Cannot send request: " + e.getMessage());
-        }
+        writer.println(request.toJson());
+        writer.flush();
     }
 
-    public void login(String identifier, String password) {
-        send(new Request(
-                MessageType.LOGIN,
-                Request.mapOf(
-                        "identifier", identifier,
-                        "password", password
-                )
-        ));
-    }
-
-    public void register(String username, String email, String phone, String password) {
-        send(new Request(
-                MessageType.REGISTER,
-                Request.mapOf(
-                        "username", username,
-                        "email", email,
-                        "phone", phone,
-                        "password", password
-                )
-        ));
-    }
-
-    public void getAuctions() {
-        send(new Request(
-                MessageType.GET_AUCTIONS,
-                Request.mapOf(
-                        "page", 0,
-                        "size", 20
-                )
-        ));
-    }
-
-    public void getAuctionDetail(String auctionId) {
-        send(new Request(
-                MessageType.GET_AUCTION_DETAIL,
-                Request.mapOf(
-                        "auctionId", auctionId
-                )
-        ));
-    }
-
-    public void createAuction(
-            String title,
-            String itemName,
-            String description,
-            String sellerId,
-            double startPrice
-    ) {
-        send(new Request(
-                MessageType.CREATE_AUCTION,
-                Request.mapOf(
-                        "title", title,
-                        "itemName", itemName,
-                        "description", description,
-                        "sellerId", sellerId,
-                        "startPrice", startPrice
-                )
-        ));
-    }
-
+    // Các hàm tiện ích gọi Server
     public void joinAuction(String auctionId) {
-        send(new Request(
-                MessageType.JOIN_AUCTION,
-                Request.mapOf(
-                        "auctionId", auctionId
-                )
-        ));
-    }
-
-    public void leaveAuction(String auctionId) {
-        send(new Request(
-                MessageType.LEAVE_AUCTION,
-                Request.mapOf(
-                        "auctionId", auctionId
-                )
-        ));
-    }
-
-    public void getBidHistory(String auctionId) {
-        send(new Request(
-                MessageType.GET_BID_HISTORY,
-                Request.mapOf(
-                        "auctionId", auctionId,
-                        "page", 0,
-                        "size", 20
-                )
-        ));
+        send(new Request(MessageType.JOIN_AUCTION, Request.mapOf("auctionId", auctionId)));
     }
 
     public void placeBid(String auctionId, String userId, double price) {
-        send(new Request(
-                MessageType.PLACE_BID,
-                Request.mapOf(
-                        "auctionId", auctionId,
-                        "userId", userId,
-                        "price", price
-                )
-        ));
+        send(new Request(MessageType.PLACE_BID, Request.mapOf("auctionId", auctionId, "userId", userId, "price", price)));
     }
 
-    public void logout() {
-        send(Request.of(MessageType.LOGOUT));
+    public void leaveAuction(String auctionId) {
+        send(new Request(MessageType.LEAVE_AUCTION, Request.mapOf("auctionId", auctionId)));
     }
+
+    public void disconnect() {
+        connected = false;
+        try {
+            if (reader != null) reader.close();
+            if (writer != null) writer.close();
+            if (socket != null && !socket.isClosed()) socket.close();
+        } catch (Exception e) {
+            System.out.println("Lỗi ngắt kết nối: " + e.getMessage());
+        }
+    }
+
+    public boolean isConnected() { return connected; }
 }

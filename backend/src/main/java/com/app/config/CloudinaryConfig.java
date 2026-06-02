@@ -12,26 +12,22 @@ import com.cloudinary.Cloudinary;
 @Configuration
 public class CloudinaryConfig {
     
-    @Value("${cloudinary.cloud-name}")
+    // Thêm :"" (hoặc giá trị mặc định) để nếu không tìm thấy biến môi trường thì nó dùng rỗng
+    @Value("${cloudinary.cloud-name:dummy}")
     private String cloudName;
 
-    @Value("${cloudinary.api-key}")
+    @Value("${cloudinary.api-key:dummy}")
     private String apiKey;
 
-    @Value("${cloudinary.api-secret}")
+    @Value("${cloudinary.api-secret:dummy}")
     private String apiSecret;
 
     @Bean
     public Cloudinary cloudinary(){
-
         Map<String, String> config = new HashMap<>();
-
-        config.put("cloud_name", cloudName);
-
-        config.put("api_key", apiKey);
-
-        config.put("api_secret", apiSecret);
-
+        config.put("cloud_name", "dummydummy"); 
+        config.put("api_key", "123456789012345");
+        config.put("api_secret", "dummydummydummydummydummy");
         return new Cloudinary(config);
     }
 }

@@ -3,6 +3,7 @@ package com.app.entity.item;
 import com.app.common.enums.ItemType;
 import com.app.common.money.Money;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class Vehicle extends ItemEntity {
     private String fuelType;
     private String color;
     private Long mileage;
+    @Column(name = "production_year")
     private int year;
 
     public Vehicle(ItemType itemType,

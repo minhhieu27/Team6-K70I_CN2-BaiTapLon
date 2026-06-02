@@ -40,17 +40,4 @@ public class AuthController {
 
         return userService.becomeSeller(principal.getName());
     }
-
-    // Test seller
-    @GetMapping("/seller/create-auction")
-    public String createAuction(){
-        return "Tạo Auction thành công!";
-    }
-
-    // Test user
-    @GetMapping("/hello")
-    public String hello(){
-        return "Hello user!";
-    }
-
 }

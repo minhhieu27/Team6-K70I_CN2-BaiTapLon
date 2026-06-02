@@ -22,7 +22,7 @@ import com.app.repository.UserRepository;
 import com.app.service.auction.AuctionFollowService;
 import com.app.service.auction.AuctionQuerryService;
 
-@ExtendWith (MockitoExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class AuctionFollowServiceTest {
     
     @Mock
@@ -36,58 +36,45 @@ public class AuctionFollowServiceTest {
 
     @Test
     void shouldFollowAuctionSuccessfull(){
-
         String auctionId = "AUC-001";
         String userId = "USR-001";
 
         AuctionEntity auction = mock(AuctionEntity.class);
-
         UserEntity user = new UserEntity("user", "abc123@gmail.com", "0123456789", "12345678");
 
         when(auctionQuerryService.getEntityByAuctionId(auctionId)).thenReturn(auction);
-
         when(userRepository.findByUserId(userId)).thenReturn(Optional.of(user));
 
         MessageResponse response = auctionFollowService.followAuction(auctionId, userId);
 
         verify(auction).addFollower(user);
-
         assertEquals("Đã theo dõi phiên đấu giá", response.getMessage());
     }
 
     @Test
     void shouldUnfollowAuctionSuccessfully(){
-
         String auctionId = "AUC-001";
         String userId = "USR-001";
 
         AuctionEntity auction = mock(AuctionEntity.class);
-
         UserEntity user = new UserEntity("user", "abc123@gmail.com", "0123456789", "12345678");
 
         when(auctionQuerryService.getEntityByAuctionId(auctionId)).thenReturn(auction);
-
         when(userRepository.findByUserId(userId)).thenReturn(Optional.of(user));
 
         MessageResponse response = auctionFollowService.unfollowAuction(auctionId, userId);
 
         verify(auction).removeFollower(user);
-
         assertEquals("Đã bỏ theo dõi phiên đấu giá", response.getMessage());
     }
 
     @Test
     void shouldThrowExceptionWhenUserNotFound(){
-
         String auctionId = "AUC-001";
         String userId = "USR-001";
 
-        AuctionEntity auction = mock(AuctionEntity.class);
-
-        UserEntity user = new UserEntity("user", "abc123@gmail.com", "0123456789", "12345678");
-
-        when(auctionQuerryService.getEntityByAuctionId(auctionId)).thenReturn(auction);
-
+        // Chỉ mock việc tìm User thất bại. Xóa bỏ hoàn toàn việc giả lập AuctionEntity
+        // vì Service sẽ ném Exception ngay khi không thấy User, không bao giờ chạy đến lệnh gọi Auction.
         when(userRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> auctionFollowService.followAuction(auctionId, userId));
