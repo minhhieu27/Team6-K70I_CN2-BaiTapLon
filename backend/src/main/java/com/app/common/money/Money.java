@@ -7,8 +7,10 @@ import com.app.exception.wallet.InsufficientBalanceException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Embeddable
 @NoArgsConstructor
 public class Money {
@@ -28,14 +30,42 @@ public class Money {
         this.value = bd;
     }
 
+    public Money(double value){
+        BigDecimal bd = BigDecimal.valueOf(value);
+
+        validate(bd);
+
+        this.value = bd;
+    }
+
     public void validate(BigDecimal value){
         if (value == null || value.compareTo(BigDecimal.ZERO) < 0){
             throw new ValidationException("Số tiền phải lớn hơn 0");
         }
     }
 
-    public BigDecimal getValue(){
+    public static Money of(long value){
+        return new Money(value);
+    }
+
+    public static Money of (double value){
+        return new Money(value);
+    }
+
+    public static Money of (BigDecimal value){
+        return new Money(value);
+    }
+
+    public BigDecimal toBigdDecimal(){
         return value;
+    }
+
+    public long toLong(){
+        return value.longValue();
+    }
+    
+    public double toDouble(){
+        return value.doubleValue();
     }
 
     // ====== BUSSINESS METHODS ======
@@ -90,6 +120,11 @@ public class Money {
     public int hashCode(){ // Tạo một con số đại diện cho object để dễ dàng tìm
         return value.stripTrailingZeros().hashCode();
         // stripTrailingZeros() dùng để loại bỏ các số 0 dư ở cuối phần thập phân
+    }
+
+    @Override
+    public String toString(){
+        return value.toPlainString();
     }
 
     public boolean isZero() {

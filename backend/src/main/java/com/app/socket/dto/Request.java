@@ -97,6 +97,25 @@ public class Request {
         }
     }
 
+    public Long getLong(String key){
+
+        Object value = get(key);
+
+        if (value == null){
+            return null;
+        }
+
+        if (value instanceof Number number){
+            return number.longValue();
+        }
+
+        try {
+            return Long.parseLong(String.valueOf(value));
+        }catch (NumberFormatException e){
+            return null;
+        }
+    }
+
     public MessageType getType() {
         return type;
     }
