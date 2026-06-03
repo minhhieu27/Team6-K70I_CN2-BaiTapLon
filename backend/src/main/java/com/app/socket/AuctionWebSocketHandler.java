@@ -10,6 +10,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.app.security.JWTUtil;
 import com.app.socket.dto.MessageType;
 import com.app.socket.dto.Request;
 import com.app.socket.dto.Response;
@@ -22,15 +23,37 @@ public class AuctionWebSocketHandler extends TextWebSocketHandler {
     
     private final SocketRequestProcessor requestProcessor;
 
+    private final JWTUtil jwtUtil;
+
     private final ConcurrentHashMap<String, Set<WebSocketSession>> auctionRooms = new ConcurrentHashMap<>();
 
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session){
+    public void afterConnectionEstablished(WebSocketSession session) {
+
         sessions.add(session);
 
-        System.out.println("[WS} New client connected: " + session.getId());
+        try {
+
+            String query = session.getUri().getQuery();
+
+            if (query != null && query.contains("token=")) {
+
+                String token = query.split("token=")[1];
+
+                String userId = jwtUtil.extractUsername(token);
+
+                session.getAttributes().put("userId", userId);
+
+                System.out.println("[WS] User connected: " + userId);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("[WS] New client connected: " + session.getId());
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.app.dto.response.user;
 
+import java.math.BigDecimal;
+
 import com.app.common.enums.UserStatus;
+import com.app.common.enums.VIPLevel;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +17,6 @@ public class UserResponse {
     private String email;
     private String phone;
     private UserStatus status;
+    private VIPLevel vipLevel;
+    private BigDecimal totalSpent;
 }

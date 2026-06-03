@@ -7,6 +7,10 @@ import com.app.service.NotificationService;
 import com.app.service.UserService;
 import com.app.service.WalletService;
 import com.app.socket.AuctionSocketClient;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -23,7 +27,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import lombok.RequiredArgsConstructor;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -31,30 +34,38 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
-@RequiredArgsConstructor
 public class MainApp extends Application {
 
-    private final AuctionSocketClient socketClient;
+    private AuctionSocketClient socketClient = new AuctionSocketClient();
 
-    private final AuctionService auctionService;
+    private AuctionService auctionService = new AuctionService();
 
-    private final UserService userService;
+    private UserService userService = new UserService();
 
-    private final WalletService walletService;
+    private WalletService walletService = new WalletService();
 
-    private final NotificationService notificationService;
+    private NotificationService notificationService = new NotificationService();
 
-    private final ImageService imageService;
+    private ImageService imageService = new ImageService();
+
+    private AuthService authService = new AuthService();
 
     private WebSocketClient liveWsClient;
+
+    private Label lbBalance;
+
+    private TextArea txTransactions;
 
     private int currentPage = 0;
 
@@ -62,18 +73,21 @@ public class MainApp extends Application {
 
     private Stage primaryStage;
     private StackPane contentArea;
-    private final String REMEMBER_FILE = "remember_me.txt";
+    private String REMEMBER_FILE = "remember_me.txt";
 
-    // Ảnh nền duy nhất cực xịn
-    private final String BG_DASHBOARD = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop";
+    private String BG_DASHBOARD = "https://res.cloudinary.com/dooo1pcd6/image/upload/v1780434484/ta%CC%89i_xu%C3%B4%CC%81ng_gyefbc.jpg";
 
     private String currentUsername  = "";
     private String currentUserId = "";
     private String userToken = "";
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final Gson gson = new Gson();
+    private HttpClient httpClient = HttpClient.newHttpClient();
+    private Gson gson = new Gson();
 
     private List<Button> navButtons = new ArrayList<>();
+
+    private final VBox dynamicFieldsBox = new VBox(20);
+
+    private final Map<String, Control> dynamicInputs = new HashMap<>();
 
     @Override
     public void start(Stage stage) {
@@ -147,7 +161,19 @@ public class MainApp extends Application {
                     
                     currentUserId = json.get("userId").getAsString();
 
-                    socketClient.connect(token, message -> {System.out.println("[WS]: " + message);});
+                    socketClient = new AuctionSocketClient();
+
+                        try {
+
+                                socketClient = new AuctionSocketClient();
+
+                                socketClient.connect(token, message -> {
+                                        System.out.println("[WS] " + message);
+                                });
+
+                        } catch (Exception ex) {
+                                ex.printStackTrace();
+                        }
 
                     handleRememberMe(txtUser.getText().trim(), txtPass.getText(), chkRemember.isSelected());
 
@@ -156,13 +182,55 @@ public class MainApp extends Application {
             })).exceptionally(ex -> { Platform.runLater(() -> { btnLogin.setText("ĐĂNG NHẬP"); btnLogin.setDisable(false); showAlert(Alert.AlertType.ERROR, "Lỗi Server", "Mất kết nối!"); }); return null; });
         });
 
+        Hyperlink forgotPassword = new Hyperlink( "Forgot password?" ); 
+
+        forgotPassword.setStyle(""" 
+                                -fx-text-fill: #ff9f43; 
+                                -fx-font-size: 13px; 
+                                -fx-border-color: transparent; 
+                                -fx-cursor: hand; 
+                        """);
+
+        forgotPassword.setOnAction(e -> { 
+                TextInputDialog dialog = new TextInputDialog(); 
+                
+                dialog.setTitle( "Reset Password" ); 
+                
+                dialog.setHeaderText( "Enter your email" ); 
+                
+                dialog.setContentText( "Email:" ); 
+                
+                dialog.showAndWait() .ifPresent(email -> { 
+                        
+                        authService .forgotPassword(email) 
+                                        .thenAccept(response -> { 
+                                                Platform.runLater(() -> { 
+                                                        showAlert( Alert.AlertType.INFORMATION, "Reset Password", "Please check your email" ); 
+                                                }); 
+                                        }) .exceptionally(ex -> { 
+                                                Platform.runLater(() -> { 
+                                                        showAlert( Alert.AlertType.ERROR, "Reset Password", ex.getMessage() ); 
+                                                }); 
+                                                return null; 
+                                        }); 
+                                }); 
+                        });
+
         HBox linkBox = new HBox(5); linkBox.setAlignment(Pos.CENTER);
-        Label lblNoAcc = new Label("Chưa có tài khoản?"); lblNoAcc.setStyle("-fx-text-fill: #bac2de;");
-        Hyperlink linkReg = new Hyperlink("Tạo ngay"); linkReg.setStyle("-fx-text-fill: #a6e3a1; -fx-font-weight: bold;");
+
+        Label lblNoAcc = new Label("Chưa có tài khoản?");
+        
+        lblNoAcc.setStyle("-fx-text-fill: #bac2de;");
+
+        Hyperlink linkReg = new Hyperlink("Tạo ngay"); 
+        
+        linkReg.setStyle("-fx-text-fill: #a6e3a1; -fx-font-weight: bold;");
+
         linkReg.setOnAction(e -> showRegisterScene());
+
         linkBox.getChildren().addAll(lblNoAcc, linkReg);
 
-        leftSide.getChildren().addAll(title, txtUser, txtPass, chkRemember, btnLogin, linkBox);
+        leftSide.getChildren().addAll(title, txtUser, txtPass, chkRemember, forgotPassword, btnLogin, linkBox);
 
         // 
         VBox rightSide = new VBox(20);
@@ -249,6 +317,36 @@ public class MainApp extends Application {
         VBox.setMargin(logo, new Insets(10, 0, 30, 15));
 
         Label lbHello = new Label("👋 Xin chào, " + currentUsername);
+
+        // Tạm thời placeholder
+        VBox[] vipCardHolder = {createVipCard("NORMAL", BigDecimal.ZERO)};
+        VBox.setMargin(vipCardHolder[0], new Insets(0, 10, 10, 10));
+
+        // Gọi API lấy vipLevel và totalSpent
+        userService.getProfile(userToken)
+                        .thenAccept(response -> {
+                                Platform.runLater(() -> {
+                                        try {
+                                                JsonObject json = gson.fromJson(response.body(), JsonObject.class);
+
+                                                String level = json.has("vipLevel") && !json.get("vipLevel").isJsonNull() ? json.get("vipLevel").getAsString() : "NORMAL";
+
+                                                BigDecimal spent = json.has("totalSpent") && !json.get("totalSpent").isJsonNull() ? json.get("totalSpent").getAsBigDecimal() : BigDecimal.ZERO;
+
+                                                VBox newCard = createVipCard(level, spent);
+
+                                                VBox.setMargin(newCard, new Insets(0, 10, 10, 10));
+
+                                                int idx = sidebar.getChildren().indexOf(vipCardHolder[0]);
+
+                                                if (idx >= 0) sidebar.getChildren().set(idx, newCard);
+
+                                        } catch (Exception e) {
+                                                e.printStackTrace();
+                                        }
+                                });
+                        }); 
+
         lbHello.setStyle("""
                             -fx-text-fill: white;
                             -fx-font-size: 18px;
@@ -268,7 +366,7 @@ public class MainApp extends Application {
         btnLogout.setStyle("-fx-background-color: transparent; -fx-text-fill: #f38ba8; -fx-font-size: 16px; -fx-padding: 15; -fx-cursor: hand;");
         btnLogout.setOnAction(e -> { closeLiveSocket(); userToken = ""; showLoginScene(); });
 
-        sidebar.getChildren().addAll(logo, btnCatalog, btnSearch, btnProfile, btnWallet, btnPostItem, spacer, btnLogout, btnNotify, btnSeller);
+        sidebar.getChildren().addAll(logo, btnCatalog, btnSearch, btnProfile, btnWallet, btnPostItem, spacer, btnLogout, btnNotify, btnSeller, vipCardHolder[0]);
 
         contentArea = new StackPane(); contentArea.setPadding(new Insets(30)); HBox.setHgrow(contentArea, Priority.ALWAYS);
         
@@ -283,7 +381,24 @@ public class MainApp extends Application {
         btnNotify.setOnAction(e -> {closeLiveSocket(); setActiveButton(btnNotify); contentArea.getChildren().setAll(getNotificationView());});
         btnSeller.setOnAction(e -> {closeLiveSocket(); setActiveButton(btnSeller); contentArea.getChildren().setAll(getSellerDashboardView());});
 
-        HBox hBoxRoot = new HBox(sidebar, contentArea); StackPane rootPane = new StackPane(); rootPane.setStyle("-fx-background-image: url('" + BG_DASHBOARD + "'); -fx-background-size: cover;");
+        ScrollPane sidebarScroll = new ScrollPane(sidebar);
+
+        sidebarScroll.setFitToWidth(true);
+
+        sidebarScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        sidebarScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        sidebarScroll.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
+
+        sidebarScroll.prefHeightProperty().bind(primaryStage.heightProperty());
+
+        sidebar.setMinHeight(Region.USE_PREF_SIZE);
+
+        HBox hBoxRoot = new HBox(sidebarScroll, contentArea); 
+
+        StackPane rootPane = new StackPane(); rootPane.setStyle("-fx-background-image: url('" + BG_DASHBOARD + "'); -fx-background-size: cover;");
+
         rootPane.getChildren().add(hBoxRoot); primaryStage.setScene(new Scene(rootPane, 1280, 800));
     }
 
@@ -331,28 +446,63 @@ public class MainApp extends Application {
                         Platform.runLater(() -> {
 
                                 try {
-                                        JsonArray arr = gson.fromJson(response.body(), JsonArray.class);
+
+                                        System.out.println(response.body());
+
+                                        JsonObject json =
+                                                gson.fromJson(
+                                                        response.body(),
+                                                        JsonObject.class
+                                                );
+
+                                        JsonArray arr =
+                                                json.getAsJsonArray("content");
+
+                                        if (
+                                                arr == null
+                                                || arr.size() == 0
+                                        ) {
+
+                                                Label empty =
+                                                        new Label(
+                                                                "Chưa có sản phẩm nào"
+                                                        );
+
+                                                empty.setStyle("""
+                                                -fx-text-fill: white;
+                                                -fx-font-size: 18px;
+                                                -fx-font-weight: bold;
+                                                """);
+
+                                                auctionList.getChildren().add(empty);
+
+                                                return;
+                                        }
 
                                         for (JsonElement el : arr) {
 
-                                        JsonObject auction = el.getAsJsonObject();
+                                                JsonObject auction =
+                                                        el.getAsJsonObject();
 
-                                        VBox card = createAuctionCard(auction);
+                                                VBox card =
+                                                        createAuctionCard(auction);
 
-                                        Button btnDelete = new Button("🗑 Delete");
+                                                Button btnDelete =
+                                                        new Button("🗑 Delete");
 
-                                        btnDelete.setOnAction(e -> {
+                                                btnDelete.setOnAction(e -> {
 
-                                                auctionService
-                                                        .deleteAuction(userToken, auction.get("auctionId").getAsString());
-                                        });
+                                                // delete logic
+                                                });
 
-                                        card.getChildren().add(btnDelete);
+                                                card.getChildren().add(btnDelete);
 
-                                        auctionList.getChildren().add(card);
+                                                auctionList
+                                                        .getChildren()
+                                                        .add(card);
                                         }
 
-                                } catch (Exception ex) {
+                                        } catch (Exception ex) {
 
                                         ex.printStackTrace();
                                 }
@@ -363,6 +513,144 @@ public class MainApp extends Application {
 
         return layout;
     }
+
+    private VBox createVipCard(String vipLevel, BigDecimal totalSpent) {
+
+    VBox card = new VBox(10);
+
+    card.setPadding(new Insets(16));
+
+    card.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 12; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 12;");
+
+    // Badge màu theo level
+    String badgeColor = switch (vipLevel) {
+        case "BRONZE"  -> "#CD7F32";
+        case "SILVER"  -> "#A8A9AD";
+        case "GOLD"    -> "#FFD700";
+        case "DIAMOND" -> "#378ADD";
+        default        -> "#888780";
+    };
+    String icon = switch (vipLevel) {
+        case "BRONZE"  -> "🥉";
+        case "SILVER"  -> "🥈";
+        case "GOLD"    -> "🥇";
+        case "DIAMOND" -> "💎";
+        default        -> "👤";
+    };
+    int discount = switch (vipLevel) {
+        case "BRONZE"  -> 3;
+        case "SILVER"  -> 7;
+        case "GOLD"    -> 12;
+        case "DIAMOND" -> 18;
+        default        -> 0;
+    };
+    BigDecimal nextThreshold = switch (vipLevel) {
+        case "NORMAL"  -> new BigDecimal("5000000");
+        case "BRONZE"  -> new BigDecimal("50000000");
+        case "SILVER"  -> new BigDecimal("500000000");
+        case "GOLD"    -> new BigDecimal("1000000000");
+        default        -> null;
+    };
+
+    // Title row
+    Label lblIcon = new Label(icon + " VIP Status");
+
+    lblIcon.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+    // Badge level
+    Label lblLevel = new Label(vipLevel);
+
+    lblLevel.setStyle(String.format(
+        "-fx-background-color: %s; -fx-text-fill: white; -fx-padding: 3 10; -fx-background-radius: 6; -fx-font-size: 12px; -fx-font-weight: bold;",
+        badgeColor
+    ));
+
+    HBox titleRow = new HBox(8, lblIcon, lblLevel);
+
+    titleRow.setAlignment(Pos.CENTER_LEFT);
+
+    // Separator
+    Separator sep = new Separator();
+
+    sep.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
+
+    // Stats row
+    DecimalFormat df = new DecimalFormat("#,###");
+
+    VBox statSpent = createStatBox("Tổng đã tiêu", df.format(totalSpent) + " VNĐ");
+
+    VBox statDiscount = createStatBox("Chiết khấu", discount + "%");
+
+    HBox statsRow = new HBox(12, statSpent, statDiscount);
+
+    HBox.setHgrow(statSpent, Priority.ALWAYS);
+
+    HBox.setHgrow(statDiscount, Priority.ALWAYS);
+
+    statSpent.setMaxWidth(Double.MAX_VALUE);
+
+    statDiscount.setMaxWidth(Double.MAX_VALUE);
+
+    card.getChildren().addAll(titleRow, sep, statsRow);
+
+    // Progress bar nếu chưa phải Diamond
+    if (nextThreshold != null) {
+
+        double pct = totalSpent.doubleValue() / nextThreshold.doubleValue();
+
+        pct = Math.min(pct, 1.0);
+
+        String nextLevel = switch (vipLevel) {
+            case "NORMAL" -> "BRONZE";
+            case "BRONZE" -> "SILVER";
+            case "SILVER" -> "GOLD";
+            default       -> "DIAMOND";
+        };
+
+        Label lblProgress = new Label("Tiến độ → " + nextLevel);
+
+        lblProgress.setStyle("-fx-text-fill: #8a9bb5; -fx-font-size: 12px;");
+
+        ProgressBar progressBar = new ProgressBar(pct);
+
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+
+        progressBar.setStyle(String.format("-fx-accent: %s;", badgeColor));
+
+        BigDecimal remaining = nextThreshold.subtract(totalSpent).max(BigDecimal.ZERO);
+
+        Label lblRemaining = new Label("Cần thêm " + df.format(remaining) + " ₫ để lên " + nextLevel);
+
+        lblRemaining.setStyle("-fx-text-fill: #8a9bb5; -fx-font-size: 11px;");
+
+        card.getChildren().addAll(lblProgress, progressBar, lblRemaining);
+    } else {
+        Label lblMax = new Label("🏆 Bạn đã đạt cấp cao nhất!");
+
+        lblMax.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 12px;");
+
+        card.getChildren().add(lblMax);
+    }
+
+    return card;
+}
+
+private VBox createStatBox(String label, String value) {
+
+    Label lbl = new Label(label);
+
+    lbl.setStyle("-fx-text-fill: #8a9bb5; -fx-font-size: 11px;");
+
+    Label val = new Label(value);
+
+    val.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+
+    VBox box = new VBox(3, lbl, val);
+
+    box.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 8; -fx-padding: 10;");
+
+    return box;
+}
 
     // ==============================================================================
     // 3. HỒ SƠ 
@@ -424,6 +712,12 @@ public class MainApp extends Application {
 
         txtUsername.setEditable(false);
 
+        Label lblUserId = new Label("User ID");
+
+        TextField txtUserId = new TextField(currentUserId);
+
+        txtUserId.setEditable(false);
+
         TextField txtFullName = createField("Full Name");
 
         TextField txtPhone = createField("Phone");
@@ -453,17 +747,20 @@ public class MainApp extends Application {
         grid.add(lbUsername, 0, 0);
         grid.add(txtUsername, 1, 0);
 
-        grid.add(lbFullName, 0, 1);
-        grid.add(txtFullName, 1, 1);
+        grid.add(lblUserId, 0, 1);
+        grid.add(txtUserId, 1, 1);
 
-        grid.add(lbPhone, 0, 2);
-        grid.add(txtPhone, 1, 2);
+        grid.add(lbFullName, 0, 2);
+        grid.add(txtFullName, 1, 2);
 
-        grid.add(lbAddress, 0, 3);
-        grid.add(txtAddress, 1, 3);
+        grid.add(lbPhone, 0, 3);
+        grid.add(txtPhone, 1, 3);
 
-        grid.add(lbEmail, 0, 1);
-        grid.add(txtEmail, 1, 4);
+        grid.add(lbAddress, 0, 4);
+        grid.add(txtAddress, 1, 4);
+
+        grid.add(lbEmail, 0, 5);
+        grid.add(txtEmail, 1, 5);
 
         profilePanel.getChildren().addAll(profileTitle, grid);
 
@@ -654,74 +951,6 @@ public class MainApp extends Application {
         );
 
         // =====================================================
-        // RESET PASSWORD PANEL
-        // =====================================================
-
-        VBox resetPanel = new VBox(15);
-
-        resetPanel.setPadding(new Insets(25));
-
-        resetPanel.setStyle("""
-                            -fx-background-color: rgba(255,255,255,0.08);
-                            -fx-background-radius: 20;
-                        """);
-
-        Label resetTitle = new Label("📧 Reset Password");
-
-        resetTitle.setStyle("""
-                            -fx-text-fill: #94e2d5;
-                            -fx-font-size: 22px;
-                            -fx-font-weight: bold;
-                        """);
-
-        TextField txtResetEmail = createField("Enter Email");
-
-        Button btnResetPassword = new Button("📨 RESET PASSWORD");
-
-        btnResetPassword.setStyle("""
-                                    -fx-background-color: linear-gradient(to right, #94e2d5, #89dceb);
-                                    -fx-text-fill: white;
-                                    -fx-font-size: 15px;
-                                    -fx-font-weight: bold;
-                                    -fx-background-radius: 12;
-                                    -fx-padding: 10 20 10 20;
-                            """);
-
-        btnResetPassword.setOnAction(e -> {
-
-            userService
-                    .resetPassword(
-                            txtResetEmail.getText()
-                    )
-                    .thenAccept(response -> {
-                        Platform.runLater(() -> {
-                            showAlert(
-                                    Alert.AlertType.INFORMATION,
-                                    "Reset Password",
-                                    "Reset request sent"
-                            );
-                        });
-                    })
-                    .exceptionally(ex -> {
-                        Platform.runLater(() -> {
-                            showAlert(
-                                    Alert.AlertType.ERROR,
-                                    "API Error",
-                                    ex.getMessage()
-                            );
-                        });
-
-                        return null;
-                    });
-        });
-
-        resetPanel.getChildren().addAll(
-                resetTitle,
-                txtResetEmail,
-                btnResetPassword
-        );
-
-        // =====================================================
         // ROOT
         // =====================================================
 
@@ -729,8 +958,7 @@ public class MainApp extends Application {
                 title,
                 profilePanel,
                 btnSave,
-                passwordPanel,
-                resetPanel
+                passwordPanel
         );
 
         ScrollPane scroll =
@@ -794,8 +1022,8 @@ public class MainApp extends Application {
             -fx-font-size: 18px;
         """);
 
-        Label lbBalance =
-                new Label("Loading...");
+        lbBalance =
+                new Label("VNĐ 0.00");
 
         fetchWalletBalance(lbBalance);
 
@@ -897,14 +1125,14 @@ public class MainApp extends Application {
             -fx-font-weight: bold;
         """);
 
-        TextArea txArea =
+        txTransactions =
                 new TextArea();
 
-        txArea.setEditable(false);
+        txTransactions.setEditable(false);
 
-        txArea.setPrefHeight(250);
+        txTransactions.setPrefHeight(250);
 
-        txArea.setStyle("""
+        txTransactions.setStyle("""
             -fx-control-inner-background:
             rgba(20,20,30,0.95);
 
@@ -913,62 +1141,19 @@ public class MainApp extends Application {
 
         transactionPanel.getChildren().addAll(
                 txTitle,
-                txArea
+                txTransactions
         );
 
         // =========================
         // LOAD WALLET
         // =========================
-
-        walletService
-                .getWallet(userToken)
-
-                .thenAccept(response -> {
-
-                    Platform.runLater(() -> {
-
-                        try {
-
-                            JsonObject obj =
-                                    gson.fromJson(
-                                            response.body(),
-                                            JsonObject.class
-                                    );
-
-                            if (obj.has("balance")) {
-
-                                lbBalance.setText(
-                                        "$" +
-                                        obj.get("balance")
-                                                .getAsString()
-                                );
-                            }
-
-                        } catch (Exception ignored) {
-                        }
-
-                    });
-
-                });
+        loadWallet();
 
         // =========================
         // LOAD TRANSACTIONS
         // =========================
 
-        walletService
-                .getTransactions(userToken)
-
-                .thenAccept(response -> {
-
-                    Platform.runLater(() -> {
-
-                        txArea.setText(
-                                response.body()
-                        );
-
-                    });
-
-                });
+        loadTransactions();
 
         // =========================
         // DEPOSIT EVENT
@@ -996,6 +1181,10 @@ public class MainApp extends Application {
                                     "Deposit",
                                     "Deposit successful"
                             );
+
+                            loadWallet();
+
+                            loadTransactions();
 
                         });
 
@@ -1028,6 +1217,10 @@ public class MainApp extends Application {
                                     "Withdraw",
                                     "Withdraw successful"
                             );
+
+                            loadWallet();
+
+                            loadTransactions();
 
                         });
 
@@ -1116,16 +1309,49 @@ public class MainApp extends Application {
                                         Platform.runLater(() -> {
 
                                                 try {
-                                                        JsonObject json = gson.fromJson(response.body(), JsonObject.class);
 
-                                                        JsonArray content = json.getAsJsonArray("content");
+                                                        System.out.println(response.body());
 
-                                                        for (JsonElement el : content){
-                                                                grid.getChildren().add(createAuctionCard(el.getAsJsonObject()));
+                                                        JsonObject json =
+                                                                gson.fromJson(
+                                                                        response.body(),
+                                                                        JsonObject.class
+                                                                );
+
+                                                        JsonArray content =
+                                                                json.getAsJsonArray("content");
+
+                                                        if (
+                                                                content == null
+                                                                || content.size() == 0
+                                                        ) {
+
+                                                                Label emptyLabel =
+                                                                        new Label(
+                                                                                "Chưa có phiên đấu giá nào"
+                                                                        );
+
+                                                                emptyLabel.setStyle("""
+                                                                -fx-text-fill: white;
+                                                                -fx-font-size: 20px;
+                                                                -fx-font-weight: bold;
+                                                                """);
+
+                                                                grid.getChildren().add(emptyLabel);
+
+                                                                return;
                                                         }
 
+                                                        for (JsonElement el : content) {
 
-                                                } catch (Exception ex) {
+                                                                grid.getChildren().add(
+                                                                        createAuctionCard(
+                                                                                el.getAsJsonObject()
+                                                                        )
+                                                                );
+                                                        }
+
+                                                        } catch (Exception ex) {
 
                                                         ex.printStackTrace();
 
@@ -1150,6 +1376,8 @@ public class MainApp extends Application {
                         });     
 
         layout.getChildren().addAll(title, scroll, paging);
+
+        loadPage.run();
 
         return layout;
     }
@@ -1243,6 +1471,12 @@ public class MainApp extends Application {
             -fx-background-radius: 10;
         """);
 
+        cbType.setOnAction(e -> {
+                String type = cbType.getValue();
+
+                renderDynamicFields(type);
+        });
+
         // =================================================
         // PRICE
         // =================================================
@@ -1289,30 +1523,28 @@ public class MainApp extends Application {
 
                 try {
 
-                    imageService
-                            .uploadImage(file.toPath())
-                            .thenAccept(response -> {
-                                Platform.runLater(() -> {
-                                    uploadedImage[0] =
-                                            response.body();
-                                    showAlert(
-                                            Alert.AlertType.INFORMATION,
-                                            "Upload",
-                                            "Image uploaded successfully"
-                                    );
-                                });
-                            })
-                            .exceptionally(ex -> {
-                                Platform.runLater(() -> {
-                                    showAlert(
-                                            Alert.AlertType.ERROR,
-                                            "Upload Error",
-                                            ex.getMessage()
-                                    );
-                                });
+                    try {
 
-                                return null;
-                            });
+                                uploadedImage[0] = imageService.uploadImage(file.toPath());
+
+                                System.out.println(uploadedImage[0]);
+
+                                showAlert(
+                                        Alert.AlertType.INFORMATION,
+                                        "Upload",
+                                        "Image uploaded successfully"
+                                );
+
+                        } catch (Exception ex) {
+
+                                ex.printStackTrace();
+
+                                showAlert(
+                                        Alert.AlertType.ERROR,
+                                        "Upload Error",
+                                        ex.getMessage()
+                                );
+                        }
 
                 } catch (Exception ex) {
                     showAlert(
@@ -1339,9 +1571,9 @@ public class MainApp extends Application {
 
         txtDesc.setStyle("""
             -fx-control-inner-background:
-            rgba(255,255,255,0.08);
+            rgba(241, 237, 237, 0.96);
 
-            -fx-text-fill: white;
+            -fx-text-fill: black;
 
             -fx-background-radius: 10;
         """);
@@ -1397,8 +1629,8 @@ public class MainApp extends Application {
 
             try {
 
-                long startPrice =
-                        Long.parseLong(
+                BigDecimal startPrice =
+                        new BigDecimal(
                                 txtPrice.getText().trim()
                         );
 
@@ -1416,34 +1648,49 @@ public class MainApp extends Application {
                 // JSON PAYLOAD
                 // =================================================
 
+                ObjectMapper mapper = new ObjectMapper();
+
+                ObjectNode root = mapper.createObjectNode();
+
+                root.put("title", txtTitle.getText());
+
+                ObjectNode item = root.putObject("item");
+
+                item.put(
+                        "itemType",
+                        cbType.getValue().toString()
+                );
+
+                item.put(
+                        "itemName",
+                        txtItemName.getText()
+                );
+
+                item.put(
+                        "description",
+                        txtDesc.getText()
+                );
+
+                item.put("startPrice", startPrice);
+
+                ArrayNode imageUrls = root.putArray("imageUrls");
+
+                imageUrls.add(imgUrl);
+
+                for (String key : dynamicInputs.keySet()) {
+
+                        Control control = dynamicInputs.get(key);
+
+                        if (control instanceof TextField tf) {
+
+                                item.put(key, tf.getText());
+                        }
+                }
+
                 String jsonPayload =
-                        String.format(
-                                """
-                                {
-                                    "title":"%s",
-                                    "item":{
-                                        "itemType":"%s",
-                                        "itemName":"%s",
-                                        "description":"%s",
-                                        "imageUrl":"%s"
-                                    },
-                                    "startPrice":%d
-                                }
-                                """,
+                        mapper.writeValueAsString(root);
 
-                                txtTitle.getText(),
-
-                                cbType.getValue(),
-
-                                txtItemName.getText(),
-
-                                txtDesc.getText(),
-
-                                imgUrl,
-
-                                startPrice
-                        );
-
+                System.out.println(jsonPayload);
                 // =================================================
                 // CREATE AUCTION API
                 // =================================================
@@ -1503,13 +1750,19 @@ public class MainApp extends Application {
                             return null;
                         });
 
-            } catch (Exception ex) {
+            }catch (NumberFormatException exc){
 
                 showAlert(
                         Alert.AlertType.ERROR,
                         "Invalid Price",
                         "Giá tiền không hợp lệ"
                 );
+
+            } catch (Exception ex) {
+
+                ex.printStackTrace();
+
+                showAlert(Alert.AlertType.ERROR, "Error", "Error");
             }
         });
 
@@ -1523,6 +1776,7 @@ public class MainApp extends Application {
                 lblType,
                 cbType,
                 txtPrice,
+                dynamicFieldsBox,
                 btnChooseImage,
                 lbImage,
                 txtDesc,
@@ -1533,9 +1787,27 @@ public class MainApp extends Application {
         // ROOT
         // =================================================
 
+        ScrollPane scrollPane = new ScrollPane(formBox);
+
+        scrollPane.setFitToWidth(true);
+
+        scrollPane.setPannable(true);
+
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        scrollPane.setStyle("""
+                                -fx-background: transparent;
+                                -fx-background-color: transparent;
+                        """);
+
         layout.getChildren().addAll(
                 title,
-                formBox
+                scrollPane
+        );
+
+        VBox.setVgrow(
+                scrollPane,
+                Priority.ALWAYS
         );
 
         return layout;
@@ -1579,6 +1851,8 @@ public class MainApp extends Application {
                         .get("status")
                         .getAsString();
 
+        String startTime = auctionData.get("startTime").getAsString();
+
         String endTime = auctionData.get("endTime").getAsString();
 
         long remainingSeconds = auctionData.get("remainingSeconds").getAsLong();
@@ -1596,11 +1870,18 @@ public class MainApp extends Application {
             -fx-background-radius: 10;
         """);
 
+        LocalDateTime start = LocalDateTime.parse(startTime);
         LocalDateTime end = LocalDateTime.parse(endTime);
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd//MM/yyyy HH:mm:ss");
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+        Label lblStartTime = new Label("Bắt đầu: " + start.format(fmt));
         Label lblEndTime = new Label("Kết thúc: " + end.format(fmt));
+
+        lblStartTime.setStyle("""
+                                -fx-text-fill: #bac2de;
+                                -fx-font-size: 13px;
+                        """);
 
         lblEndTime.setStyle("""
                                 -fx-text-fill: #bac2de;
@@ -1637,9 +1918,12 @@ public class MainApp extends Application {
                                                         )
                                         );
 
-        timeline.setCycleCount(Timeline.INDEFINITE);
-
-        timeline.play();
+        if ("ACTIVE".equals(status)) {
+                timeline.setCycleCount(Timeline.INDEFINITE);
+                timeline.play();
+        } else {
+                lblCountdown.setText("Bắt đầu: " + start.format(fmt));
+        }
 
         Label lblTitle =
                 new Label(title);
@@ -1654,12 +1938,12 @@ public class MainApp extends Application {
             -fx-font-weight: bold;
         """);
 
+        BigDecimal currentPrice = new BigDecimal(auctionData.get("currentPrice").getAsString());
+
+        DecimalFormat df = new DecimalFormat("#,###");
         Label lblPrice =
                 new Label(
-                        String.format(
-                                "%,d VND",
-                                Long.parseLong(price)
-                        )
+                        df.format(currentPrice) + "VND"
                 );
 
         lblPrice.setStyle("""
@@ -1883,16 +2167,11 @@ public class MainApp extends Application {
         // CURRENT PRICE
         // =================================================
 
-        Label lblCurrentPrice =
-                new Label(
-                        String.format(
-                                "%,d VND",
-                                Long.parseLong(
-                                        startPrice
-                                                .split("\\.")[0]
-                                )
-                        )
-                );
+        BigDecimal currentPrice = new BigDecimal(startPrice);
+
+        DecimalFormat moneyFormat = new DecimalFormat("#,###");
+
+        Label lblCurrentPrice = new Label(moneyFormat.format(currentPrice) + " VND");
 
         lblCurrentPrice.setStyle("""
             -fx-font-size: 34px;
@@ -1952,19 +2231,18 @@ public class MainApp extends Application {
             -fx-font-weight: bold;
         """);
 
-        TextArea txtHistory =
+        TextArea txtBidHistory =
                 new TextArea();
 
-        txtHistory.setEditable(false);
+        txtBidHistory.setEditable(false);
 
-        txtHistory.setPrefHeight(180);
+        txtBidHistory.setPrefHeight(200);
 
-        txtHistory.setStyle("""
-            -fx-control-inner-background:
-            rgba(20,20,30,0.95);
-
-            -fx-text-fill: white;
-        """);
+        txtBidHistory.setStyle("""
+                                -fx-control-inner-background: #0b1020;
+                                -fx-text-fill: white;
+                                -fx-font-size: 14px;
+                                """);
 
         bidArea.getChildren().addAll(
 
@@ -1987,13 +2265,9 @@ public class MainApp extends Application {
 
                 btnAutoBid,
 
-                new Region() {{
-                    setMinHeight(10);
-                }},
-
                 historyTitle,
 
-                txtHistory
+                txtBidHistory
         );
 
         // =================================================
@@ -2066,7 +2340,7 @@ public class MainApp extends Application {
 
 
                         try {
-                                URI wsUri = new URI("wss://team6-k70i-cn2-baitaplon.onrender.com/ws/auction?token=" + userToken);
+                                URI wsUri = new URI("ws://localhost:8080/ws/auction?token=" + userToken);
 
                                 liveWsClient = new WebSocketClient(wsUri) {
 
@@ -2075,10 +2349,7 @@ public class MainApp extends Application {
                                                 Platform.runLater(() -> {txtLog.appendText(">>> Đã kết nối WebSocket thành công!\n");
                                                 });
 
-                                                String joinRequest = String.format("""
-                                                        {"type":"JOIN_AUCTION","data":{"auctionId":"%s"}}""",
-                                                        auctionId
-                                                );
+                                                String joinRequest = String.format("{\"type\":\"JOIN_AUCTION\",\"token\":\"%s\",\"data\":{\"auctionId\":\"%s\"}}", userToken, auctionId);
 
                                                 send(joinRequest);
                                         }
@@ -2097,10 +2368,10 @@ public class MainApp extends Application {
                                                                                 JsonObject bidObj = data.getAsJsonObject("bid");
 
                                                                                 if (bidObj != null && bidObj.has("amount")) {
-                                                                                        String amount = bidObj.get("amount").getAsString();
+                                                                                        BigDecimal amount = bidObj.get("amount").getAsBigDecimal();
 
                                                                                         lblCurrentPrice.setText(
-                                                                                                String.format("%,d VNĐ", Long.parseLong(amount.split("\\.")[0]))
+                                                                                                String.format("%,,0f VNĐ", amount)
                                                                                         );
                                                                                         txtLog.appendText(">>> [HOT] Có người đặt giá: " + lblCurrentPrice.getText() + "!\n");
                                                                                 }
@@ -2161,9 +2432,28 @@ public class MainApp extends Application {
 
                                         JsonObject bid = data.getAsJsonObject("bid");
 
-                                        String amount = bid.get("amount").getAsString();
+                                        BigDecimal amount =
+                                                bid.get("amount")
+                                                .getAsBigDecimal();
 
-                                        lblCurrentPrice.setText(String.format("%,d VND", BigDecimal.valueOf(Long.parseLong(amount))));
+                                        DecimalFormat moneydf = new DecimalFormat("#,###");
+
+                                        lblCurrentPrice.setText(
+                                                moneydf.format(amount) + " VND"
+                                        );
+
+                                        txtLog.appendText("🔥 Có giá mới: " + moneydf.format(amount) + " VND\n");
+
+                                        String bidderName = "Unknown";
+
+                                        if (bid.has("bidderUsername")) {
+
+                                                bidderName =
+                                                        bid.get("bidderUsername")
+                                                        .getAsString();
+                                        }
+
+                                        txtBidHistory.appendText("👤 " + bidderName + " đặt " + moneydf.format(amount) + " VND\n");
                                 }
                         } catch (Exception ignored) {
                         }
@@ -2179,20 +2469,15 @@ public class MainApp extends Application {
 
             try {
 
-                BigDecimal bidAmount = BigDecimal.valueOf(Long.parseLong(txtBidAmount.getText().trim()));
+                BigDecimal bidAmount = new BigDecimal(txtBidAmount.getText().trim());
 
                 if (liveWsClient != null && liveWsClient.isOpen()) {
 
-                    String request = String.format("""
-                        {"type":"PLACE_BID","data":{\"auctionId":"%s","price":%s}
-                        }""",
-                            auctionId,
-                            bidAmount
-                    );
+                    String request = String.format("{\"type\":\"PLACE_BID\",\"token\":\"%s\",\"data\":{\"auctionId\":\"%s\",\"price\":%s}}", userToken, auctionId, bidAmount.toPlainString());
 
                     liveWsClient.send(request);
 
-                    txtLog.appendText(">>> Bạn vừa đặt: " + String.format("%,d VNĐ", bidAmount.doubleValue()) + "\n");
+                    txtLog.appendText(">>> Bạn vừa đặt: " + String.format("%,.0f VNĐ", bidAmount.doubleValue()) + "\n");
 
                     txtBidAmount.clear();
 
@@ -2200,8 +2485,11 @@ public class MainApp extends Application {
                     showAlert(Alert.AlertType.ERROR, "Lỗi", "Chưa kết nối WebSocket!");
                 }
 
-            } catch (Exception ex) {
+            }catch (NumberFormatException ex) {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá tiền sai định dạng!");
+
+            } catch (Exception ex) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Bid Error!");
             }
 
         });
@@ -2229,7 +2517,7 @@ public class MainApp extends Application {
 
                 try {
 
-                        BigDecimal amount = BigDecimal.valueOf(Long.parseLong(max));
+                        BigDecimal amount = new BigDecimal(max.trim());
 
                          auctionService
                                 .createAutoBid(
@@ -2274,123 +2562,145 @@ public class MainApp extends Application {
     //==============================================
     // 8. SEARCH
     //==============================================
-    private VBox getSearchView(){
-
+    private VBox getSearchView() {
         VBox root = new VBox(20);
 
         root.setPadding(new Insets(25));
 
         Label title = new Label("🔍 Search Auctions");
 
-        title.setStyle("""
-                        -fx-font-size: 28px;
-                        -fx-text-fill: #bac2de;
-                        -fx-font-weight: bold;
-                    """);
+        title.setStyle("-fx-font-size: 28px; -fx-text-fill: #bac2de; -fx-font-weight: bold;");
 
+        // ===== SEARCH BY AUCTION ID =====
         Label auctionLabel = new Label("Search By Auction ID");
 
-        auctionLabel.setStyle("-fx-text-fill: #bac2de;");
+        auctionLabel.setStyle("-fx-text-fill: #bac2de; -fx-font-size: 13px;");
 
         TextField auctionField = new TextField();
-
+        
         auctionField.setPromptText("Enter Auction ID");
+
+        auctionField.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-prompt-text-fill: #555; -fx-background-radius: 8; -fx-padding: 10;");
 
         Button auctionBtn = new Button("Search Auction");
 
-        TextArea auctionResult = new TextArea();
+        auctionBtn.setStyle("-fx-background-color: #5865f2; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;");
 
-        auctionResult.setPrefHeight(150);
+        VBox auctionResultBox = new VBox(10);
 
+        VBox auctionBox = new VBox(10, auctionLabel, auctionField, auctionBtn, auctionResultBox);
+
+        auctionBox.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-padding: 20; -fx-background-radius: 15;");
+
+        // ===== SEARCH BY SELLER ID =====
         Label sellerLabel = new Label("Search By Seller ID");
 
-        sellerLabel.setStyle("-fx-text-fill: #bac2de;");
+        sellerLabel.setStyle("-fx-text-fill: #bac2de; -fx-font-size: 13px;");
 
         TextField sellerField = new TextField();
 
         sellerField.setPromptText("Enter Seller ID");
 
+        sellerField.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-prompt-text-fill: #555; -fx-background-radius: 8; -fx-padding: 10;");
+
         Button sellerBtn = new Button("Search Seller");
 
-        TextArea sellerResult = new TextArea();
+        sellerBtn.setStyle("-fx-background-color: #5865f2; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;");
 
-        sellerResult.setPrefHeight(150);
+        VBox sellerResultBox = new VBox(10);
 
+        VBox sellerBox = new VBox(10, sellerLabel, sellerField, sellerBtn, sellerResultBox);
+
+        sellerBox.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-padding: 20; -fx-background-radius: 15;");
+
+        // ===== ACTIONS =====
         auctionBtn.setOnAction(e -> {
+                String auctionId = auctionField.getText().trim();
 
-            String auctionId = auctionField.getText();
+                if (auctionId.isBlank()) { showAlert(Alert.AlertType.ERROR, "Error", "Auction ID Required"); return; }
 
-            if (auctionId.isBlank()){
-                showAlert(Alert.AlertType.ERROR, "Error", "Auction ID Required");
+                auctionResultBox.getChildren().clear();
 
-                return;
-            }
+                Label loading = new Label("Searching...");
 
-            auctionService
-                    .getAuctionById(auctionId)
-                    .thenAccept(response -> {
-                        Platform.runLater(() -> {
-                            auctionResult.setText(
-                                response.body());
-                            });
-                        })
-                        .exceptionally(ex -> {
-                            Platform.runLater(() -> {
-                                showAlert(
-                                    Alert.AlertType.ERROR,
-                                    "API Error",
-                                    ex.getMessage()
-                                );
-                            }); 
-                            return null;
+                loading.setStyle("-fx-text-fill: #8a9bb5;");
+
+                auctionResultBox.getChildren().add(loading);
+
+                auctionService.getAuctionById(auctionId)
+                                .thenAccept(response -> Platform.runLater(() -> {
+                                        auctionResultBox.getChildren().clear();
+                                        try {
+                                                JsonObject json = gson.fromJson(response.body(), JsonObject.class);
+
+                                                auctionResultBox.getChildren().add(createAuctionCard(json));
+
+                                        } catch (Exception ex) {
+                                                Label err = new Label("Không tìm thấy auction.");
+
+                                                err.setStyle("-fx-text-fill: #f38ba8;");
+
+                                                auctionResultBox.getChildren().add(err);
+                                        }
+                                }))
+                                .exceptionally(ex -> { Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Error", ex.getMessage())); return null; });
                         });
-        });
 
         sellerBtn.setOnAction(e -> {
-            String sellerId = sellerField.getText();
+                String sellerId = sellerField.getText().trim();
 
-            if (sellerId.isBlank()){
-                showAlert(Alert.AlertType.ERROR, "Error", "Seller ID required");
+                if (sellerId.isBlank()) { showAlert(Alert.AlertType.ERROR, "Error", "Seller ID required"); return; }
 
-                return;
-            }
+                sellerResultBox.getChildren().clear();
 
-            auctionService
-                .getAuctionBySeller(sellerId)
-                .thenAccept(response ->{
-                    Platform.runLater(() ->{
-                        sellerResult.setText(response.body());
-                    });
-                })
-                .exceptionally(ex ->{
-                    Platform.runLater(() -> {
-                        showAlert(Alert.AlertType.ERROR, "API Error", ex.getMessage());
-                    });
+                Label loading = new Label("Searching...");
 
-                    return null;
-                });
-        });
+                loading.setStyle("-fx-text-fill: #8a9bb5;");
 
-        VBox auctionBox = new VBox(10, auctionLabel, auctionField, auctionBtn, auctionResult);
+                sellerResultBox.getChildren().add(loading);
 
-        auctionBox.setStyle("""
-                            -fx-background-color: rgba(255, 255, 255, 0.08);
-                            -fx-padding: 20;
-                            -fx-background-radius: 15;
-                            """);
-        
-        VBox sellerBox = new VBox(10, sellerLabel, sellerField, sellerBtn, sellerResult);
+                auctionService.getAuctionBySeller(sellerId)
+                                .thenAccept(response -> Platform.runLater(() -> {
+                                        sellerResultBox.getChildren().clear();
+                                        try {
+                                                JsonObject json = gson.fromJson(response.body(), JsonObject.class);
 
-        sellerBox.setStyle("""
-                            -fx-background-color: rgba(255, 255, 255, 0.08);
-                            -fx-padding: 20;
-                            -fx-background-radius: 15;
-                            """);
-                        
-        root.getChildren().addAll(title, auctionBox, sellerBox);
+                                                JsonArray arr = json.getAsJsonArray("content");
+
+                                                if (arr == null || arr.size() == 0) {
+                                                        Label empty = new Label("Không có kết quả.");
+
+                                                        empty.setStyle("-fx-text-fill: #8a9bb5;");
+
+                                                        sellerResultBox.getChildren().add(empty);
+
+                                                        return;
+                                                }
+                                                for (JsonElement el : arr) {
+                                                        sellerResultBox.getChildren().add(createAuctionCard(el.getAsJsonObject()));
+                                                }
+
+                                        } catch (Exception ex) {
+                                                Label err = new Label("Lỗi khi tải dữ liệu.");
+
+                                                err.setStyle("-fx-text-fill: #f38ba8;");
+
+                                                sellerResultBox.getChildren().add(err);
+                                        }
+                                }))
+                                .exceptionally(ex -> { Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Error", ex.getMessage())); return null; });
+                        });
+
+        ScrollPane scroll = new ScrollPane(new VBox(20, auctionBox, sellerBox));
+
+        scroll.setFitToWidth(true);
+
+        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        root.getChildren().addAll(title, scroll);
 
         return root;
-    }
+        }
 
     //===============================================================
     //9. NOTIFICATIONS
@@ -2580,27 +2890,263 @@ public class MainApp extends Application {
         """);
 
         return scroll;
-}
-
-    // --- CÁC HÀM TIỆN ÍCH UI ---
-    private void fetchWalletBalance(Label l) { HttpRequest req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/wallet")).header("Authorization", "Bearer " + userToken).GET().build(); httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(res -> Platform.runLater(() -> { if (res.statusCode() == 200) l.setText(String.format("%,d VNĐ", Long.parseLong(gson.fromJson(res.body(), JsonObject.class).get("balance").getAsString().split("\\.")[0]))); })); }
-    private void handleRememberMe(String u, String p, boolean isR) { try(PrintWriter w = new PrintWriter(new FileWriter(REMEMBER_FILE))) { if(isR){w.println(u);w.println(p);} else w.print(""); } catch(Exception ignored){} }
-    private void loadRememberedUser(TextField u, PasswordField p, CheckBox c) { try(BufferedReader r = new BufferedReader(new FileReader(REMEMBER_FILE))) { String a=r.readLine(), b=r.readLine(); if(a!=null&&b!=null){u.setText(a);p.setText(b);c.setSelected(true);} } catch(Exception ignored){} }
-    private TextField createField(String p) { TextField f = new TextField(); f.setPromptText(p); styleInputField(f); return f; }
-    private void styleInputField(TextField f) { f.setStyle("-fx-background-color: #313244; -fx-text-fill: white; -fx-padding: 12; -fx-background-radius: 8;"); }
-    private void showAlert(Alert.AlertType t, String title, String c) { Alert a = new Alert(t); a.setTitle(title); a.setHeaderText(null); a.setContentText(c); a.showAndWait(); }
-
-    private Label createProfileLabel(String text){
-
-        Label label = new Label(text);
-
-        label.setStyle("""
-                        -fx-text-fill: #bac2de;
-                        -fx-font-size: 16px;
-                        -fx-font-size: bold;
-                    """);      
-        return label; 
     }
 
-    public static void main(String[] args) { launch(args);}
+    private void renderDynamicFields(String type) {
+
+        dynamicFieldsBox.getChildren().clear();
+
+        dynamicInputs.clear();
+
+        switch (type) {
+
+                case "ELECTRONICS" ->
+                        renderElectronicsFields();
+
+                case "FASHION" ->
+                        renderFashionFields();
+
+                case "JEWELRY" ->
+                        renderJewelryFields();
+
+                case "VEHICLE" ->
+                        renderVehicleFields();
+
+                case "BOOK" ->
+                        renderBookFields();
+
+                case "ART" ->
+                        renderArtFields();
+
+                case "COLLECTIBLE" ->
+                        renderCollectibleFields();
+        }
+     }
+
+        private void addTextField(String labelText, String key) {
+
+                Label label = new Label(labelText);
+
+                label.setStyle("""
+                        -fx-text-fill: white;
+                        -fx-font-size: 13px;
+                        """);
+
+                TextField field = createField(labelText);
+
+                dynamicInputs.put(key, field);
+
+                dynamicFieldsBox.getChildren().addAll(label, field);
+        }
+
+        private void renderElectronicsFields() {
+
+                addTextField("Brand", "brand");
+
+                addTextField("Model", "model");
+
+                addTextField("Color", "color");
+
+                addTextField("Storage", "storage");
+
+                addTextField(
+                        "Condition Status",
+                        "conditionStatus"
+                );
+
+                addTextField(
+                        "Warranty Months",
+                        "warrantyMonths"
+                );
+        }
+
+        private void renderFashionFields() {
+
+                addTextField("Brand", "brand");
+
+                addTextField("Model", "model");
+
+                addTextField("Size", "size");
+
+                addTextField("Color", "color");
+
+                addTextField("Material", "material");
+        }
+
+        private void renderJewelryFields() {
+
+                addTextField("Brand", "brand");
+
+                addTextField("Model", "model");
+
+                addTextField("Material", "material");
+
+                addTextField("Weight", "weight");
+        }
+
+        private void renderVehicleFields() {
+
+                addTextField("Brand", "brand");
+
+                addTextField("Model", "model");
+
+                addTextField("Fuel Type", "fuelType");
+
+                addTextField("Color", "color");
+
+                addTextField("Mileage", "mileage");
+
+                addTextField("Year", "year");
+        }
+
+        private void renderBookFields() {
+
+                addTextField("Author", "author");
+
+                addTextField("Publisher", "publisher");
+
+                addTextField("Publish Year", "publishYear");
+        }
+
+        private void renderArtFields() {
+
+                addTextField("Artist", "artist");
+
+                addTextField("Style", "style");
+        }
+
+        private void renderCollectibleFields() {
+
+                addTextField("Category", "category");
+
+                addTextField("Rarity", "rarity");
+
+                addTextField(
+                        "Production Year",
+                        "productionYear"
+                );
+        }
+
+        private void loadWallet() {
+
+                try {
+
+                        walletService
+                                .getWallet(userToken)
+                                .thenAccept(response -> {
+
+                                Platform.runLater(() -> {
+
+                                        try {
+
+                                        ObjectMapper mapper =
+                                                new ObjectMapper();
+
+                                        JsonNode root =
+                                                mapper.readTree(
+                                                        response.body()
+                                                );
+
+                                        double balance =
+                                                root.get("balance")
+                                                        .asDouble();
+
+                                        lbBalance.setText(
+                                                "VNĐ" + balance
+                                        );
+
+                                        } catch (Exception ex) {
+
+                                        ex.printStackTrace();
+                                        }
+                                });
+                                });
+
+                } catch (Exception ex) {
+
+                        ex.printStackTrace();
+                }
+        }
+
+        private void loadTransactions() {
+
+                try {
+
+                        walletService
+                                .getTransactions(userToken)
+                                .thenAccept(response -> {
+
+                                Platform.runLater(() -> {
+
+                                        try {
+
+                                        ObjectMapper mapper =
+                                                new ObjectMapper();
+
+                                        JsonNode root =
+                                                mapper.readTree(
+                                                        response.body()
+                                                );
+
+                                        JsonNode content =
+                                                root.get("content");
+
+                                        StringBuilder sb =
+                                                new StringBuilder();
+
+                                        for (JsonNode tx : content) {
+
+                                                sb.append("Type: ")
+                                                .append(
+                                                tx.get("transactionType")
+                                                        .asText()
+                                                )
+                                                .append("\n");
+
+                                                sb.append("Amount: ")
+                                                .append(
+                                                tx.get("amount")
+                                                        .asText()
+                                                )
+                                                .append("\n\n");
+                                        }
+
+                                        txTransactions.setText(
+                                                sb.toString()
+                                        );
+
+                                        } catch (Exception ex) {
+
+                                        ex.printStackTrace();
+                                        }
+                                });
+                                });
+
+                } catch (Exception ex) {
+
+                        ex.printStackTrace();
+                }
+        }
+
+        // --- CÁC HÀM TIỆN ÍCH UI ---
+        private void fetchWalletBalance(Label l) { HttpRequest req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/")).header("Authorization", "Bearer " + userToken).GET().build(); httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(res -> Platform.runLater(() -> { if (res.statusCode() == 200) l.setText(String.format("%,.0f VNĐ", new BigDecimal((gson.fromJson(res.body(), JsonObject.class).get("balance").getAsString())))); })); }
+        private void handleRememberMe(String u, String p, boolean isR) { try(PrintWriter w = new PrintWriter(new FileWriter(REMEMBER_FILE))) { if(isR){w.println(u);w.println(p);} else w.print(""); } catch(Exception ignored){} }
+        private void loadRememberedUser(TextField u, PasswordField p, CheckBox c) { try(BufferedReader r = new BufferedReader(new FileReader(REMEMBER_FILE))) { String a=r.readLine(), b=r.readLine(); if(a!=null&&b!=null){u.setText(a);p.setText(b);c.setSelected(true);} } catch(Exception ignored){} }
+        private TextField createField(String p) { TextField f = new TextField(); f.setPromptText(p); styleInputField(f); return f; }
+        private void styleInputField(TextField f) { f.setStyle("-fx-background-color: #313244; -fx-text-fill: white; -fx-padding: 12; -fx-background-radius: 8;"); }
+        private void showAlert(Alert.AlertType t, String title, String c) { Alert a = new Alert(t); a.setTitle(title); a.setHeaderText(null); a.setContentText(c); a.showAndWait(); }
+
+        private Label createProfileLabel(String text){
+
+                Label label = new Label(text);
+
+                label.setStyle("""
+                                -fx-text-fill: #bac2de;
+                                -fx-font-size: 16px;
+                                -fx-font-weight: bold;
+                        """);      
+                return label; 
+        }
+
+        public static void main(String[] args) { launch(args);}
 }

@@ -1,5 +1,6 @@
 package com.app.entity.user;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -56,6 +57,9 @@ public class UserEntity {
 
     @Column(name = "update_at")
     private LocalDateTime update_At;
+
+    @Column(name = "total_spent")
+    private BigDecimal totalSpent = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

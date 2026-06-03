@@ -28,6 +28,8 @@ public class AuctionResponse {
     
     private String sellerId;
 
+    private LocalDateTime startTime;
+
     private LocalDateTime endTime;
 
     private long remainingSeconds;

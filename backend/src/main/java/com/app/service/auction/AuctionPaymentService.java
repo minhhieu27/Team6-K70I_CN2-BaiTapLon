@@ -1,5 +1,6 @@
 package com.app.service.auction;
 
+import com.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ import com.app.service.wallet.WalletService;
 @Service
 public class AuctionPaymentService {
     
+    private final UserRepository userRepository;
+
     @Autowired
     private WalletService walletService;
 
@@ -33,6 +36,10 @@ public class AuctionPaymentService {
 
     @Autowired
     private TransactionService transactionService;
+
+    AuctionPaymentService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     // ====== SETTLE ======
     public void settleAuction(AuctionEntity auction){
@@ -74,6 +81,11 @@ public class AuctionPaymentService {
 
         winner.getWallet().addSpent(finalAmount);
 
+        // Cập nhật totalSpent và VIP level cho winner
+        winner.setTotalSpent(winner.getTotalSpent() == null ? finalAmount.getValue() : winner.getTotalSpent().add(finalAmount.getValue()));
+
+        winner.upgradeVIP();
+
         transactionService.createTransaction(winner.getWallet(), finalAmount, TransactionType.PAYMENT);
 
         transactionService.createTransaction(seller.getWallet(), finalAmount, TransactionType.RECEIVE);
@@ -91,6 +103,8 @@ public class AuctionPaymentService {
         autoBidService.disableAuctionAutoBids(auction.getAuctionId());
 
         auction.setPaid(true);
+
+        userRepository.save(winner);
 
         auctionRepository.save(auction);
     }

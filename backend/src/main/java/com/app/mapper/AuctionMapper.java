@@ -29,6 +29,7 @@ public class AuctionMapper {
                 .currentPrice(auction.getCurrentPrice().getValue())
                 .status(auction.getStatus())
                 .sellerId(auction.getSeller().getUserId())
+                .startTime(auction.getStartTime())
                 .endTime(auction.getEndTime())
                 .remainingSeconds(DateTimeUtil.secondLeft(auction.getEndTime()))
                 .build();

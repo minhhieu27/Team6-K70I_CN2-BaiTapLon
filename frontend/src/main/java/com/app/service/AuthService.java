@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 
 public class AuthService {
 
-    private static final String BASE_URL = "https://team6-k70i-cn2-baitaplon.onrender.com";
+    private static final String BASE_URL = "http://localhost:8080";
 
     private final Gson gson = new Gson();
 
@@ -50,5 +50,19 @@ public class AuthService {
                 .build();
 
         return client.sendAsync(req, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public CompletableFuture<HttpResponse<String>> forgotPassword(String email) {
+
+        JsonObject body = new JsonObject();
+
+        body.addProperty("email", email);
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auth/forgot-password"))
+                                            .header("Content-Type", "application/json")
+                                            .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(body)))
+                                            .build();
+
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 }

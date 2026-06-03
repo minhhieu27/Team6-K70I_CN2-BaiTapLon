@@ -53,6 +53,12 @@ public class AutoBidService {
 
         autoBidRepository.save(autoBid);
 
+        // Trigger ngay nếu user chưa phải highest bidder
+        if (auction.getHighestBidder() == null || 
+            !auction.getHighestBidder().getUserId().equals(userId)) {
+            processAutoBid(auction);
+        }
+
         return new MessageResponse("Tạo auto bid thành công");
     }
 

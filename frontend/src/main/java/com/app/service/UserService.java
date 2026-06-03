@@ -15,7 +15,7 @@ public class UserService {
 
     private final Gson gson = new Gson();
 
-    private static final String BASE_URL = "https://team6-k70i-cn2-baitaplon.onrender.com";
+    private static final String BASE_URL = "http://localhost:8080";
 
     public CompletableFuture<HttpResponse<String>> getProfile(String token){
 

@@ -1,26 +1,40 @@
 package com.app.service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import okhttp3.*;
+
+import java.io.File;
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
 
 public class ImageService {
-    
-    private static final String BASE_URL = "https://team6-k70i-cn2-baitaplon.onrender.com";
 
-    private final HttpClient client = HttpClient.newHttpClient();
+    private static final String BASE_URL = "http://localhost:8080";
 
-    public CompletableFuture<HttpResponse<String>> uploadImage(Path path) throws IOException{
+    public String uploadImage(Path path) throws Exception {
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/images/upload"))
-                                            .header("Content-Type", "multipart/form-data")
-                                            .POST(HttpRequest.BodyPublishers.ofFile(path))
-                                            .build();
+        OkHttpClient client = new OkHttpClient();
 
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        File file = path.toFile();
+
+        RequestBody fileBody = RequestBody.create(file, MediaType.parse("image/png"));
+
+        MultipartBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                                                    .addFormDataPart("file", file.getName(), fileBody)
+                                                    .build();
+
+        Request request = new Request.Builder().url(BASE_URL + "/images/upload")
+                                    .post(requestBody)
+                                    .build();
+        Response response = client.newCall(request).execute();
+
+        String body = response.body().string();
+
+        System.out.println(body);
+
+        if (!response.isSuccessful()) {
+
+            throw new RuntimeException(body);
+        }
+
+        return body;
     }
 }

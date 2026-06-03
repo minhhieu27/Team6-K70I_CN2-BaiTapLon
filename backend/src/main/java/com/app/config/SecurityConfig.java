@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/auctions/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/").permitAll()
                         .anyRequest().authenticated()

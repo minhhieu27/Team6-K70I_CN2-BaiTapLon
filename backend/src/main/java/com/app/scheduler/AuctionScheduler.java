@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.common.enums.AuctionStatus;
 import com.app.common.tool.DateTimeUtil;
@@ -56,6 +57,7 @@ public class AuctionScheduler {
         }
     }
 
+    @Transactional
     @Scheduled (fixedRate = 5000)
     public void notifyEndingSoon(){
 

@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 
 public class AuctionService {
 
-    private static final String BASE_URL = "https://team6-k70i-cn2-baitaplon.onrender.com";
+    private static final String BASE_URL = "http://localhost:8080";
 
     private final HttpClient client = HttpClient.newHttpClient();
 
@@ -31,7 +31,7 @@ public class AuctionService {
 
     public CompletableFuture<HttpResponse<String>> getAllAuctions(int page, int size) {
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create( BASE_URL + "/auctions?page=" + page + "%size=" + size))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create( BASE_URL + "/auctions?page=" + page + "&size=" + size))
                                             .GET()
                                             .build();
 
@@ -40,7 +40,7 @@ public class AuctionService {
     
     public CompletableFuture<HttpResponse<String>> getAuctionById(String auctionId){
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auction/" + auctionId))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auctions/" + auctionId))
                                             .header("Content-Type", "application/json")
                                             .GET().build();
 
@@ -49,7 +49,7 @@ public class AuctionService {
 
     public CompletableFuture<HttpResponse<String>> getAuctionBySeller(String sellerId){
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auction/seller/" + sellerId))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auctions/seller/" + sellerId))
                                             .header("Content-Type", "application/json")
                                             .GET().build();
 
@@ -69,7 +69,7 @@ public class AuctionService {
 
     public CompletableFuture<HttpResponse<String>> followAuction(String token, String auctionId){
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auction/" + auctionId + "/follow"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auctions/" + auctionId + "/follow"))
                                             .header("Authorization", "Bearer " + token)
                                             .POST(HttpRequest.BodyPublishers.noBody())
                                             .build();
@@ -79,7 +79,7 @@ public class AuctionService {
 
     public CompletableFuture<HttpResponse<String>> unfollowAuction(String token, String auctionId){
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auction/" + auctionId + "/unfollow"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/auctions/" + auctionId + "/unfollow"))
                                             .header("Authorization", "Bearer " + token)
                                             .POST(HttpRequest.BodyPublishers.noBody())
                                             .build();
