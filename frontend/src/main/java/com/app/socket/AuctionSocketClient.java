@@ -24,7 +24,7 @@ public class AuctionSocketClient {
         this.onMessageCallback = onMessage;
 
         try{
-            URI uri = new URI("ws://localhost:8080/ws/auction?token=" + token);
+            URI uri = new URI("wss://team6-k70i-cn2-baitaplon.onrender.com/ws/auction" + token);
 
             client = new WebSocketClient(uri) {
                 

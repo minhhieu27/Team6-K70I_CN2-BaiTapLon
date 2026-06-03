@@ -1,6 +1,16 @@
+com\app\service\UserService.class
 com\app\SocketClient.class
-com\app\MainApp$4.class
+com\app\service\WalletService.class
+com\app\service\AuctionService.class
+com\app\service\ImageService.class
+com\app\service\NotificationService.class
+com\app\model\Request.class
 com\app\MainApp$3.class
 com\app\MainApp$1.class
 com\app\MainApp$2.class
+com\app\socket\SocketSession.class
+com\app\model\Response.class
 com\app\MainApp.class
+com\app\service\AuthService.class
+com\app\socket\AuctionSocketClient$1.class
+com\app\socket\AuctionSocketClient.class

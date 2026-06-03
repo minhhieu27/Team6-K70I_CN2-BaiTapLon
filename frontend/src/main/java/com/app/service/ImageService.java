@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 public class ImageService {
 
-    private static final String BASE_URL = "http://localhost:8080";
+    private static final String BASE_URL = "https://team6-k70i-cn2-baitaplon.onrender.com";
 
     public String uploadImage(Path path) throws Exception {
 
