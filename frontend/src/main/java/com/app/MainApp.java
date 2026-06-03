@@ -91,11 +91,23 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) {
+
+        System.out.println("START");
+
         this.primaryStage = stage;
+
+        System.out.println("BEFORE LOGIN");
+
         showLoginScene();
-        stage.setTitle("Auction Pro - Đỉnh cao Đấu giá");
+
+        System.out.println("AFTER LOGIN");
+
+        stage.setTitle("Auction Pro");
+
         stage.show();
-    }
+
+        System.out.println("SHOW");
+    }  
 
     private void setMacBookBackground(Pane root) {
         root.setStyle("-fx-background-image: url('" + BG_DASHBOARD + "'); -fx-background-size: cover; -fx-background-position: center center;");
@@ -2340,7 +2352,7 @@ private VBox createStatBox(String label, String value) {
 
 
                         try {
-                                URI wsUri = new URI("wss://team6-k70i-cn2-baitaplon.onrender.com/ws/auction?token=" + userToken);
+                                URI wsUri = new URI("ws://localhost:8080/auction?token=" + userToken);
 
                                 liveWsClient = new WebSocketClient(wsUri) {
 
@@ -3129,7 +3141,7 @@ private VBox createStatBox(String label, String value) {
         }
 
         // --- CÁC HÀM TIỆN ÍCH UI ---
-        private void fetchWalletBalance(Label l) { HttpRequest req = HttpRequest.newBuilder().uri(URI.create("https://team6-k70i-cn2-baitaplon.onrender.com/auction")).header("Authorization", "Bearer " + userToken).GET().build(); httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(res -> Platform.runLater(() -> { if (res.statusCode() == 200) l.setText(String.format("%,.0f VNĐ", new BigDecimal((gson.fromJson(res.body(), JsonObject.class).get("balance").getAsString())))); })); }
+        private void fetchWalletBalance(Label l) { HttpRequest req = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080")).header("Authorization", "Bearer " + userToken).GET().build(); httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(res -> Platform.runLater(() -> { if (res.statusCode() == 200) l.setText(String.format("%,.0f VNĐ", new BigDecimal((gson.fromJson(res.body(), JsonObject.class).get("balance").getAsString())))); })); }
         private void handleRememberMe(String u, String p, boolean isR) { try(PrintWriter w = new PrintWriter(new FileWriter(REMEMBER_FILE))) { if(isR){w.println(u);w.println(p);} else w.print(""); } catch(Exception ignored){} }
         private void loadRememberedUser(TextField u, PasswordField p, CheckBox c) { try(BufferedReader r = new BufferedReader(new FileReader(REMEMBER_FILE))) { String a=r.readLine(), b=r.readLine(); if(a!=null&&b!=null){u.setText(a);p.setText(b);c.setSelected(true);} } catch(Exception ignored){} }
         private TextField createField(String p) { TextField f = new TextField(); f.setPromptText(p); styleInputField(f); return f; }

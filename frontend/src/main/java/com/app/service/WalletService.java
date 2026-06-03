@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 
 public class WalletService {
 
-    private static final String BASE_URL = "https://team6-k70i-cn2-baitaplon.onrender.com";
+    private static final String BASE_URL = "http://localhost:8080";
 
     private final HttpClient client = HttpClient.newHttpClient();
 
