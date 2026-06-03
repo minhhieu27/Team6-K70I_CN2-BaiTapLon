@@ -3,7 +3,10 @@ package com.app.service.bid;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.app.common.money.Money;
 import com.app.entity.auction.AuctionEntity;
@@ -26,7 +29,9 @@ import com.app.dto.response.message.MessageResponse;
 @RequiredArgsConstructor
 public class AutoBidService {
     
-    private final BidCoreService bidCoreService;;
+    @Autowired
+    @Lazy
+    private BidCoreService bidCoreService;
 
     private final AutoBidRepository autoBidRepository;
 
@@ -88,6 +93,7 @@ public class AutoBidService {
     }
 
     // ====== PROCESS AUTO BID ======
+    @Transactional
     public void processAutoBid(AuctionEntity auction){
 
         List<AutoBidEntity> autoBids = autoBidRepository.findByAuction_AuctionIdAndActiveTrue(auction.getAuctionId());
@@ -108,7 +114,11 @@ public class AutoBidService {
             }
 
             // Auto place bid
-            bidCoreService.excecuteBid(auction.getAuctionId(), nextBid, autoBid.getUser().getUserId());
+            AutoBidEntity freshAutoBid = autoBidRepository.findById(autoBid.getAutoBid()).orElse(null);
+
+                if (freshAutoBid == null || freshAutoBid.getUser() == null) continue;
+
+                bidCoreService.excecuteBid(auction.getAuctionId(), nextBid, freshAutoBid.getUser().getUserId());
 
             // Chỉ cho 1 auto bid chạy mỗi 1 lần process
             break;

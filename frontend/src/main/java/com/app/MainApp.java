@@ -1324,12 +1324,16 @@ private VBox createStatBox(String label, String value) {
 
                                                         System.out.println(response.body());
 
+                                                        if (response.body() == null || response.body().isEmpty()){
+                                                                System.err.println("response body empty");
+                                                        }
+
                                                         JsonObject json =
                                                                 gson.fromJson(
                                                                         response.body(),
                                                                         JsonObject.class
                                                                 );
-
+                                                        
                                                         JsonArray content =
                                                                 json.getAsJsonArray("content");
 
@@ -2352,7 +2356,7 @@ private VBox createStatBox(String label, String value) {
 
 
                         try {
-                                URI wsUri = new URI("ws://localhost:8080/auction?token=" + userToken);
+                                URI wsUri = new URI("ws://localhost:8080/ws/auction?token=" + userToken);
 
                                 liveWsClient = new WebSocketClient(wsUri) {
 
@@ -2383,7 +2387,7 @@ private VBox createStatBox(String label, String value) {
                                                                                         BigDecimal amount = bidObj.get("amount").getAsBigDecimal();
 
                                                                                         lblCurrentPrice.setText(
-                                                                                                String.format("%,,0f VNĐ", amount)
+                                                                                                String.format("%,.0f VNĐ", amount)
                                                                                         );
                                                                                         txtLog.appendText(">>> [HOT] Có người đặt giá: " + lblCurrentPrice.getText() + "!\n");
                                                                                 }
@@ -2485,9 +2489,7 @@ private VBox createStatBox(String label, String value) {
 
                 if (liveWsClient != null && liveWsClient.isOpen()) {
 
-                    String request = String.format("{\"type\":\"PLACE_BID\",\"token\":\"%s\",\"data\":{\"auctionId\":\"%s\",\"price\":%s}}", userToken, auctionId, bidAmount.toPlainString());
-
-                    liveWsClient.send(request);
+                    socketClient.placeBid(auctionId, currentUserId, bidAmount);
 
                     txtLog.appendText(">>> Bạn vừa đặt: " + String.format("%,.0f VNĐ", bidAmount.doubleValue()) + "\n");
 

@@ -1,5 +1,7 @@
 package com.app.service.bid;
 
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.common.enums.AuctionStatus;
@@ -42,6 +44,10 @@ public class BidCoreService {
     private final AuctionNotifyService auctionNotifyService;
 
     private final TransactionService transactionService;
+
+    @Autowired
+    @Lazy
+    private AutoBidService autoBidService;
 
     @Transactional
     public BidEntity excecuteBid(String auctionId, Money amount, String userId){
@@ -106,6 +112,8 @@ public class BidCoreService {
         auctionRepository.save(auction);
 
         userRepository.save(bidder);
+
+        autoBidService.processAutoBid(auction);
 
         return bid;
     }
