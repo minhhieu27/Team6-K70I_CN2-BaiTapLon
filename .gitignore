@@ -11,6 +11,15 @@ backend/target/
 *.env
 .history
 
+.history/
+.idea/
+.vscode/
+backend/target/
+frontend/target/
+frontend/installer/
+.env
+users.dat
+remember_me.txt
 # ===== MAVEN WRAPPER =====
 .mvn/
 # (KHÔNG ignore maven-wrapper.jar)
